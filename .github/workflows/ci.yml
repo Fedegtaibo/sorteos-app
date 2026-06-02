@@ -1,0 +1,43 @@
+name: CI
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: sorteos
+          POSTGRES_PASSWORD: sorteos_test
+          POSTGRES_DB: sorteos_test
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'pnpm' }
+      - run: pnpm install
+      - run: pnpm test
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://sorteos:sorteos_test@localhost:5432/sorteos_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test_secret_muy_largo_para_ci_pipeline_32chars__
+          JWT_REFRESH_SECRET: test_refresh_secret_muy_largo_para_ci_32chars_
+          MP_ACCESS_TOKEN: TEST-token
+          MP_PUBLIC_KEY: TEST-key
+          MP_WEBHOOK_SECRET: test_webhook
+          ENCRYPTION_KEY: 0000000000000000000000000000000000000000000000000000000000000000
+          BASE_URL: http://localhost:3001
+          FRONTEND_URL: http://localhost:3000

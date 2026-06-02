@@ -1,0 +1,27 @@
+{
+  "name": "sorteos-platform",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "db:migrate": "cd apps/api && npx knex migrate:latest --knexfile src/database/knexfile.ts",
+    "db:rollback": "cd apps/api && npx knex migrate:rollback --knexfile src/database/knexfile.ts",
+    "db:seed": "cd apps/api && npx knex seed:run --knexfile src/database/knexfile.ts",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0",
+    "prettier": "^3.2.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0"
+  },
+  "packageManager": "pnpm@9.1.0",
+  "engines": { "node": ">=20.0.0", "pnpm": ">=9.0.0" }
+}

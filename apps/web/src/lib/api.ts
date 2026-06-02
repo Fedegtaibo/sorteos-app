@@ -1,0 +1,67 @@
+import axios from 'axios';
+import { getSession } from 'next-auth/react';
+
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1',
+  timeout: 10000,
+});
+
+api.interceptors.request.use(async (config) => {
+  const session = await getSession() as any;
+  if (session?.accessToken) {
+    config.headers.Authorization = `Bearer ${session.accessToken}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (res) => res.data,
+  (err) => {
+    const msg = err.response?.data?.error?.message || 'Error de red. Intentá de nuevo.';
+    return Promise.reject(new Error(msg));
+  }
+);
+
+export const sorteosApi = {
+  listar: (params?: any) => api.get('/sorteos', { params }),
+  obtener: (id: string) => api.get(`/sorteos/${id}`),
+  obtenerNumeros: (id: string) => api.get(`/sorteos/${id}/numeros`),
+  verificar: (id: string) => api.get(`/sorteos/${id}/verificar`),
+  misSorteos: () => api.get('/comercio/sorteos'),
+  crear: (data: any) => api.post('/comercio/sorteos', data),
+  activar: (id: string) => api.post(`/comercio/sorteos/${id}/activar`),
+  sortear: (id: string, seedExterno: string) =>
+    api.post(`/comercio/sorteos/${id}/sortear`, { seedExterno }),
+};
+
+export const pagosApi = {
+  reservar: (sorteoId: string, numeroId: string) =>
+    api.post(`/sorteos/${sorteoId}/numeros/${numeroId}/reservar`),
+  liberarReserva: (sorteoId: string, numeroId: string) =>
+    api.delete(`/sorteos/${sorteoId}/numeros/${numeroId}/reservar`),
+  checkout: (sorteoId: string, numeroId: string) =>
+    api.post(`/sorteos/${sorteoId}/numeros/${numeroId}/checkout`),
+  misParticipaciones: () => api.get('/me/participaciones'),
+};
+
+export const authApi = {
+  register: (data: any) => api.post('/auth/register', data),
+  me: () => api.post('/auth/me'),
+};
+
+export const comercioApi = {
+  perfil: () => api.get('/comercio/perfil'),
+  actualizarPerfil: (data: any) => api.patch('/comercio/perfil', data),
+  estadisticas: () => api.get('/comercio/estadisticas'),
+};
+
+export const adminApi = {
+  estadisticas: () => api.get('/admin/estadisticas'),
+  comercios: (params?: any) => api.get('/admin/comercios', { params }),
+  aprobarComercio: (id: string) => api.post(`/admin/comercios/${id}/aprobar`),
+  rechazarComercio: (id: string, motivo: string) =>
+    api.post(`/admin/comercios/${id}/rechazar`, { motivo }),
+  suspenderComercio: (id: string) => api.post(`/admin/comercios/${id}/suspender`),
+};
+
+export default api;
