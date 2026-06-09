@@ -1,4 +1,5 @@
 'use client';
+
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
@@ -15,11 +16,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (status === 'unauthenticated') router.push('/login');
   }, [status, router]);
 
-  if (status === 'loading') return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-4xl animate-pulse">🎯</div>
-    </div>
-  );
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-5xl animate-pulse">🎯</div>
+      </div>
+    );
+  }
 
   const navLinks = {
     participante: [
@@ -43,48 +46,68 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const links = navLinks[role as keyof typeof navLinks] || navLinks.participante;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <aside className="w-56 bg-white border-r border-gray-200 flex flex-col fixed h-full">
-        <div className="p-5 border-b border-gray-100">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl">🎯</span>
-            <span className="font-bold text-sm">Sorteos</span>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex">
+      <aside className="w-72 bg-zinc-950 border-r border-zinc-800 flex flex-col fixed h-full">
+        <div className="p-6 border-b border-zinc-800">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="w-11 h-11 rounded-2xl bg-amber-400 text-black grid place-items-center text-xl">
+              🎯
+            </span>
+            <div>
+              <p className="font-black text-lg leading-tight">Sortealo</p>
+              <p className="text-xs text-zinc-500">Sorteos verificados</p>
+            </div>
           </Link>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {links.map(l => (
-            <Link key={l.href} href={l.href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                pathname === l.href
-                  ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-              )}>
-              <span className="text-base">{l.icon}</span>
-              {l.label}
-            </Link>
-          ))}
+
+        <nav className="flex-1 p-4 space-y-2">
+          {links.map((l) => {
+            const active = pathname === l.href;
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={cn(
+                  'flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all border',
+                  active
+                    ? 'bg-amber-400 text-black border-amber-400 shadow-lg shadow-amber-400/10'
+                    : 'bg-zinc-900/50 text-zinc-400 border-zinc-800 hover:bg-zinc-900 hover:text-zinc-100'
+                )}
+              >
+                <span className="text-base">{l.icon}</span>
+                {l.label}
+              </Link>
+            );
+          })}
         </nav>
-        <div className="p-3 border-t border-gray-100">
-          <div className="px-3 py-2 text-xs text-gray-400 mb-1 truncate">{session?.user?.email}</div>
-          <div className="px-3 py-1 mb-2">
-            <span className={cn(
-              'text-xs font-semibold px-2 py-0.5 rounded-full',
-              role === 'admin' ? 'bg-red-100 text-red-600' :
-              role === 'comercio' ? 'bg-orange-100 text-orange-600' :
-              'bg-blue-100 text-blue-600'
-            )}>{role}</span>
+
+        <div className="p-4 border-t border-zinc-800">
+          <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-4 mb-3">
+            <p className="text-xs text-zinc-500 truncate mb-2">{session?.user?.email}</p>
+            <span
+              className={cn(
+                'text-xs font-black px-3 py-1 rounded-full uppercase',
+                role === 'admin'
+                  ? 'bg-red-950 text-red-300'
+                  : role === 'comercio'
+                    ? 'bg-amber-950 text-amber-300'
+                    : 'bg-sky-950 text-sky-300'
+              )}
+            >
+              {role}
+            </span>
           </div>
-          <button onClick={() => signOut({ callbackUrl: '/' })}
-            className="w-full text-left px-3 py-2 text-sm text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+
+          <button
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="w-full px-4 py-3 rounded-2xl text-sm font-bold text-zinc-400 bg-zinc-900 border border-zinc-800 hover:text-red-300 hover:border-red-900 transition-all"
+          >
             Cerrar sesión
           </button>
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 ml-56 p-8 max-w-5xl">
+      <main className="flex-1 ml-72">
         {children}
       </main>
     </div>
