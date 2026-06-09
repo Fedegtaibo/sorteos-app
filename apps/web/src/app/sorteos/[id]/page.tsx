@@ -1,12 +1,13 @@
 'use client';
 
 import '../../redesign/styles.css';
+import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { ArrowLeft } from 'lucide-react';
 import { useSorteo, useNumerosSorteo } from '@/hooks/use-sorteo';
-import { useReserva } from '@/hooks/use-reserva';
+import { pagosApi } from '@/lib/api';
 import { formatMonto, formatFecha } from '@/lib/utils';
 
 function Badge({ children, tone = 'green' }: any) {
@@ -35,21 +36,20 @@ export default function SorteoPage() {
   const { data: sorteoData, isLoading } = useSorteo(id);
   const { data: numerosData, refetch } = useNumerosSorteo(id);
 
-  const {
-    reservando,
-    reservaActiva,
-    minutosRestantes,
-    segsRestantes,
-    reservar,
-    liberar,
-    iniciarCheckout,
-  } = useReserva(id);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [procesando, setProcesando] = useState(false);
 
   const sorteo = (sorteoData as any)?.data?.data || (sorteoData as any)?.data;
+
   const numeros: any[] =
     (numerosData as any)?.data?.data ||
     (numerosData as any)?.data ||
     [];
+
+  const seleccionados = useMemo(
+    () => numeros.filter((n) => selectedIds.includes(n.id)),
+    [numeros, selectedIds]
+  );
 
   if (isLoading) {
     return (
@@ -78,10 +78,9 @@ export default function SorteoPage() {
   const reservados = numeros.filter((n) => n.estado === 'reservado').length;
   const libres = numeros.filter((n) => n.estado === 'libre').length;
   const pct = Math.round((vendidos / Number(sorteo.cant_numeros)) * 100);
+  const totalSeleccion = seleccionados.length * Number(sorteo.valor_numero);
 
-  const numeroReservado = numeros.find((n) => n.id === reservaActiva?.numeroId);
-
-  const handleNumeroClick = async (numero: any) => {
+  const toggleNumero = (numero: any) => {
     if (numero.estado !== 'libre') return;
 
     if (!session) {
@@ -89,18 +88,39 @@ export default function SorteoPage() {
       return;
     }
 
-    if (reservaActiva) {
-      toast.error('Ya tenés un número reservado. Completá el pago o liberalo primero.');
+    setSelectedIds((prev) =>
+      prev.includes(numero.id)
+        ? prev.filter((id) => id !== numero.id)
+        : [...prev, numero.id]
+    );
+  };
+
+  const reservarSeleccion = async () => {
+    if (!session) {
+      router.push('/login');
       return;
     }
 
-    const ok = await reservar(numero.id);
-    if (ok) refetch();
-  };
+    if (selectedIds.length === 0) {
+      toast.error('Elegí al menos un número');
+      return;
+    }
 
-  const handleComprar = async () => {
-    const url = await iniciarCheckout();
-    if (url) window.location.href = url;
+    setProcesando(true);
+
+    try {
+      for (const numeroId of selectedIds) {
+        await pagosApi.reservar(id, numeroId);
+      }
+
+      toast.success(`${selectedIds.length} número(s) reservado(s) correctamente`);
+      setSelectedIds([]);
+      await refetch();
+    } catch (err: any) {
+      toast.error(err.message || 'No se pudieron reservar los números');
+    } finally {
+      setProcesando(false);
+    }
   };
 
   return (
@@ -151,9 +171,7 @@ export default function SorteoPage() {
             <div className="sold-box">
               <div>
                 <span>Números vendidos</span>
-                <b>
-                  {vendidos}/{sorteo.cant_numeros}
-                </b>
+                <b>{vendidos}/{sorteo.cant_numeros}</b>
               </div>
 
               <Progress value={pct} />
@@ -173,12 +191,8 @@ export default function SorteoPage() {
           </aside>
 
           <section className="chooser">
-            <h1>
-              Elegí tu
-              <br />
-              número
-            </h1>
-            <p>Tocá un número libre para reservarlo</p>
+            <h1>Elegí tus<br />números</h1>
+            <p>Podés seleccionar varios números libres antes de reservar.</p>
 
             <div className="legend">
               <span>□ Libre</span>
@@ -187,28 +201,37 @@ export default function SorteoPage() {
               <span className="blue">□ Reservado</span>
             </div>
 
-            {reservaActiva && (
+            {selectedIds.length > 0 && (
               <section className="card checkout" style={{ marginBottom: 32 }}>
-                <h2>Número reservado para vos</h2>
+                <h2>Resumen de selección</h2>
 
-                <div className="buy-row">
-                  <b>{numeroReservado?.numero_visible || '—'}</b>
-                  <div>
-                    Número reservado
-                    <small>
-                      Expira en {minutosRestantes}:{String(segsRestantes).padStart(2, '0')}
-                    </small>
+                {seleccionados.map((n) => (
+                  <div className="buy-row" key={n.id}>
+                    <b>{n.numero_visible}</b>
+                    <div>
+                      Número {n.numero_visible}
+                      <small>{sorteo.nombre}</small>
+                    </div>
+                    <strong>{formatMonto(sorteo.valor_numero)}</strong>
                   </div>
-                  <strong>{formatMonto(sorteo.valor_numero)}</strong>
+                ))}
+
+                <div className="total">
+                  <b>Total</b>
+                  <strong>{formatMonto(totalSeleccion)}</strong>
                 </div>
 
                 <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
-                  <button className="back" onClick={liberar}>
-                    Liberar
+                  <button className="back" onClick={() => setSelectedIds([])}>
+                    Limpiar
                   </button>
 
-                  <button className="pay" onClick={handleComprar}>
-                    Pagar ahora →
+                  <button
+                    className="pay"
+                    onClick={reservarSeleccion}
+                    disabled={procesando}
+                  >
+                    {procesando ? 'Reservando...' : 'Reservar selección →'}
                   </button>
                 </div>
               </section>
@@ -216,7 +239,7 @@ export default function SorteoPage() {
 
             <div className="number-grid">
               {numeros.map((n: any) => {
-                const isSelected = reservaActiva?.numeroId === n.id;
+                const isSelected = selectedIds.includes(n.id);
 
                 let cls = 'free';
                 if (n.estado === 'vendido') cls = 'sold';
@@ -226,8 +249,8 @@ export default function SorteoPage() {
                 return (
                   <button
                     key={n.id}
-                    onClick={() => handleNumeroClick(n)}
-                    disabled={reservando || (n.estado !== 'libre' && !isSelected)}
+                    onClick={() => toggleNumero(n)}
+                    disabled={procesando || n.estado !== 'libre'}
                     className={`num ${cls}`}
                   >
                     {n.numero_visible}
