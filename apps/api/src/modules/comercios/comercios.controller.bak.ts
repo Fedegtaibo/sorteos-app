@@ -31,25 +31,7 @@ export class ComerciosController {
   estadisticas(@CurrentUser('id') userId: string) {
     return this.comerciosService.obtenerEstadisticas(userId);
   }
-  @Get('comercio/entregas')
-  @UseGuards(RolesGuard)
-  @Roles('comercio')
-  @ApiOperation({ summary: 'Listar entregas de premios del comercio' })
-  listarEntregas(@CurrentUser('id') userId: string) {
-    return this.comerciosService.listarEntregas(userId);
-  }
 
-  @Patch('comercio/entregas/:id')
-  @UseGuards(RolesGuard)
-  @Roles('comercio')
-  @ApiOperation({ summary: 'Actualizar estado de entrega de premio' })
-  actualizarEntrega(
-    @CurrentUser('id') userId: string,
-    @Param('id') id: string,
-    @Body() dto: any,
-  ) {
-    return this.comerciosService.actualizarEntrega(userId, id, dto);
-  }
   // ─── ADMIN ────────────────────────────────────────────────
 
   @Get('admin/comercios')
@@ -94,14 +76,13 @@ export class ComerciosController {
   actualizarComision(@Param('id') id: string, @Body('comisionPct') pct: number) {
     return this.comerciosService.actualizarComision(id, pct);
   }
-  @Patch('admin/comercios/:id/mercadopago-token')
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @ApiOperation({ summary: '[Admin] Actualizar token Mercado Pago del comercio' })
-  actualizarMercadoPagoToken(
-    @Param('id') id: string,
-    @Body('accessToken') accessToken: string,
-  ) {
-    return this.comerciosService.actualizarMercadoPagoToken(id, accessToken);
-  }
-}
+@Patch('admin/comercios/:id/mercadopago-token')
+@UseGuards(RolesGuard)
+@Roles('admin')
+@ApiOperation({ summary: '[Admin] Actualizar token Mercado Pago del comercio' })
+actualizarMercadoPagoToken(
+  @Param('id') id: string,
+  @Body('accessToken') accessToken: string,
+) {
+  return this.comerciosService.actualizarMercadoPagoToken(id, accessToken);
+}}

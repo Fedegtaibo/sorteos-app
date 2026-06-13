@@ -54,9 +54,10 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
         const Redis = (await import('ioredis')).default;
-        return new Redis(config.get('REDIS_URL'));
+        return new Redis(config.get<string>('REDIS_URL') || 'redis://localhost:6379');
       },
     },
   ],
 })
 export class AppModule {}
+

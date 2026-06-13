@@ -45,16 +45,15 @@ export const pagosApi = {
     api.post(`/sorteos/${sorteoId}/checkout`, { numeroIds }),
   misParticipaciones: () => api.get('/me/participaciones'),
 };
-
-export const authApi = {
-  register: (data: any) => api.post('/auth/register', data),
-  me: () => api.post('/auth/me'),
-};
-
 export const comercioApi = {
   perfil: () => api.get('/comercio/perfil'),
   actualizarPerfil: (data: any) => api.patch('/comercio/perfil', data),
   estadisticas: () => api.get('/comercio/estadisticas'),
+
+  entregas: () => api.get('/comercio/entregas'),
+
+  actualizarEntrega: (id: string, data: any) =>
+    api.patch(`/comercio/entregas/${id}`, data),
 };
 
 export const adminApi = {
@@ -67,3 +66,4 @@ export const adminApi = {
 };
 
 export default api;
+

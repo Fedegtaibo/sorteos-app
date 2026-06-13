@@ -169,102 +169,14 @@ export class ComerciosService {
     await this.db('comercios').where({ id: comercioId }).update({ comision_pct: comisionPct });
     return { mensaje: `Comision actualizada a ${comisionPct}%` };
   }
-
-  async actualizarMercadoPagoToken(comercioId: string, accessToken: string) {
-    if (!accessToken || !accessToken.startsWith('APP_USR-')) {
-      throw new BadRequestException('Access Token de Mercado Pago inválido');
-    }
-
-    await this.db('comercios')
-      .where({ id: comercioId })
-      .update({ mp_access_token_enc: accessToken });
-
-    return { mensaje: 'Token de Mercado Pago actualizado' };
+async actualizarMercadoPagoToken(comercioId: string, accessToken: string) {
+  if (!accessToken || !accessToken.startsWith('APP_USR-')) {
+    throw new BadRequestException('Access Token de Mercado Pago inválido');
   }
 
-  async listarEntregas(userId: string) {
-    const comercio = await this.db('comercios')
-      .where({ user_id: userId })
-      .first('id');
+  await this.db('comercios')
+    .where({ id: comercioId })
+    .update({ mp_access_token_enc: accessToken });
 
-    if (!comercio) {
-      throw new NotFoundException('Comercio no encontrado');
-    }
-
-    const entregas = await this.db('entregas_premios')
-      .join('sorteos', 'entregas_premios.sorteo_id', 'sorteos.id')
-      .join('participaciones', 'entregas_premios.participacion_id', 'participaciones.id')
-      .join('numeros', 'participaciones.numero_id', 'numeros.id')
-      .join('users', 'entregas_premios.ganador_id', 'users.id')
-      .where('entregas_premios.comercio_id', comercio.id)
-      .select(
-        'entregas_premios.*',
-        'sorteos.nombre as sorteo_nombre',
-        'numeros.numero_visible',
-        'users.email as ganador_email',
-      )
-      .orderBy('entregas_premios.created_at', 'desc');
-
-    return { data: entregas };
-  }
-
-  async actualizarEntrega(userId: string, entregaId: string, dto: any) {
-    const comercio = await this.db('comercios')
-      .where({ user_id: userId })
-      .first('id');
-
-    if (!comercio) {
-      throw new NotFoundException('Comercio no encontrado');
-    }
-
-    const entrega = await this.db('entregas_premios')
-      .where({
-        id: entregaId,
-        comercio_id: comercio.id,
-      })
-      .first();
-
-    if (!entrega) {
-      throw new NotFoundException('Entrega no encontrada');
-    }
-
-    const estadosPermitidos = ['preparando', 'enviado', 'entregado'];
-
-    if (!estadosPermitidos.includes(dto.estado)) {
-      throw new BadRequestException('Estado de entrega inválido');
-    }
-
-    const update: any = {
-      estado: dto.estado,
-      updated_at: new Date(),
-    };
-
-    if (dto.estado === 'preparando') {
-      update.preparado_at = new Date();
-      update.notas_comercio = dto.notasComercio || entrega.notas_comercio;
-    }
-
-    if (dto.estado === 'enviado') {
-      update.enviado_at = new Date();
-      update.empresa_envio = dto.empresaEnvio || entrega.empresa_envio;
-      update.codigo_seguimiento = dto.codigoSeguimiento || entrega.codigo_seguimiento;
-      update.notas_comercio = dto.notasComercio || entrega.notas_comercio;
-    }
-
-    if (dto.estado === 'entregado') {
-      update.entregado_at = new Date();
-      update.evidencias_urls = dto.evidenciasUrls || entrega.evidencias_urls;
-      update.notas_comercio = dto.notasComercio || entrega.notas_comercio;
-    }
-
-    const [updated] = await this.db('entregas_premios')
-      .where({ id: entregaId })
-      .update(update)
-      .returning('*');
-
-    return {
-      mensaje: 'Entrega actualizada',
-      entrega: updated,
-    };
-  }
-}
+  return { mensaje: 'Token de Mercado Pago actualizado' };
+}}

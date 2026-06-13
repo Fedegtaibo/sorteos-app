@@ -201,19 +201,34 @@ export class SorteosService {
       timestamp: new Date().toISOString(),
     })).digest('hex');
 
-    await this.db.transaction(async (trx) => {
-      await trx('sorteos').where({ id: sorteoId }).update({
-        estado: 'finalizado',
-        ganador_participacion_id: participacion.id,
-        hash_resultado: hashResultado,
-        seed_externo: dto.seedExterno,
-        recaudacion_total: this.db.raw(
-          '(SELECT COUNT(*) FROM numeros WHERE sorteo_id = ? AND estado = ?) * ?',
-          [sorteoId, 'vendido', sorteo.valor_numero]
-        ),
-        finalizado_at: new Date(),
-      });
-    });
+   await this.db.transaction(async (trx) => {
+  await trx('sorteos').where({ id: sorteoId }).update({
+    estado: 'finalizado',
+    ganador_participacion_id: participacion.id,
+    hash_resultado: hashResultado,
+    seed_externo: dto.seedExterno,
+    recaudacion_total: this.db.raw(
+      '(SELECT COUNT(*) FROM numeros WHERE sorteo_id = ? AND estado = ?) * ?',
+      [sorteoId, 'vendido', sorteo.valor_numero]
+    ),
+    finalizado_at: new Date(),
+  });
+
+  await trx('entregas_premios')
+    .insert({
+      sorteo_id: sorteoId,
+      participacion_id: participacion.id,
+      ganador_id: participacion.usuario_id,
+      comercio_id: sorteo.comercio_id,
+      estado: 'pendiente',
+    })
+    .onConflict('sorteo_id')
+    .ignore();
+}); 
+
+
+
+
 
     return {
       numeroGanador: chanceGanadora.numero_visible,
