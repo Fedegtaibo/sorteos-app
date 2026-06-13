@@ -62,7 +62,19 @@ export class PagosController {
   ) {
     return this.pagosService.crearCheckout(sorteoId, numeroId, userId);
   }
-
+    @Post('sorteos/:sorteoId/checkout')
+  @UseGuards(RolesGuard)
+  @Roles('participante')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Crear preferencia de pago para varios numeros' })
+  checkoutMultiple(
+    @Param('sorteoId') sorteoId: string,
+    @Body('numeroIds') numeroIds: string[],
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.pagosService.crearCheckoutMultiple(sorteoId, numeroIds, userId);
+  }
+   
   @Public()
   @Post('webhooks/mercadopago')
   @HttpCode(HttpStatus.OK)
@@ -74,7 +86,7 @@ export class PagosController {
   ) {
     // Validar firma del webhook para evitar requests falsos
     if (signature) {
-      const secret = this.config.get<string>('MP_WEBHOOK_SECRET');
+      const secret = this.config.get<string>('MP_WEBHOOK_SECRET') || 'dev-secret';
       const rawBody = req.rawBody?.toString() || JSON.stringify(body);
       const expected = createHmac('sha256', secret)
         .update(rawBody)
@@ -99,3 +111,4 @@ export class PagosController {
     return this.pagosService.obtenerParticipaciones(userId);
   }
 }
+

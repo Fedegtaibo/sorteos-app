@@ -106,18 +106,27 @@ export default function SorteoPage() {
       return;
     }
 
+    const idsParaPagar = [...selectedIds];
+
     setProcesando(true);
 
     try {
-      for (const numeroId of selectedIds) {
+      for (const numeroId of idsParaPagar) {
         await pagosApi.reservar(id, numeroId);
       }
 
-      toast.success(`${selectedIds.length} número(s) reservado(s) correctamente`);
-      setSelectedIds([]);
-      await refetch();
+      const checkoutRes: any = await pagosApi.checkoutMultiple(id, idsParaPagar);
+      const checkoutUrl = checkoutRes?.data?.checkoutUrl || checkoutRes?.checkoutUrl;
+
+      if (!checkoutUrl) {
+        throw new Error('No se recibió el link de pago');
+      }
+
+      toast.success('Reserva creada. Redirigiendo al pago...');
+      window.location.href = checkoutUrl;
     } catch (err: any) {
-      toast.error(err.message || 'No se pudieron reservar los números');
+      toast.error(err.message || 'No se pudo iniciar el pago');
+      await refetch();
     } finally {
       setProcesando(false);
     }
@@ -192,7 +201,7 @@ export default function SorteoPage() {
 
           <section className="chooser">
             <h1>Elegí tus<br />números</h1>
-            <p>Podés seleccionar varios números libres antes de reservar.</p>
+            <p>Podés seleccionar varios números libres antes de pagar.</p>
 
             <div className="legend">
               <span>□ Libre</span>
@@ -203,7 +212,7 @@ export default function SorteoPage() {
 
             {selectedIds.length > 0 && (
               <section className="card checkout" style={{ marginBottom: 32 }}>
-                <h2>Resumen de selección</h2>
+                <h2>Resumen de compra</h2>
 
                 {seleccionados.map((n) => (
                   <div className="buy-row" key={n.id}>
@@ -231,7 +240,7 @@ export default function SorteoPage() {
                     onClick={reservarSeleccion}
                     disabled={procesando}
                   >
-                    {procesando ? 'Reservando...' : 'Reservar selección →'}
+                    {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
                   </button>
                 </div>
               </section>

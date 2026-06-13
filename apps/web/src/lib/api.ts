@@ -41,6 +41,8 @@ export const pagosApi = {
     api.delete(`/sorteos/${sorteoId}/numeros/${numeroId}/reservar`),
   checkout: (sorteoId: string, numeroId: string) =>
     api.post(`/sorteos/${sorteoId}/numeros/${numeroId}/checkout`),
+  checkoutMultiple: (sorteoId: string, numeroIds: string[]) =>
+    api.post(`/sorteos/${sorteoId}/checkout`, { numeroIds }),
   misParticipaciones: () => api.get('/me/participaciones'),
 };
 
