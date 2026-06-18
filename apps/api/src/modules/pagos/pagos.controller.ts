@@ -1,18 +1,20 @@
 import {
-  Controller, Post, Delete, Get, Param,
+  Controller, Post, Delete, Get, Patch, Param,
   Body, HttpCode, HttpStatus, Headers, RawBodyRequest, Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Throttle } from '@nestjs/throttler';
+import { createHmac } from 'crypto';
+import { ConfigService } from '@nestjs/config';
+
 import { PagosService } from './pagos.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { UseGuards } from '@nestjs/common';
-import { createHmac } from 'crypto';
-import { ConfigService } from '@nestjs/config';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @ApiTags('Pagos')
 @Controller()
@@ -20,6 +22,7 @@ export class PagosController {
   constructor(
     private readonly pagosService: PagosService,
     private readonly config: ConfigService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   @Post('sorteos/:sorteoId/numeros/:numeroId/reservar')
@@ -62,7 +65,22 @@ export class PagosController {
   ) {
     return this.pagosService.crearCheckout(sorteoId, numeroId, userId);
   }
-    @Post('sorteos/:sorteoId/checkout')
+
+  @Public()
+  @Post('dev/sorteos/:sorteoId/numeros/:numeroId/simular-pago')
+  @ApiOperation({ summary: 'DEV: simular pago aprobado' })
+  simularPagoAprobado(
+    @Param('sorteoId') sorteoId: string,
+    @Param('numeroId') numeroId: string,
+  ) {
+    return this.pagosService.simularPagoAprobado(
+      sorteoId,
+      numeroId,
+      '05c9d289-2554-44ff-aee3-5ace0c2be37f',
+    );
+  }
+
+  @Post('sorteos/:sorteoId/checkout')
   @UseGuards(RolesGuard)
   @Roles('participante')
   @ApiBearerAuth()
@@ -74,7 +92,7 @@ export class PagosController {
   ) {
     return this.pagosService.crearCheckoutMultiple(sorteoId, numeroIds, userId);
   }
-   
+
   @Public()
   @Post('webhooks/mercadopago')
   @HttpCode(HttpStatus.OK)
@@ -84,7 +102,6 @@ export class PagosController {
     @Req() req: RawBodyRequest<Request>,
     @Body() body: any,
   ) {
-    // Validar firma del webhook para evitar requests falsos
     if (signature) {
       const secret = this.config.get<string>('MP_WEBHOOK_SECRET') || 'dev-secret';
       const rawBody = req.rawBody?.toString() || JSON.stringify(body);
@@ -93,8 +110,6 @@ export class PagosController {
         .digest('hex');
 
       if (signature !== `sha256=${expected}`) {
-        // Loguear pero no rechazar — MP puede usar formatos distintos
-        // En produccion validar estrictamente
         console.warn('Firma de webhook MP no coincide');
       }
     }
@@ -110,5 +125,68 @@ export class PagosController {
   misParticipaciones(@CurrentUser('id') userId: string) {
     return this.pagosService.obtenerParticipaciones(userId);
   }
-}
 
+  @Get('me/premios')
+  @UseGuards(RolesGuard)
+  @Roles('participante')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Mis premios ganados' })
+  misPremios(@CurrentUser('id') userId: string) {
+    return this.pagosService.obtenerMisPremios(userId);
+  }
+
+  @Patch('me/premios/:id/confirmar')
+  @UseGuards(RolesGuard)
+  @Roles('participante')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Confirmar recepcion del premio' })
+  confirmarPremio(
+    @CurrentUser('id') userId: string,
+    @Param('id') entregaId: string,
+  ) {
+    return this.pagosService.confirmarRecepcionPremio(userId, entregaId);
+  }
+
+  @Patch('me/premios/:id/reclamar')
+  @UseGuards(RolesGuard)
+  @Roles('participante')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Abrir reclamo por premio no recibido' })
+  reclamarPremio(
+    @CurrentUser('id') userId: string,
+    @Param('id') entregaId: string,
+    @Body('motivo') motivo: string,
+  ) {
+    return this.pagosService.reclamarPremio(userId, entregaId, motivo);
+  }
+
+  @Get('me/notificaciones')
+  @UseGuards(RolesGuard)
+  @Roles('participante', 'comercio', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Mis notificaciones' })
+  misNotificaciones(@CurrentUser('id') userId: string) {
+    return this.notificationsService.obtenerNotificaciones(userId);
+  }
+
+  @Patch('me/notificaciones/:id/leida')
+  @UseGuards(RolesGuard)
+  @Roles('participante', 'comercio', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Marcar notificacion como leida' })
+  marcarNotificacionLeida(
+    @CurrentUser('id') userId: string,
+    @Param('id') id: string,
+  ) {
+    return this.notificationsService.marcarLeida(userId, id);
+  }
+
+  @Patch('me/notificaciones/leer-todas')
+  @UseGuards(RolesGuard)
+  @Roles('participante', 'comercio', 'admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Marcar todas las notificaciones como leidas' })
+  marcarTodasNotificacionesLeidas(@CurrentUser('id') userId: string) {
+    return this.notificationsService.marcarTodasLeidas(userId);
+  }
+}

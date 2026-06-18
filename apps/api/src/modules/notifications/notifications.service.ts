@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Knex } from 'knex';
 import { ConfigService } from '@nestjs/config';
 
 interface EmailData {
@@ -11,7 +12,10 @@ interface EmailData {
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+  private readonly config: ConfigService,
+  @Inject('KNEX') private readonly db: Knex,
+) {}
 
   // ─── PARTICIPANTE ─────────────────────────────────────────
 
@@ -142,7 +146,57 @@ export class NotificationsService {
 
   // ─── INTERNOS ─────────────────────────────────────────────
 
-  private async enviar(data: EmailData) {
+  async crearNotificacion(data: {
+    usuarioId: string;
+    tipo: string;
+    titulo: string;
+    mensaje: string;
+    url?: string;
+  }) {
+    return this.db('notificaciones').insert({
+      usuario_id: data.usuarioId,
+      tipo: data.tipo,
+      titulo: data.titulo,
+      mensaje: data.mensaje,
+      url: data.url || null,
+    });
+  }
+
+  async obtenerNotificaciones(usuarioId: string) {
+    return this.db('notificaciones')
+      .where({ usuario_id: usuarioId })
+      .orderBy('created_at', 'desc');
+  }
+
+  async marcarLeida(usuarioId: string, notificacionId: string) {
+    await this.db('notificaciones')
+      .where({
+        id: notificacionId,
+        usuario_id: usuarioId,
+      })
+      .update({
+        leida: true,
+        leida_at: new Date(),
+      });
+
+    return { ok: true };
+  }
+
+  async marcarTodasLeidas(usuarioId: string) {
+    await this.db('notificaciones')
+      .where({
+        usuario_id: usuarioId,
+        leida: false,
+      })
+      .update({
+        leida: true,
+        leida_at: new Date(),
+      });
+
+    return { ok: true };
+  }
+
+    private async enviar(data: EmailData) {
     const apiKey = this.config.get<string>('RESEND_API_KEY');
     const from = this.config.get<string>('EMAIL_FROM', 'noreply@sorteos.com');
 

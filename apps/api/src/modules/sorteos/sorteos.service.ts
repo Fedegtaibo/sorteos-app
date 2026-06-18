@@ -6,10 +6,13 @@ import { Knex } from 'knex';
 import { createHash, randomBytes } from 'crypto';
 import { CreateSorteoDto } from './dto/create-sorteo.dto';
 import { RealizarSorteoDto } from './dto/realizar-sorteo.dto';
-
+import { NotificationsService } from '../notifications/notifications.service';
 @Injectable()
 export class SorteosService {
-  constructor(@Inject('KNEX') private readonly db: Knex) {}
+  constructor(
+  @Inject('KNEX') private readonly db: Knex,
+  private readonly notificationsService: NotificationsService,
+) {}
 
   // ─── PUBLICO ──────────────────────────────────────────────
 
@@ -207,10 +210,10 @@ export class SorteosService {
     ganador_participacion_id: participacion.id,
     hash_resultado: hashResultado,
     seed_externo: dto.seedExterno,
-    recaudacion_total: this.db.raw(
-      '(SELECT COUNT(*) FROM numeros WHERE sorteo_id = ? AND estado = ?) * ?',
-      [sorteoId, 'vendido', sorteo.valor_numero]
-    ),
+   recaudacion_total: this.db.raw(
+  '(SELECT COUNT(*) FROM numeros WHERE sorteo_id = ? AND estado = ?) * ?',
+  [sorteoId, 'vendido', Number(sorteo.valor_numero)]
+),
     finalizado_at: new Date(),
   });
 
@@ -225,7 +228,13 @@ export class SorteosService {
     .onConflict('sorteo_id')
     .ignore();
 }); 
-
+  await this.notificationsService.crearNotificacion({
+  usuarioId: participacion.usuario_id,
+  tipo: 'premio_ganado',
+  titulo: '¡Ganaste un sorteo!',
+  mensaje: `Felicitaciones, ganaste el premio del sorteo "${sorteo.nombre}".`,
+  url: '/dashboard/premios',
+});
 
 
 

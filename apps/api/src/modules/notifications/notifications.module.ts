@@ -1,9 +1,17 @@
-import { Module, Global } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import knex from 'knex';
+import dbConfig from '../../database/knexfile';
 import { NotificationsService } from './notifications.service';
 
-@Global() // Disponible en todos los modulos sin importar
+@Global()
 @Module({
-  providers: [NotificationsService],
+  providers: [
+    {
+      provide: 'KNEX',
+      useFactory: () => knex(dbConfig),
+    },
+    NotificationsService,
+  ],
   exports: [NotificationsService],
 })
 export class NotificationsModule {}

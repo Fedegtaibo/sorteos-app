@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -28,6 +29,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     participante: [
       { href: '/dashboard', label: 'Inicio', icon: '◉' },
       { href: '/dashboard/participaciones', label: 'Mis participaciones', icon: '🎟' },
+      { href: '/dashboard/premios', label: 'Mis premios', icon: '🏆' },
+
     ],
     comercio: [
       { href: '/dashboard', label: 'Inicio', icon: '◉' },
@@ -108,8 +111,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       <main className="flex-1 ml-72">
-        {children}
-      </main>
+  <header className="sticky top-0 z-40 flex items-center justify-end border-b border-zinc-800 bg-zinc-950/90 px-8 py-4 backdrop-blur">
+    <NotificationBell />
+  </header>
+
+  <section className="p-8">
+    {children}
+  </section>
+</main>
     </div>
   );
 }

@@ -44,6 +44,13 @@ export const pagosApi = {
   checkoutMultiple: (sorteoId: string, numeroIds: string[]) =>
     api.post(`/sorteos/${sorteoId}/checkout`, { numeroIds }),
   misParticipaciones: () => api.get('/me/participaciones'),
+    misPremios: () => api.get('/me/premios'),
+
+  confirmarPremio: (id: string) =>
+    api.patch(`/me/premios/${id}/confirmar`),
+
+  reclamarPremio: (id: string, motivo: string) =>
+    api.patch(`/me/premios/${id}/reclamar`, { motivo }),
 };
 export const comercioApi = {
   perfil: () => api.get('/comercio/perfil'),
@@ -63,6 +70,15 @@ export const adminApi = {
   rechazarComercio: (id: string, motivo: string) =>
     api.post(`/admin/comercios/${id}/rechazar`, { motivo }),
   suspenderComercio: (id: string) => api.post(`/admin/comercios/${id}/suspender`),
+};
+
+export const notificationsApi = {
+  listar: () => api.get('/me/notificaciones'),
+  marcarLeida: (id: string) =>
+    api.patch(`/me/notificaciones/${id}/leida`),
+
+  marcarTodas: () =>
+    api.patch('/me/notificaciones/leer-todas'),
 };
 
 export default api;

@@ -339,6 +339,85 @@ export class PagosService {
 
     return { confirmed: true, paymentId, numeroIds };
   }
+      async obtenerMisPremios(userId: string) {
+    const premios = await this.db('entregas_premios')
+      .join('sorteos', 'entregas_premios.sorteo_id', 'sorteos.id')
+      .join('participaciones', 'entregas_premios.participacion_id', 'participaciones.id')
+      .join('numeros', 'participaciones.numero_id', 'numeros.id')
+      .join('comercios', 'entregas_premios.comercio_id', 'comercios.id')
+      .where('entregas_premios.ganador_id', userId)
+      .select(
+        'entregas_premios.*',
+        'sorteos.nombre as sorteo_nombre',
+        'numeros.numero_visible',
+        'comercios.razon_social as comercio_nombre',
+      )
+      .orderBy('entregas_premios.created_at', 'desc');
+
+    return { data: premios };
+  }
+  async confirmarRecepcionPremio(userId: string, entregaId: string) {
+    const entrega = await this.db('entregas_premios')
+      .where({
+        id: entregaId,
+        ganador_id: userId,
+      })
+      .first();
+
+    if (!entrega) {
+      throw new NotFoundException('Premio no encontrado');
+    }
+
+    if (entrega.estado !== 'entregado') {
+      throw new BadRequestException('Solo podés confirmar premios marcados como entregados');
+    }
+
+    const [updated] = await this.db('entregas_premios')
+      .where({ id: entregaId })
+      .update({
+        estado: 'confirmado',
+        confirmado_at: new Date(),
+        updated_at: new Date(),
+      })
+      .returning('*');
+
+    return {
+      mensaje: 'Recepción del premio confirmada',
+      entrega: updated,
+    };
+  }
+
+  async reclamarPremio(userId: string, entregaId: string, motivo: string) {
+    const entrega = await this.db('entregas_premios')
+      .where({
+        id: entregaId,
+        ganador_id: userId,
+      })
+      .first();
+
+    if (!entrega) {
+      throw new NotFoundException('Premio no encontrado');
+    }
+
+    if (entrega.estado === 'confirmado') {
+      throw new BadRequestException('No podés reclamar un premio ya confirmado');
+    }
+
+    const [updated] = await this.db('entregas_premios')
+      .where({ id: entregaId })
+      .update({
+        estado: 'reclamado',
+        reclamado_at: new Date(),
+        notas_ganador: motivo || 'Reclamo iniciado por el ganador',
+        updated_at: new Date(),
+      })
+      .returning('*');
+
+    return {
+      mensaje: 'Reclamo iniciado. Un administrador revisará el caso.',
+      entrega: updated,
+    };
+  }
 
   // ─── PARTICIPACIONES ──────────────────────────────────────
 
@@ -362,4 +441,73 @@ export class PagosService {
       )
       .orderBy('participaciones.created_at', 'desc');
   }
+
+  // ─── DEV ──────────────────────────────────────────────────
+
+  async simularPagoAprobado(sorteoId: string, numeroId: string, userId: string) {
+    return this.db.transaction(async (trx) => {
+      const numero = await trx('numeros')
+        .where({
+          id: numeroId,
+          sorteo_id: sorteoId,
+        })
+        .first();
+
+      if (!numero) {
+        throw new NotFoundException('Número no encontrado');
+      }
+
+      if (numero.estado === 'vendido') {
+        throw new BadRequestException('El número ya está vendido');
+      }
+
+      const sorteo = await trx('sorteos')
+        .where({ id: sorteoId })
+        .first();
+
+      if (!sorteo) {
+        throw new NotFoundException('Sorteo no encontrado');
+      }
+
+      await trx('numeros')
+        .where({ id: numeroId })
+        .update({
+          estado: 'vendido',
+          reservado_por: null,
+          reservado_hasta: null,
+        });
+
+      const [participacion] = await trx('participaciones')
+        .insert({
+          usuario_id: userId,
+          numero_id: numeroId,
+          sorteo_id: sorteoId,
+          monto_pagado: sorteo.valor_numero,
+        })
+        .returning('*');
+
+      const devId = `dev-${Date.now()}`;
+
+      await trx('pagos').insert({
+        participacion_id: participacion.id,
+        usuario_id: userId,
+        numero_id: numeroId,
+	proveedor: 'mercadopago',
+        preference_id: devId,
+        external_id: devId,
+        monto: sorteo.valor_numero,
+        estado: 'aprobado',
+        webhook_payload: { dev: true },
+        procesado_at: new Date(),
+      });
+
+      await this.redis.del(`reserva:${numeroId}`);
+
+      return {
+        mensaje: 'Pago simulado correctamente',
+        participacion,
+      };
+    });
+  }
 }
+ 
