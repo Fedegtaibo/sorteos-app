@@ -21,7 +21,12 @@ api.interceptors.response.use(
     return Promise.reject(new Error(msg));
   }
 );
-
+export const authApi = {
+  register: (data: any) => api.post('/auth/register', data),
+  login: (data: any) => api.post('/auth/login', data),
+  me: () => api.post('/auth/me'),
+  logout: () => api.post('/auth/logout'),
+};
 export const sorteosApi = {
   listar: (params?: any) => api.get('/sorteos', { params }),
   obtener: (id: string) => api.get(`/sorteos/${id}`),

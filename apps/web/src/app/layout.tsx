@@ -8,7 +8,15 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 export const metadata: Metadata = {
   title: 'Sortealo - Sorteos Verificados',
   description:
-    'Participá en sorteos reales y transparentes. Comprá números, seguí los resultados y ganá premios increíbles.',
+    'Participa en sorteos reales y transparentes. Compra numeros, segui los resultados y gana premios increibles.',
+
+  manifest: '/manifest.json',
+  applicationName: 'Sortealo',
+  appleWebApp: {
+    capable: true,
+    title: 'Sortealo',
+    statusBarStyle: 'black-translucent',
+  },
 
   openGraph: {
     title: 'Sortealo',
@@ -19,7 +27,6 @@ export const metadata: Metadata = {
 
   themeColor: '#09090b',
 };
-
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
