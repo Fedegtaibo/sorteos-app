@@ -57,9 +57,9 @@ export default function DashboardPage() {
               <p className="text-zinc-500 mb-8">
                 Buscá sorteos activos y reservá tus próximos números.
               </p>
-              <Link href="/" className="btn-ghost inline-block">
-                Ver sorteos
-              </Link>
+             <Link href="/dashboard/explorar" className="btn-ghost inline-block">
+  Ver sorteos
+</Link>
             </div>
           </div>
         </section>

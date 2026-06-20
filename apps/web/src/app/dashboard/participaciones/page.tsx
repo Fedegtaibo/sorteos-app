@@ -81,7 +81,7 @@ export default function ParticipacionesPage() {
             </p>
           </div>
 
-          <Link href="/" className="btn-primary inline-flex justify-center">
+<Link href="/dashboard/explorar" className="btn-primary inline-flex justify-center">
             Ver sorteos activos
           </Link>
         </div>
@@ -127,7 +127,7 @@ export default function ParticipacionesPage() {
           <p className="mx-auto mt-3 max-w-md text-sm text-zinc-400">
             Elegí un sorteo activo, seleccioná tus números y seguí tus participaciones desde esta pantalla.
           </p>
-          <Link href="/" className="btn-primary mt-6 inline-flex">
+          <Link href="/dashboard/explorar" className="btn-primary mt-6 inline-flex">
             Explorar sorteos
           </Link>
         </section>

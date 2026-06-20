@@ -65,7 +65,7 @@ export default function SorteoPage() {
     return (
       <main className="phone">
         <section className="content">
-          <button className="back" onClick={() => router.push('/')}>
+         <button className="back" onClick={() => router.push('/dashboard/explorar')}>
             <ArrowLeft size={18} /> Volver
           </button>
           <h1>Sorteo no encontrado</h1>
@@ -210,41 +210,57 @@ export default function SorteoPage() {
               <span className="blue">□ Reservado</span>
             </div>
 
-            {selectedIds.length > 0 && (
-              <section className="card checkout" style={{ marginBottom: 32 }}>
-                <h2>Resumen de compra</h2>
+          {selectedIds.length > 0 && (
+  <>
+    <section className="card checkout" style={{ marginBottom: 32 }}>
+      <h2>Resumen de compra</h2>
 
-                {seleccionados.map((n) => (
-                  <div className="buy-row" key={n.id}>
-                    <b>{n.numero_visible}</b>
-                    <div>
-                      Número {n.numero_visible}
-                      <small>{sorteo.nombre}</small>
-                    </div>
-                    <strong>{formatMonto(sorteo.valor_numero)}</strong>
-                  </div>
-                ))}
+      {seleccionados.map((n) => (
+        <div className="buy-row" key={n.id}>
+          <b>{n.numero_visible}</b>
+          <div>
+            Número {n.numero_visible}
+            <small>{sorteo.nombre}</small>
+          </div>
+          <strong>{formatMonto(sorteo.valor_numero)}</strong>
+        </div>
+      ))}
 
-                <div className="total">
-                  <b>Total</b>
-                  <strong>{formatMonto(totalSeleccion)}</strong>
-                </div>
+      <div className="total">
+        <b>Total</b>
+        <strong>{formatMonto(totalSeleccion)}</strong>
+      </div>
 
-                <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
-                  <button className="back" onClick={() => setSelectedIds([])}>
-                    Limpiar
-                  </button>
+      <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
+        <button className="back" onClick={() => setSelectedIds([])}>
+          Limpiar
+        </button>
 
-                  <button
-                    className="pay"
-                    onClick={reservarSeleccion}
-                    disabled={procesando}
-                  >
-                    {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
-                  </button>
-                </div>
-              </section>
-            )}
+        <button
+          className="pay"
+          onClick={reservarSeleccion}
+          disabled={procesando}
+        >
+          {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
+        </button>
+      </div>
+    </section>
+
+    <div className="mobile-buy-bar">
+      <div>
+        <b>{selectedIds.length} número{selectedIds.length > 1 ? 's' : ''}</b>
+        <span>{formatMonto(totalSeleccion)}</span>
+      </div>
+
+      <button
+        onClick={reservarSeleccion}
+        disabled={procesando}
+      >
+        {procesando ? 'Preparando...' : 'Reservar y pagar'}
+      </button>
+    </div>
+  </>
+)}
 
             <div className="number-grid">
               {numeros.map((n: any) => {

@@ -178,4 +178,60 @@
   .checkout .back {
     margin-bottom: 0;
   }
+}
+
+.mobile-buy-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-buy-bar {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid #283036;
+    border-radius: 22px;
+    background: rgba(10, 14, 16, 0.96);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(14px);
+  }
+
+  .mobile-buy-bar div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobile-buy-bar b {
+    color: #f4f4f4;
+    font-size: 13px;
+  }
+
+  .mobile-buy-bar span {
+    color: var(--yellow);
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  .mobile-buy-bar button {
+    border: 0;
+    border-radius: 16px;
+    background: var(--yellow);
+    color: #111;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .mobile-buy-bar button:disabled {
+    opacity: 0.7;
+  }
 }}
