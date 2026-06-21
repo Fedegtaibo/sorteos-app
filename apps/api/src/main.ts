@@ -10,11 +10,16 @@ async function bootstrap() {
   });
 
   // CORS — solo el frontend propio
-  app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true,
-  });
+  const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'http://localhost:3000',
+  'http://192.168.0.12:3000',
+];
 
+app.enableCors({
+  origin: allowedOrigins,
+  credentials: true,
+});
   // Prefijo global de la API
   app.setGlobalPrefix('v1');
 

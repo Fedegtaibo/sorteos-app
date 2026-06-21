@@ -1,12 +1,12 @@
 'use client';
 
 import '../../redesign/styles.css';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { ArrowLeft } from 'lucide-react';
-import { useSorteo, useNumerosSorteo } from '@/hooks/use-sorteo';
+import { useNumerosSorteo } from '@/hooks/use-sorteo';
 import { pagosApi } from '@/lib/api';
 import { formatMonto, formatFecha } from '@/lib/utils';
 
@@ -28,27 +28,80 @@ function Stat({ label, value, tone, sub }: any) {
   );
 }
 
+function getSorteoFromResponse(res: any) {
+  if (!res) return null;
+  if (res?.data?.data?.id) return res.data.data;
+  if (res?.data?.id) return res.data;
+  if (res?.id) return res;
+  return null;
+}
+
+function getArrayFromResponse(res: any) {
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res?.data)) return res.data;
+  if (Array.isArray(res?.data?.data)) return res.data.data;
+  return [];
+}
+
 export default function SorteoPage() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams();
   const router = useRouter();
   const { data: session } = useSession();
 
-  const { data: sorteoData, isLoading } = useSorteo(id);
-  const { data: numerosData, refetch } = useNumerosSorteo(id);
+  const idFromParams = Array.isArray((params as any)?.id)
+    ? (params as any).id[0]
+    : (params as any)?.id;
 
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [procesando, setProcesando] = useState(false);
+  const idFromUrl =
+    typeof window !== 'undefined'
+      ? window.location.pathname.split('/').filter(Boolean).pop()
+      : '';
+      const id = String(idFromParams || idFromUrl || '');
+	const { data: numerosData, refetch } = useNumerosSorteo(id);
 
-  const sorteo = (sorteoData as any)?.data?.data || (sorteoData as any)?.data;
+const [selectedIds, setSelectedIds] = useState<string[]>([]);
+const [procesando, setProcesando] = useState(false);
+const [isLoading, setIsLoading] = useState(true);
+const [sorteo, setSorteo] = useState<any>(null);
 
-  const numeros: any[] =
-    (numerosData as any)?.data?.data ||
-    (numerosData as any)?.data ||
-    [];
+useEffect(() => {
+  if (!id) return;
+
+  let cancelled = false;
+
+  const cargarSorteo = async () => {
+    setIsLoading(true);
+
+    try {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1';
+
+      const res = await fetch(`${baseUrl}/sorteos/${id}`);
+      const json = await res.json();
+
+      if (!cancelled) {
+        setSorteo(getSorteoFromResponse(json));
+      }
+    } catch (err) {
+      console.error('Error cargando sorteo:', err);
+      if (!cancelled) setSorteo(null);
+    } finally {
+      if (!cancelled) setIsLoading(false);
+    }
+  };
+
+  cargarSorteo();
+
+  return () => {
+    cancelled = true;
+  };
+}, [id]);
+
+const numeros: any[] = getArrayFromResponse(numerosData);
 
   const seleccionados = useMemo(
     () => numeros.filter((n) => selectedIds.includes(n.id)),
-    [numeros, selectedIds]
+    [numeros, selectedIds],
   );
 
   if (isLoading) {
@@ -65,7 +118,7 @@ export default function SorteoPage() {
     return (
       <main className="phone">
         <section className="content">
-         <button className="back" onClick={() => router.push('/dashboard/explorar')}>
+          <button className="back" onClick={() => router.push('/dashboard/explorar')}>
             <ArrowLeft size={18} /> Volver
           </button>
           <h1>Sorteo no encontrado</h1>
@@ -90,8 +143,8 @@ export default function SorteoPage() {
 
     setSelectedIds((prev) =>
       prev.includes(numero.id)
-        ? prev.filter((id) => id !== numero.id)
-        : [...prev, numero.id]
+        ? prev.filter((numeroId) => numeroId !== numero.id)
+        : [...prev, numero.id],
     );
   };
 
@@ -149,7 +202,7 @@ export default function SorteoPage() {
       </nav>
 
       <section className="content">
-        <button className="back" onClick={() => router.back()}>
+        <button className="back" onClick={() => router.push('/dashboard/explorar')}>
           <ArrowLeft size={18} /> Volver
         </button>
 
@@ -180,7 +233,9 @@ export default function SorteoPage() {
             <div className="sold-box">
               <div>
                 <span>Números vendidos</span>
-                <b>{vendidos}/{sorteo.cant_numeros}</b>
+                <b>
+                  {vendidos}/{sorteo.cant_numeros}
+                </b>
               </div>
 
               <Progress value={pct} />
@@ -200,7 +255,11 @@ export default function SorteoPage() {
           </aside>
 
           <section className="chooser">
-            <h1>Elegí tus<br />números</h1>
+            <h1>
+              Elegí tus
+              <br />
+              números
+            </h1>
             <p>Podés seleccionar varios números libres antes de pagar.</p>
 
             <div className="legend">
@@ -210,57 +269,52 @@ export default function SorteoPage() {
               <span className="blue">□ Reservado</span>
             </div>
 
-          {selectedIds.length > 0 && (
-  <>
-    <section className="card checkout" style={{ marginBottom: 32 }}>
-      <h2>Resumen de compra</h2>
+            {selectedIds.length > 0 && (
+              <>
+                <section className="card checkout" style={{ marginBottom: 32 }}>
+                  <h2>Resumen de compra</h2>
 
-      {seleccionados.map((n) => (
-        <div className="buy-row" key={n.id}>
-          <b>{n.numero_visible}</b>
-          <div>
-            Número {n.numero_visible}
-            <small>{sorteo.nombre}</small>
-          </div>
-          <strong>{formatMonto(sorteo.valor_numero)}</strong>
-        </div>
-      ))}
+                  {seleccionados.map((n) => (
+                    <div className="buy-row" key={n.id}>
+                      <b>{n.numero_visible}</b>
+                      <div>
+                        Número {n.numero_visible}
+                        <small>{sorteo.nombre}</small>
+                      </div>
+                      <strong>{formatMonto(sorteo.valor_numero)}</strong>
+                    </div>
+                  ))}
 
-      <div className="total">
-        <b>Total</b>
-        <strong>{formatMonto(totalSeleccion)}</strong>
-      </div>
+                  <div className="total">
+                    <b>Total</b>
+                    <strong>{formatMonto(totalSeleccion)}</strong>
+                  </div>
 
-      <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
-        <button className="back" onClick={() => setSelectedIds([])}>
-          Limpiar
-        </button>
+                  <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
+                    <button className="back" onClick={() => setSelectedIds([])}>
+                      Limpiar
+                    </button>
 
-        <button
-          className="pay"
-          onClick={reservarSeleccion}
-          disabled={procesando}
-        >
-          {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
-        </button>
-      </div>
-    </section>
+                    <button className="pay" onClick={reservarSeleccion} disabled={procesando}>
+                      {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
+                    </button>
+                  </div>
+                </section>
 
-    <div className="mobile-buy-bar">
-      <div>
-        <b>{selectedIds.length} número{selectedIds.length > 1 ? 's' : ''}</b>
-        <span>{formatMonto(totalSeleccion)}</span>
-      </div>
+                <div className="mobile-buy-bar">
+                  <div>
+                    <b>
+                      {selectedIds.length} número{selectedIds.length > 1 ? 's' : ''}
+                    </b>
+                    <span>{formatMonto(totalSeleccion)}</span>
+                  </div>
 
-      <button
-        onClick={reservarSeleccion}
-        disabled={procesando}
-      >
-        {procesando ? 'Preparando...' : 'Reservar y pagar'}
-      </button>
-    </div>
-  </>
-)}
+                  <button onClick={reservarSeleccion} disabled={procesando}>
+                    {procesando ? 'Preparando...' : 'Reservar y pagar'}
+                  </button>
+                </div>
+              </>
+            )}
 
             <div className="number-grid">
               {numeros.map((n: any) => {
