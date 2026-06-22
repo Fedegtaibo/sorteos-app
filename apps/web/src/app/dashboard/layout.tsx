@@ -42,13 +42,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       { href: '/dashboard/sorteos', label: 'Mis sorteos', icon: '🎯' },
       { href: '/dashboard/sorteos/nuevo', label: 'Nuevo sorteo', icon: '+' },
       { href: '/dashboard/entregas', label: 'Entregas', icon: '📦' },
-      { href: '/dashboard/perfil', label: 'Mi perfil', icon: '◆' },
-    ],
+{ href: '/dashboard/perfil', label: 'Mi perfil', icon: '◆' },
+      ],
     admin: [
       { href: '/dashboard', label: 'Inicio', icon: '●' },
       { href: '/dashboard/admin/comercios', label: 'Comercios', icon: '🏪' },
       { href: '/dashboard/admin/sorteos', label: 'Todos los sorteos', icon: '🎯' },
       { href: '/dashboard/admin/usuarios', label: 'Usuarios', icon: '👥' },
+      { href: '/dashboard/admin/reclamos', label: 'Reclamos', icon: '⚖️' },
     ],
   };
 

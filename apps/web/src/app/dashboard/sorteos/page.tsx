@@ -1,5 +1,9 @@
 'use client';
-import { useMisSorteos, useActivarSorteo } from '@/hooks/use-sorteo';
+import {
+  useMisSorteos,
+  useActivarSorteo,
+  useSortearSorteo,
+} from '@/hooks/use-sorteo';
 import { formatMonto, estadoColor } from '@/lib/utils';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -7,6 +11,7 @@ import { cn } from '@/lib/utils';
 export default function MisSorteosPage() {
   const { data, isLoading } = useMisSorteos();
   const activar = useActivarSorteo();
+  const sortear = useSortearSorteo();	
   const sorteos: any[] = (data as any)?.data?.data || [];
 
   if (isLoading) return <div className="animate-pulse text-gray-400">Cargando...</div>;
@@ -58,11 +63,27 @@ export default function MisSorteosPage() {
                       Activar
                     </button>
                   )}
-                  {s.estado === 'activo' && (
-                    <Link href={`/sorteos/${s.id}`} className="btn-ghost text-sm">
-                      Ver página pública
-                    </Link>
-                  )}
+                  
+			{s.estado === 'activo' && (
+  <>
+    <Link href={`/sorteos/${s.id}`} className="btn-ghost text-sm">
+      Ver página pública
+    </Link>
+
+    <button
+      className="btn-primary text-sm"
+      disabled={sortear.isPending}
+      onClick={() =>
+        sortear.mutate({
+          id: s.id,
+          seedExterno: `${Date.now()}-${Math.random()}`
+        })
+      }
+    >
+      Realizar sorteo
+    </button>
+  </>
+)}
                 </div>
               </div>
             );

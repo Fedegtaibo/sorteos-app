@@ -381,6 +381,37 @@ export class PagosService {
       })
       .returning('*');
 
+    const sorteo = await this.db('sorteos')
+  .where({ id: entrega.sorteo_id })
+  .first();
+
+const comercio = await this.db('comercios')
+  .where({ id: entrega.comercio_id })
+  .first();
+
+const montoBruto = Number(sorteo.recaudacion_total || 0);
+const comisionPct = Number(comercio.comision_pct || 0);
+const montoComision = (montoBruto * comisionPct) / 100;
+const montoNeto = montoBruto - montoComision;
+
+await this.db('liberaciones_fondos')
+  .insert({
+    entrega_id: entrega.id,
+    sorteo_id: entrega.sorteo_id,
+    comercio_id: entrega.comercio_id,
+    monto_bruto: montoBruto,
+    comision_pct: comisionPct,
+    monto_comision: montoComision,
+    monto_neto: montoNeto,
+    estado: 'liberado',
+    liberado_at: new Date(),
+  })
+  .onConflict('entrega_id')
+  .merge(); 
+
+
+
+
     return {
       mensaje: 'Recepción del premio confirmada',
       entrega: updated,
@@ -400,8 +431,11 @@ export class PagosService {
     }
 
     if (entrega.estado === 'confirmado') {
-      throw new BadRequestException('No podés reclamar un premio ya confirmado');
-    }
+  throw new BadRequestException(
+    'No podés reclamar un premio ya confirmado',
+  );
+}
+    
 
     const [updated] = await this.db('entregas_premios')
       .where({ id: entregaId })
@@ -412,6 +446,23 @@ export class PagosService {
         updated_at: new Date(),
       })
       .returning('*');
+
+    await this.db('liberaciones_fondos')
+  .insert({
+    entrega_id: entrega.id,
+    sorteo_id: entrega.sorteo_id,
+    comercio_id: entrega.comercio_id,
+    estado: 'retenido',
+    motivo: motivo,
+    retenido_at: new Date(),
+  })
+  .onConflict('entrega_id')
+  .merge({
+    estado: 'retenido',
+    motivo: motivo,
+    retenido_at: new Date(),
+  }); 
+
 
     return {
       mensaje: 'Reclamo iniciado. Un administrador revisará el caso.',

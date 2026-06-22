@@ -9,17 +9,12 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log'],
   });
 
-  // CORS — solo el frontend propio
-  const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://localhost:3000',
-  'http://192.168.0.12:3000',
-];
-
+  // CORS — desarrollo local
 app.enableCors({
-  origin: allowedOrigins,
+  origin: true,
   credentials: true,
 });
+
   // Prefijo global de la API
   app.setGlobalPrefix('v1');
 

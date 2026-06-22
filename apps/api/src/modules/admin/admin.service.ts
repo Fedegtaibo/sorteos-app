@@ -82,4 +82,64 @@ export class AdminService {
 
     return { data, meta: { page, limit, total: Number(count) } };
   }
+
+async listarReclamos() {
+  const data = await this.db('entregas_premios')
+    .join('sorteos', 'entregas_premios.sorteo_id', 'sorteos.id')
+    .join('comercios', 'entregas_premios.comercio_id', 'comercios.id')
+    .join('users', 'entregas_premios.ganador_id', 'users.id')
+    .leftJoin('liberaciones_fondos', 'entregas_premios.id', 'liberaciones_fondos.entrega_id')
+    .where('entregas_premios.estado', 'reclamado')
+    .select(
+      'entregas_premios.*',
+      'sorteos.nombre as sorteo_nombre',
+      'comercios.razon_social as comercio_nombre',
+      'users.email as ganador_email',
+      'liberaciones_fondos.estado as fondos_estado',
+      'liberaciones_fondos.monto_bruto',
+      'liberaciones_fondos.monto_neto',
+      'liberaciones_fondos.motivo as fondos_motivo',
+    )
+    .orderBy('entregas_premios.reclamado_at', 'desc');
+
+  return { data };
+}
+async liberarReclamo(entregaId: string) {
+  await this.db('liberaciones_fondos')
+    .where({ entrega_id: entregaId })
+    .update({
+      estado: 'liberado',
+      liberado_at: new Date(),
+    });
+
+  await this.db('entregas_premios')
+    .where({ id: entregaId })
+    .update({
+      estado: 'confirmado',
+    });
+
+  return { mensaje: 'Fondos liberados' };
+}
+
+async ponerEnRevision(entregaId: string) {
+  await this.db('liberaciones_fondos')
+    .where({ entrega_id: entregaId })
+    .update({
+      estado: 'retenido',
+      motivo: 'En revisión',
+    });
+
+  return { mensaje: 'Reclamo en revisión' };
+}
+
+async cerrarReclamo(entregaId: string) {
+  await this.db('entregas_premios')
+    .where({ id: entregaId })
+    .update({
+      estado: 'confirmado',
+    });
+
+  return { mensaje: 'Reclamo cerrado' };
+}
+
 }

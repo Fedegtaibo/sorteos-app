@@ -41,11 +41,41 @@ export default function EntregasPage() {
     },
   });
 
-  const entregas: any[] = (data as any)?.data || [];
+  const entregas: any[] = Array.isArray(data)
+  ? data
+  : Array.isArray((data as any)?.data)
+    ? (data as any).data
+    : Array.isArray((data as any)?.data?.data)
+      ? (data as any).data.data
+      : [];
 
   const actualizar = (id: string, estado: string) => {
-    mutation.mutate({ id, payload: { estado } });
-  };
+  const payload: any = { estado };
+
+  if (estado === 'enviado') {
+    const empresaEnvio = window.prompt('Empresa de envío', '');
+    if (!empresaEnvio) return;
+
+    const codigoSeguimiento = window.prompt('Código de seguimiento', '');
+    if (!codigoSeguimiento) return;
+
+    payload.empresaEnvio = empresaEnvio;
+    payload.codigoSeguimiento = codigoSeguimiento;
+  }
+
+  if (estado === 'entregado') {
+    const notasComercio = window.prompt(
+      'Detalle o evidencia de entrega (opcional)',
+      ''
+    );
+
+    if (notasComercio) {
+      payload.notasComercio = notasComercio;
+    }
+  }
+
+  mutation.mutate({ id, payload });
+};
 
   if (isLoading) {
     return <div className="animate-pulse text-zinc-400">Cargando entregas...</div>;

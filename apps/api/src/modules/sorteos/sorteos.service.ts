@@ -168,9 +168,9 @@ export class SorteosService {
     if (sorteo.estado !== 'activo') {
       throw new BadRequestException('Solo se pueden realizar sorteos activos');
     }
-    if (new Date(sorteo.fecha_sorteo) > new Date()) {
-      throw new BadRequestException('Todavia no llego la fecha del sorteo');
-    }
+   // if (new Date(sorteo.fecha_sorteo) > new Date()) {
+//   throw new BadRequestException('Todavia no llego la fecha del sorteo');
+// }
 
     // Solo chances de numeros VENDIDOS participan
     const chancesSoldas = await this.db('chances_internas')

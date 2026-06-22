@@ -33,4 +33,28 @@ export class AdminController {
   @Get('sorteos')
   @ApiOperation({ summary: 'Todos los sorteos de la plataforma' })
   sorteos(@Query('page') page?: number) { return this.adminService.listaSorteosTodos({ page }); }
+
+@Get('reclamos')
+@ApiOperation({ summary: 'Listar reclamos abiertos' })
+reclamos() {
+  return this.adminService.listarReclamos();
+}
+@Patch('reclamos/:id/liberar')
+@ApiOperation({ summary: 'Liberar fondos y cerrar reclamo' })
+liberarReclamo(@Param('id') id: string) {
+  return this.adminService.liberarReclamo(id);
+}
+
+@Patch('reclamos/:id/revision')
+@ApiOperation({ summary: 'Pasar reclamo a revisión' })
+ponerEnRevision(@Param('id') id: string) {
+  return this.adminService.ponerEnRevision(id);
+}
+
+@Patch('reclamos/:id/cerrar')
+@ApiOperation({ summary: 'Cerrar reclamo' })
+cerrarReclamo(@Param('id') id: string) {
+  return this.adminService.cerrarReclamo(id);
+}
+
 }

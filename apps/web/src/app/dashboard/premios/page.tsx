@@ -54,16 +54,17 @@ export default function PremiosPage() {
   });
 
   const premios: any[] = Array.isArray(data)
-  ? data
-  : Array.isArray((data as any)?.data)
-    ? (data as any).data
-    : Array.isArray((data as any)?.data?.data)
-      ? (data as any).data.data
-      : [];
+    ? data
+    : Array.isArray((data as any)?.data)
+      ? (data as any).data
+      : Array.isArray((data as any)?.data?.data)
+        ? (data as any).data.data
+        : [];
 
   const reclamar = (id: string) => {
     const motivo = window.prompt('Contanos brevemente qué pasó con el premio');
     if (!motivo) return;
+
     reclamarMutation.mutate({ id, motivo });
   };
 
@@ -109,20 +110,30 @@ export default function PremiosPage() {
 
                   <div className="mt-4 grid gap-3 text-sm text-zinc-400 md:grid-cols-4">
                     <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Comercio</p>
-                      <p className="mt-1 font-semibold text-zinc-300">{p.comercio_nombre}</p>
+                      <p className="text-xs uppercase tracking-wide text-zinc-600">Envío</p>
+                      <p className="mt-1 font-semibold text-zinc-300">
+                        {p.empresa_envio || 'Sin empresa'}
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-500">
+                        {p.codigo_seguimiento
+                          ? `Código: ${p.codigo_seguimiento}`
+                          : 'Sin seguimiento'}
+                      </p>
                     </div>
+
                     <div>
                       <p className="text-xs uppercase tracking-wide text-zinc-600">Número ganador</p>
                       <p className="mt-1 font-semibold text-zinc-300">#{p.numero_visible}</p>
                     </div>
+
                     <div>
                       <p className="text-xs uppercase tracking-wide text-zinc-600">Creado</p>
                       <p className="mt-1 font-semibold text-zinc-300">{formatFecha(p.created_at)}</p>
                     </div>
+
                     <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Seguimiento</p>
-                      <p className="mt-1 font-semibold text-zinc-300">{p.codigo_seguimiento || 'Sin seguimiento'}</p>
+                      <p className="text-xs uppercase tracking-wide text-zinc-600">Comercio</p>
+                      <p className="mt-1 font-semibold text-zinc-300">{p.comercio_nombre}</p>
                     </div>
                   </div>
 
@@ -156,7 +167,11 @@ export default function PremiosPage() {
 
                   <button
                     className="btn-ghost text-sm"
-                    disabled={p.estado === 'confirmado' || p.estado === 'reclamado' || reclamarMutation.isPending}
+                    disabled={
+                      p.estado === 'confirmado' ||
+                      p.estado === 'reclamado' ||
+                      reclamarMutation.isPending
+                    }
                     onClick={() => reclamar(p.id)}
                   >
                     Abrir reclamo

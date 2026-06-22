@@ -297,6 +297,37 @@ const numeros: any[] = getArrayFromResponse(numerosData);
 
                     <button className="pay" onClick={reservarSeleccion} disabled={procesando}>
                       {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
+
+<button
+  className="pay"
+  style={{ background: '#16a34a' }}
+  disabled={procesando}
+  onClick={async () => {
+    try {
+      setProcesando(true);
+
+      if (selectedIds.length === 0) {
+        toast.error('Seleccioná un número');
+        return;
+      }
+
+      const numeroId = selectedIds[0];
+
+      await pagosApi.reservar(id, numeroId);
+      await pagosApi.simularPago(id, numeroId);
+
+      toast.success('Pago simulado correctamente');
+      setSelectedIds([]);
+      await refetch();
+    } catch (err: any) {
+      toast.error(err.message || 'Error simulando pago');
+    } finally {
+      setProcesando(false);
+    }
+  }}
+>
+  Simular pago 🧪
+</button>
                     </button>
                   </div>
                 </section>

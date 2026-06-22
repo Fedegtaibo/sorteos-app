@@ -22,7 +22,7 @@ export function useNumerosSorteo(id: string) {
     queryKey: ['sorteo-numeros', id],
     queryFn: () => sorteosApi.obtenerNumeros(id) as any,
     enabled: !!id,
-    refetchInterval: 10000, // Actualizar cada 10s para ver cambios en tiempo real
+    refetchInterval: 10000,
   });
 }
 
@@ -52,6 +52,20 @@ export function useActivarSorteo() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['mis-sorteos'] });
       toast.success('Sorteo activado correctamente');
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+export function useSortearSorteo() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, seedExterno }: { id: string; seedExterno: string }) =>
+      sorteosApi.sortear(id, seedExterno),
+    onSuccess: (data: any) => {
+      qc.invalidateQueries({ queryKey: ['mis-sorteos'] });
+      toast.success(`Sorteo realizado. Número ganador: ${data?.numeroGanador}`);
     },
     onError: (err: Error) => toast.error(err.message),
   });

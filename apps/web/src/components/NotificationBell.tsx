@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bell, Gift, X, Trophy, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { notificationsApi } from '@/lib/api';
 
+
 export default function NotificationBell() {
+
+  const queryClient = useQueryClient();
+ 
   const [open, setOpen] = useState(false);
   const [winnerNotification, setWinnerNotification] = useState<any>(null);
 
@@ -28,8 +32,8 @@ export default function NotificationBell() {
   const unread = notifications.filter((n: any) => !n.leida).length;
 
   const winnerNotificationAvailable = notifications.find(
-    (n: any) => n.tipo === 'premio_ganado',
-  );
+  (n: any) => n.tipo === 'premio_ganado' && !n.leida,
+);
 
   const fireConfetti = () => {
     confetti({
@@ -61,20 +65,23 @@ export default function NotificationBell() {
     }, 850);
   };
 
-  const handleBellClick = () => {
-    if (winnerNotificationAvailable) {
-      setWinnerNotification(winnerNotificationAvailable);
-      setOpen(false);
+  const handleBellClick = async () => {
+  if (winnerNotificationAvailable) {
+    setWinnerNotification(winnerNotificationAvailable);
+    setOpen(false);
 
-      setTimeout(() => {
-        fireConfetti();
-      }, 100);
+    await notificationsApi.marcarLeida(winnerNotificationAvailable.id);
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
-      return;
-    }
+    setTimeout(() => {
+      fireConfetti();
+    }, 100);
 
-    setOpen(!open);
-  };
+    return;
+  }
+
+  setOpen(!open);
+};
 
   const celebration =
     winnerNotification && typeof document !== 'undefined'
