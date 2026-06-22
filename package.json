@@ -1,7 +1,10 @@
 {
   "name": "sorteos-platform",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -15,13 +18,19 @@
     "docker:logs": "docker-compose logs -f"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
-    "typescript": "^5.4.0",
-    "prettier": "^3.2.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
-    "eslint": "^8.57.0"
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0"
   },
   "packageManager": "pnpm@9.1.0",
-  "engines": { "node": ">=20.0.0", "pnpm": ">=9.0.0" }
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "dependencies": {
+    "recharts": "^3.8.1"
+  }
 }
