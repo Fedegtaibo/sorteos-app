@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { pagosApi } from '@/lib/api';
 import { formatFecha } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import ChatPremio from '@/components/ChatPremio';
 
 function Badge({ estado }: { estado: string }) {
   const styles: Record<string, string> = {
@@ -25,10 +26,10 @@ function Badge({ estado }: { estado: string }) {
 export default function PremiosPage() {
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['mis-premios'],
-    queryFn: () => pagosApi.misPremios() as any,
-  });
+  const { data, isLoading, error } = useQuery({
+  queryKey: ['mis-premios'],
+  queryFn: () => pagosApi.misPremios() as any,
+});
 
   const confirmarMutation = useMutation({
     mutationFn: (id: string) => pagosApi.confirmarPremio(id),
@@ -67,6 +68,14 @@ export default function PremiosPage() {
 
     reclamarMutation.mutate({ id, motivo });
   };
+
+if (error) {
+  return (
+    <div className="text-red-400">
+      Error: {(error as any).message}
+    </div>
+  );
+}
 
   if (isLoading) {
     return <div className="animate-pulse text-zinc-400">Cargando premios...</div>;
@@ -154,6 +163,7 @@ export default function PremiosPage() {
                       Reclamo iniciado. Un administrador revisará el caso antes de liberar fondos.
                     </p>
                   )}
+<ChatPremio entregaId={p.id} />
                 </div>
 
                 <div className="flex flex-wrap gap-2">

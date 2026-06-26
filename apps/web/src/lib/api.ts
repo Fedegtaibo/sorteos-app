@@ -8,22 +8,29 @@ const api = axios.create({
 
 api.interceptors.request.use(async (config) => {
   const session = await getSession() as any;
-  console.log('API SESSION:', session);
-console.log('API TOKEN:', (session as any)?.accessToken);
 
-if ((session as any)?.accessToken) {
-  config.headers.Authorization = `Bearer ${(session as any).accessToken}`;
-}
+  if ((session as any)?.accessToken) {
+    config.headers.Authorization = `Bearer ${(session as any).accessToken}`;
+  }
+
   return config;
 });
 
 api.interceptors.response.use(
   (res) => res.data,
   (err) => {
-    const msg = err.response?.data?.error?.message || 'Error de red. Intentá de nuevo.';
+    console.log('ERROR API:', err.response?.data);
+    console.log('STATUS:', err.response?.status);
+
+    const msg =
+      err.response?.data?.error?.message ||
+      err.message ||
+      'Error de red';
+
     return Promise.reject(new Error(msg));
   }
 );
+
 export const authApi = {
   register: (data: any) => api.post('/auth/register', data),
   login: (data: any) => api.post('/auth/login', data),
@@ -103,6 +110,15 @@ export const notificationsApi = {
   marcarTodas: () =>
     api.patch('/me/notificaciones/leer-todas'),
 };
+
+export const chatApi = {
+  mensajesEntrega: (entregaId: string) =>
+    api.get(`/chat/entrega/${entregaId}`),
+
+  enviarMensaje: (entregaId: string, mensaje: string) =>
+    api.post(`/chat/entrega/${entregaId}`, { mensaje }),
+};
+
 
 export default api;
 

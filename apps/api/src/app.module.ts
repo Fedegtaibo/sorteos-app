@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { BullModule } from '@nestjs/bull';
 import { APP_FILTER, APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
-import Knex from 'knex';
+import { DatabaseModule } from './database/database.module';
 
 import { validateEnv } from './config/env.config';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
@@ -16,11 +16,14 @@ import { PagosModule } from './modules/pagos/pagos.module';
 import { ComerciosModule } from './modules/comercios/comercios.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ChatModule } from './modules/chat/chat.module';
+
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
+ 	 ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+  	 DatabaseModule,
+  	 ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -29,26 +32,20 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
       }),
     }),
     NotificationsModule,
+    ChatModule,
     AuthModule,
     ComerciosModule,
     SorteosModule,
     PagosModule,
     AdminModule,
+    
   ],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    {
-      provide: 'KNEX',
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) =>
-        Knex({
-          client: 'pg',
-          connection: config.get('DATABASE_URL'),
-          pool: { min: config.get('DATABASE_POOL_MIN', 2), max: config.get('DATABASE_POOL_MAX', 10) },
-        }),
-    },
+    
+      
     {
       provide: 'REDIS',
       inject: [ConfigService],
