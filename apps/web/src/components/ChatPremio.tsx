@@ -16,7 +16,7 @@ export default function ChatPremio({ entregaId }: { entregaId: string }) {
     queryKey: ['chat-entrega', entregaId],
     queryFn: () => chatApi.mensajesEntrega(entregaId) as any,
     enabled: !!entregaId,
-    // refetchInterval: 10000,
+    refetchInterval: 10000,
   });
 
   const mensajes: any[] = Array.isArray(data)
@@ -74,6 +74,12 @@ export default function ChatPremio({ entregaId }: { entregaId: string }) {
                     {mio ? 'Vos' : m.sender_email}
                   </p>
                   <p>{m.mensaje}</p>
+
+{mio && (
+  <p className="mt-1 text-right text-[10px] font-semibold opacity-60">
+    {m.leido ? 'Leído' : 'Enviado'}
+  </p>
+)}
                 </div>
               </div>
             );
