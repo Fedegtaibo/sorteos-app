@@ -37,11 +37,13 @@ export const authApi = {
   me: () => api.post('/auth/me'),
   logout: () => api.post('/auth/logout'),
 };
+
 export const sorteosApi = {
   listar: (params?: any) => api.get('/sorteos', { params }),
   obtener: (id: string) => api.get(`/sorteos/${id}`),
   obtenerNumeros: (id: string) => api.get(`/sorteos/${id}/numeros`),
   verificar: (id: string) => api.get(`/sorteos/${id}/verificar`),
+
   misSorteos: () => api.get('/comercio/sorteos'),
   crear: (data: any) => api.post('/comercio/sorteos', data),
   activar: (id: string) => api.post(`/comercio/sorteos/${id}/activar`),
@@ -52,18 +54,22 @@ export const sorteosApi = {
 export const pagosApi = {
   reservar: (sorteoId: string, numeroId: string) =>
     api.post(`/sorteos/${sorteoId}/numeros/${numeroId}/reservar`),
+
   liberarReserva: (sorteoId: string, numeroId: string) =>
     api.delete(`/sorteos/${sorteoId}/numeros/${numeroId}/reservar`),
+
   checkout: (sorteoId: string, numeroId: string) =>
     api.post(`/sorteos/${sorteoId}/numeros/${numeroId}/checkout`),
 
-simularPago: (sorteoId: string, numeroId: string) =>
-  api.post(`/dev/sorteos/${sorteoId}/numeros/${numeroId}/simular-pago`),
+  simularPago: (sorteoId: string, numeroId: string) =>
+    api.post(`/dev/sorteos/${sorteoId}/numeros/${numeroId}/simular-pago`),
 
   checkoutMultiple: (sorteoId: string, numeroIds: string[]) =>
     api.post(`/sorteos/${sorteoId}/checkout`, { numeroIds }),
+
   misParticipaciones: () => api.get('/me/participaciones'),
-    misPremios: () => api.get('/me/premios'),
+
+  misPremios: () => api.get('/me/premios'),
 
   confirmarPremio: (id: string) =>
     api.patch(`/me/premios/${id}/confirmar`),
@@ -71,9 +77,13 @@ simularPago: (sorteoId: string, numeroId: string) =>
   reclamarPremio: (id: string, motivo: string) =>
     api.patch(`/me/premios/${id}/reclamar`, { motivo }),
 };
+
 export const comercioApi = {
   perfil: () => api.get('/comercio/perfil'),
-  actualizarPerfil: (data: any) => api.patch('/comercio/perfil', data),
+
+  actualizarPerfil: (data: any) =>
+    api.patch('/comercio/perfil', data),
+
   estadisticas: () => api.get('/comercio/estadisticas'),
 
   entregas: () => api.get('/comercio/entregas'),
@@ -84,26 +94,45 @@ export const comercioApi = {
 
 export const adminApi = {
   estadisticas: () => api.get('/admin/estadisticas'),
-  comercios: (params?: any) => api.get('/admin/comercios', { params }),
-  aprobarComercio: (id: string) => api.post(`/admin/comercios/${id}/aprobar`),
+
+  sorteos: () => api.get('/admin/sorteos'),
+
+  usuarios: () => api.get('/admin/usuarios'),
+
+  bloquearUsuario: (id: string) =>
+    api.post(`/admin/usuarios/${id}/bloquear`),
+
+  desbloquearUsuario: (id: string) =>
+    api.post(`/admin/usuarios/${id}/desbloquear`),
+
+  comercios: (params?: any) =>
+    api.get('/admin/comercios', { params }),
+
+  aprobarComercio: (id: string) =>
+    api.post(`/admin/comercios/${id}/aprobar`),
+
   rechazarComercio: (id: string, motivo: string) =>
     api.post(`/admin/comercios/${id}/rechazar`, { motivo }),
-  suspenderComercio: (id: string) => api.post(`/admin/comercios/${id}/suspender`),
-reclamos: () => api.get('/admin/reclamos'),
 
-liberarReclamo: (id: string) =>
-  api.patch(`/admin/reclamos/${id}/liberar`),
+  suspenderComercio: (id: string) =>
+    api.post(`/admin/comercios/${id}/suspender`),
 
-ponerEnRevision: (id: string) =>
-  api.patch(`/admin/reclamos/${id}/revision`),
+  reclamos: () =>
+    api.get('/admin/reclamos'),
 
-cerrarReclamo: (id: string) =>
-  api.patch(`/admin/reclamos/${id}/cerrar`),
+  liberarReclamo: (id: string) =>
+    api.patch(`/admin/reclamos/${id}/liberar`),
 
+  ponerEnRevision: (id: string) =>
+    api.patch(`/admin/reclamos/${id}/revision`),
+
+  cerrarReclamo: (id: string) =>
+    api.patch(`/admin/reclamos/${id}/cerrar`),
 };
 
 export const notificationsApi = {
   listar: () => api.get('/me/notificaciones'),
+
   marcarLeida: (id: string) =>
     api.patch(`/me/notificaciones/${id}/leida`),
 
@@ -119,6 +148,4 @@ export const chatApi = {
     api.post(`/chat/entrega/${entregaId}`, { mensaje }),
 };
 
-
 export default api;
-
