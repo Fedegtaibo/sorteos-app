@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { comercioApi } from '@/lib/api';
 import { formatFecha } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import ChatPremio from '@/components/ChatPremio';
 
 function Badge({ estado }: { estado: string }) {
   const styles: Record<string, string> = {
@@ -161,6 +162,7 @@ export default function EntregasPage() {
                   </button>
                 </div>
               </div>
+		<ChatPremio entregaId={e.id} />
             </article>
           ))}
         </section>
