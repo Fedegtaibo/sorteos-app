@@ -5,8 +5,14 @@ import { Knex } from 'knex';
 export class ChatService {
   constructor(@Inject('KNEX') private readonly db: Knex) {}
 
-  async listarMensajes(entregaId: string, userId: string) {
+   async listarMensajes(entregaId: string, userId: string) {
     await this.validarAcceso(entregaId, userId);
+
+    await this.db('mensajes_entregas')
+      .where('entrega_id', entregaId)
+      .whereNot('sender_id', userId)
+      .where('leido', false)
+      .update({ leido: true });
 
     const data = await this.db('mensajes_entregas')
       .join('users', 'mensajes_entregas.sender_id', 'users.id')
