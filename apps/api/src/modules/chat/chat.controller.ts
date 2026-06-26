@@ -19,7 +19,7 @@ export class ChatController {
   ) {
     return this.chatService.listarMensajes(
       entregaId,
-      req.user.sub,
+      req.user.id,
     );
   }
 
@@ -31,7 +31,7 @@ export class ChatController {
   ) {
     return this.chatService.enviarMensaje(
       entregaId,
-      req.user.sub,
+      req.user.id,
       dto.mensaje,
     );
   }
