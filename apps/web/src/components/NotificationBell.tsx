@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bell, Gift, X, Trophy, Sparkles } from 'lucide-react';
@@ -11,6 +12,7 @@ import { notificationsApi } from '@/lib/api';
 export default function NotificationBell() {
 
   const queryClient = useQueryClient();
+  const router = useRouter();
  
   const [open, setOpen] = useState(false);
   const [winnerNotification, setWinnerNotification] = useState<any>(null);
@@ -64,6 +66,21 @@ export default function NotificationBell() {
       });
     }, 850);
   };
+
+const handleNotificationClick = async (notification: any) => {
+  if (!notification.leida) {
+    await notificationsApi.marcarLeida(notification.id);
+
+    await queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    await queryClient.refetchQueries({ queryKey: ['notifications'] });
+  }
+
+  setOpen(false);
+
+  if (notification.url) {
+    router.push(notification.url);
+  }
+};  
 
   const handleBellClick = async () => {
   if (winnerNotificationAvailable) {
@@ -185,14 +202,18 @@ export default function NotificationBell() {
                 </div>
               ) : (
                 notifications.map((n: any) => (
-                  <div
-                    key={n.id}
-                    className={`p-3 border-b ${!n.leida ? 'bg-blue-50' : ''}`}
-                  >
-                    <div className="font-medium">{n.titulo}</div>
-                    <div className="text-sm text-gray-600">{n.mensaje}</div>
-                  </div>
-                ))
+  <button
+    key={n.id}
+    type="button"
+    onClick={() => handleNotificationClick(n)}
+    className={`w-full p-3 text-left border-b transition hover:bg-zinc-100 ${
+      !n.leida ? 'bg-blue-50' : ''
+    }`}
+  >
+    <div className="font-medium">{n.titulo}</div>
+    <div className="text-sm text-gray-600">{n.mensaje}</div>
+  </button>
+))
               )}
             </div>
           </div>

@@ -1,11 +1,15 @@
 import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { Knex } from 'knex';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ChatService {
-  constructor(@Inject('KNEX') private readonly db: Knex) {}
+  constructor(
+    @Inject('KNEX') private readonly db: Knex,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
-   async listarMensajes(entregaId: string, userId: string) {
+  async listarMensajes(entregaId: string, userId: string) {
     await this.validarAcceso(entregaId, userId);
 
     await this.db('mensajes_entregas')
@@ -28,7 +32,7 @@ export class ChatService {
   }
 
   async enviarMensaje(entregaId: string, userId: string, mensaje: string) {
-    await this.validarAcceso(entregaId, userId);
+    const entrega = await this.validarAcceso(entregaId, userId);
 
     if (!mensaje || !mensaje.trim()) {
       throw new ForbiddenException('El mensaje no puede estar vacío');
@@ -41,6 +45,24 @@ export class ChatService {
         mensaje: mensaje.trim(),
       })
       .returning('*');
+
+    const destinatarioId =
+      entrega.ganador_id === userId
+        ? entrega.comercio_user_id
+        : entrega.ganador_id;
+
+    const url =
+      entrega.ganador_id === userId
+        ? '/dashboard/entregas'
+        : '/dashboard/premios';
+
+    await this.notificationsService.crearNotificacion({
+      usuarioId: destinatarioId,
+      tipo: 'chat',
+      titulo: 'Nuevo mensaje en una entrega',
+      mensaje: 'Tenés un nuevo mensaje relacionado con la entrega de un premio.',
+      url,
+    });
 
     return {
       mensaje: 'Mensaje enviado',
