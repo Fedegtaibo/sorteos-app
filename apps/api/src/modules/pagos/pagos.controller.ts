@@ -1,7 +1,7 @@
 import {
   Controller, Post, Delete, Get, Patch, Param,
   Body, HttpCode, HttpStatus, Headers, RawBodyRequest, Req,
-  UseGuards,ForbiddenException,
+  UseGuards,ForbiddenException,UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -102,28 +102,64 @@ simularPagoAprobado(
   }
 
   @Public()
-  @Post('webhooks/mercadopago')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Webhook de MercadoPago — no llamar directamente' })
-  async webhookMP(
-    @Headers('x-signature') signature: string,
-    @Req() req: RawBodyRequest<Request>,
-    @Body() body: any,
-  ) {
-    if (signature) {
-      const secret = this.config.get<string>('MP_WEBHOOK_SECRET') || 'dev-secret';
-      const rawBody = req.rawBody?.toString() || JSON.stringify(body);
+@Post('webhooks/mercadopago')
+@HttpCode(HttpStatus.OK)
+@ApiOperation({ summary: 'Webhook de MercadoPago — no llamar directamente' })
+async webhookMP(
+  @Headers('x-signature') signature: string,
+  @Headers('x-request-id') requestId: string,
+  @Req() req: RawBodyRequest<Request>,
+  @Body() body: any,
+) {
+  const nodeEnv = this.config.get<string>('NODE_ENV');
+  const secret = this.config.get<string>('MP_WEBHOOK_SECRET') || 'dev-secret';
+
+  const dataId =
+    body?.data?.id ||
+    (req.query?.['data.id'] as string) ||
+    (req.query?.data_id as string);
+
+  if (nodeEnv === 'production') {
+    if (!signature || !requestId || !dataId) {
+      throw new UnauthorizedException('Webhook MercadoPago sin firma válida');
+    }
+  }
+
+  if (signature && requestId && dataId) {
+    const parts = Object.fromEntries(
+      signature.split(',').map((part) => {
+        const [key, value] = part.split('=');
+        return [key, value];
+      }),
+    );
+
+    const ts = parts.ts;
+    const v1 = parts.v1;
+
+    if (!ts || !v1) {
+      if (nodeEnv === 'production') {
+        throw new UnauthorizedException('Firma MercadoPago mal formada');
+      }
+
+      console.warn('Firma MercadoPago mal formada');
+    } else {
+      const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
       const expected = createHmac('sha256', secret)
-        .update(rawBody)
+        .update(manifest)
         .digest('hex');
 
-      if (signature !== `sha256=${expected}`) {
+      if (v1 !== expected) {
+        if (nodeEnv === 'production') {
+          throw new UnauthorizedException('Firma MercadoPago inválida');
+        }
+
         console.warn('Firma de webhook MP no coincide');
       }
     }
-
-    return this.pagosService.procesarWebhookMP(body);
   }
+
+  return this.pagosService.procesarWebhookMP(body);
+}
 
   @Get('me/participaciones')
   @UseGuards(RolesGuard)
