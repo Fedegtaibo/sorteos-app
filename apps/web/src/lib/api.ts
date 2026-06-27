@@ -94,6 +94,8 @@ export const comercioApi = {
 
 export const adminApi = {
   estadisticas: () => api.get('/admin/estadisticas'),
+  auditoria: (params?: any) =>
+  api.get('/admin/auditoria', { params }),
 
   sorteos: () => api.get('/admin/sorteos'),
 

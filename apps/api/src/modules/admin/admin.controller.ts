@@ -34,6 +34,12 @@ export class AdminController {
   @ApiOperation({ summary: 'Todos los sorteos de la plataforma' })
   sorteos(@Query('page') page?: number) { return this.adminService.listaSorteosTodos({ page }); }
 
+@Get('auditoria')
+@ApiOperation({ summary: 'Listar eventos de auditoria' })
+auditoria(@Query('limit') limit?: number) {
+  return this.adminService.listarAuditoria(Number(limit) || 100);
+}
+
 @Get('reclamos')
 @ApiOperation({ summary: 'Listar reclamos abiertos' })
 reclamos() {

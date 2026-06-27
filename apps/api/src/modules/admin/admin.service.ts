@@ -141,5 +141,33 @@ async cerrarReclamo(entregaId: string) {
 
   return { mensaje: 'Reclamo cerrado' };
 }
+  
+async listarAuditoria(limit = 100) {
+  const safeLimit = Math.min(Number(limit) || 100, 200);
+
+  const data = await this.db('audit_logs')
+    .leftJoin('users as actor', 'audit_logs.actor_id', 'actor.id')
+    .leftJoin('sorteos', 'audit_logs.sorteo_id', 'sorteos.id')
+    .leftJoin('comercios', 'audit_logs.comercio_id', 'comercios.id')
+    .select(
+      'audit_logs.id',
+      'audit_logs.actor_id',
+      'audit_logs.actor_role',
+      'audit_logs.accion',
+      'audit_logs.entidad_tipo',
+      'audit_logs.entidad_id',
+      'audit_logs.comercio_id',
+      'audit_logs.sorteo_id',
+      'audit_logs.metadata',
+      'audit_logs.created_at',
+      'actor.email as actor_email',
+      'sorteos.nombre as sorteo_nombre',
+      'comercios.razon_social as comercio_nombre',
+    )
+    .orderBy('audit_logs.created_at', 'desc')
+    .limit(safeLimit);
+
+  return { data };
+}
 
 }
