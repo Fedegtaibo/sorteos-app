@@ -129,9 +129,47 @@ function SorteoCard({ sorteo, compact = false }: { sorteo: any; compact?: boolea
     </Link>
   );
 }
+function getComerciosDestacados(sorteos: any[]) {
+  const map = new Map();
+
+  for (const sorteo of sorteos) {
+    if (!sorteo.comercio_id) continue;
+
+    const actual = map.get(sorteo.comercio_id) || {
+      id: sorteo.comercio_id,
+      nombre: sorteo.comercio_nombre || 'Comercio verificado',
+      sorteosActivos: 0,
+      numerosVendidos: 0,
+      totalNumeros: 0,
+    };
+
+    actual.sorteosActivos += 1;
+    actual.numerosVendidos += Number(sorteo.numeros_vendidos || 0);
+    actual.totalNumeros += Number(sorteo.cant_numeros || 0);
+
+    map.set(sorteo.comercio_id, actual);
+  }
+
+  return Array.from(map.values())
+    .map((c: any) => ({
+      ...c,
+      porcentajeVendido: c.totalNumeros
+        ? Math.round((c.numerosVendidos / c.totalNumeros) * 100)
+        : 0,
+    }))
+    .sort((a: any, b: any) => {
+      if (b.numerosVendidos !== a.numerosVendidos) {
+        return b.numerosVendidos - a.numerosVendidos;
+      }
+
+      return b.sorteosActivos - a.sorteosActivos;
+    })
+    .slice(0, 3);
+}
 
 export default async function HomePage() {
   const sorteos = await getSorteos();
+  const comerciosDestacados = getComerciosDestacados(sorteos);
 
   const destacados = [...sorteos]
     .sort((a: any, b: any) => porcentajeVendido(b) - porcentajeVendido(a))
@@ -369,6 +407,90 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+          {comerciosDestacados.length > 0 && (
+  <section className="mx-auto max-w-7xl px-4 py-10">
+    <div className="mb-7">
+      <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
+        Comercios destacados
+      </p>
+
+      <h2 className="mt-2 text-3xl font-black text-white">
+        Locales verificados con actividad
+      </h2>
+
+      <p className="mt-2 max-w-2xl text-sm text-zinc-500">
+        Ranking visual basado en sorteos activos, números vendidos y presencia dentro del marketplace.
+      </p>
+    </div>
+
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+      {comerciosDestacados.map((comercio: any, index: number) => (
+        <Link
+          key={comercio.id}
+          href={`/comercios/${comercio.id}`}
+          className="group rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 shadow-2xl transition hover:-translate-y-1 hover:border-amber-400/60"
+        >
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div className="grid h-16 w-16 place-items-center rounded-3xl bg-amber-400 text-2xl font-black text-black shadow-xl">
+              {String(comercio.nombre || 'S').slice(0, 1)}
+            </div>
+
+            <div className="rounded-full bg-amber-400 px-3 py-1 text-xs font-black text-black">
+              #{index + 1}
+            </div>
+          </div>
+
+          <p className="mb-2 inline-flex rounded-full bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">
+            Comercio verificado
+          </p>
+
+          <h3 className="line-clamp-2 text-xl font-black text-white group-hover:text-amber-300">
+            {comercio.nombre}
+          </h3>
+
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-black p-4">
+              <p className="text-2xl font-black text-amber-300">
+                {comercio.sorteosActivos}
+              </p>
+              <p className="mt-1 text-xs font-bold text-zinc-500">
+                Sorteos activos
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-black p-4">
+              <p className="text-2xl font-black text-amber-300">
+                {comercio.numerosVendidos}
+              </p>
+              <p className="mt-1 text-xs font-bold text-zinc-500">
+                Números vendidos
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div className="mb-2 flex justify-between text-xs font-semibold text-zinc-500">
+              <span>Actividad comercial</span>
+              <span>{comercio.porcentajeVendido}%</span>
+            </div>
+
+            <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+              <div
+                className="h-full rounded-full bg-amber-400"
+                style={{ width: `${comercio.porcentajeVendido}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-center text-sm font-black text-amber-300 transition group-hover:bg-amber-400 group-hover:text-black">
+            Ver local →
+          </div>
+        </Link>
+      ))}
+    </div>
+  </section>
+)}
 
       {proximos.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-10">
