@@ -6,12 +6,14 @@ import { Knex } from 'knex';
 import { createHash, randomBytes } from 'crypto';
 import { CreateSorteoDto } from './dto/create-sorteo.dto';
 import { RealizarSorteoDto } from './dto/realizar-sorteo.dto';
+import { AuditService } from '../audit/audit.service';
 import { NotificationsService } from '../notifications/notifications.service';
 @Injectable()
 export class SorteosService {
   constructor(
   @Inject('KNEX') private readonly db: Knex,
   private readonly notificationsService: NotificationsService,
+  private readonly auditService: AuditService,
 ) {}
 
   // ─── PUBLICO ──────────────────────────────────────────────
@@ -123,7 +125,7 @@ export class SorteosService {
     return sorteo;
   }
 
-  async activar(sorteoId: string, comercioId: string) {
+  async activar(sorteoId: string, comercioId: string, actorId?: string) {
     const sorteo = await this.getSorteoDeComercio(sorteoId, comercioId);
 
     if (sorteo.estado !== 'borrador') {
@@ -163,6 +165,23 @@ export class SorteosService {
       await trx('chances_internas').insert(chancesData);
       await trx('sorteos').where({ id: sorteoId }).update({ estado: 'activo', activado_at: new Date() });
     });
+
+
+    await this.auditService.registrar({
+  actorId: actorId || null,
+  actorRole: 'comercio',
+  accion: 'sorteo.activado',
+  entidadTipo: 'sorteo',
+  entidadId: sorteoId,
+  comercioId,
+  sorteoId,
+  metadata: {
+    nombre: sorteo.nombre,
+    cantNumeros: sorteo.cant_numeros,
+    chancesPorNumero: sorteo.chances_por_numero,
+  },
+});
+
 
     return { mensaje: 'Sorteo activado correctamente' };
   }

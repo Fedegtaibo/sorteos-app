@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Knex from 'knex';
+import { AuditModule } from '../audit/audit.module';
 
 import { SorteosService } from './sorteos.service';
 import { SorteosController } from './sorteos.controller';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, AuditModule],
   providers: [
     {
       provide: 'KNEX',

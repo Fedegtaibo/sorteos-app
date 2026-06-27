@@ -82,9 +82,9 @@ export class SorteosController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Activar sorteo — genera numeros y chances' })
   async activar(@Param('id') id: string, @CurrentUser() user: any) {
-    const comercio = await this.getComercioId(user.id);
-    return this.sorteosService.activar(id, comercio.id);
-  }
+  const comercio = await this.getComercioId(user.id);
+  return this.sorteosService.activar(id, comercio.id, user.id);
+}
 
   @Post('comercio/sorteos/:id/sortear')
   @UseGuards(RolesGuard)

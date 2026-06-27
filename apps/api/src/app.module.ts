@@ -15,8 +15,10 @@ import { SorteosModule } from './modules/sorteos/sorteos.module';
 import { PagosModule } from './modules/pagos/pagos.module';
 import { ComerciosModule } from './modules/comercios/comercios.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { AuditModule } from './modules/audit/audit.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ChatModule } from './modules/chat/chat.module';
+
 
 
 @Module({
