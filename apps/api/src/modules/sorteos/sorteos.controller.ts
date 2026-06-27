@@ -71,9 +71,9 @@ export class SorteosController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Crear nuevo sorteo en borrador' })
   async crear(@CurrentUser() user: any, @Body() dto: CreateSorteoDto) {
-    const comercio = await this.getComercioId(user.id);
-    return this.sorteosService.crear(comercio.id, dto);
-  }
+  const comercio = await this.getComercioId(user.id);
+  return this.sorteosService.crear(comercio.id, dto, user.id);
+}
 
   @Post('comercio/sorteos/:id/activar')
   @UseGuards(RolesGuard)

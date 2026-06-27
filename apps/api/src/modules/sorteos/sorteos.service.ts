@@ -102,27 +102,44 @@ export class SorteosService {
 
   // ─── COMERCIO ─────────────────────────────────────────────
 
-  async crear(comercioId: string, dto: CreateSorteoDto) {
+  async crear(comercioId: string, dto: CreateSorteoDto, actorId?: string) {
     const fechaSorteo = new Date(dto.fechaSorteo);
     if (fechaSorteo <= new Date()) {
       throw new BadRequestException('La fecha del sorteo debe ser futura');
     }
 
     const [sorteo] = await this.db('sorteos')
-      .insert({
-        comercio_id: comercioId,
-        nombre: dto.nombre,
-        descripcion: dto.descripcion,
-        imagen_principal_url: dto.imagenPrincipalUrl,
-        fecha_sorteo: fechaSorteo,
-        valor_numero: dto.valorNumero,
-        cant_numeros: dto.cantNumeros,
-        chances_por_numero: dto.chancesPorNumero || 1,
-        estado: 'borrador',
-      })
-      .returning('*');
+  .insert({
+    comercio_id: comercioId,
+    nombre: dto.nombre,
+    descripcion: dto.descripcion,
+    imagen_principal_url: dto.imagenPrincipalUrl,
+    fecha_sorteo: fechaSorteo,
+    valor_numero: dto.valorNumero,
+    cant_numeros: dto.cantNumeros,
+    chances_por_numero: dto.chancesPorNumero || 1,
+    estado: 'borrador',
+  })
+  .returning('*');
 
-    return sorteo;
+await this.auditService.registrar({
+  actorId: actorId || null,
+  actorRole: 'comercio',
+  accion: 'sorteo.creado',
+  entidadTipo: 'sorteo',
+  entidadId: sorteo.id,
+  comercioId,
+  sorteoId: sorteo.id,
+  metadata: {
+    nombre: sorteo.nombre,
+    cantNumeros: sorteo.cant_numeros,
+    valorNumero: sorteo.valor_numero,
+    fechaSorteo: sorteo.fecha_sorteo,
+    estado: sorteo.estado,
+  },
+});
+
+return sorteo;
   }
 
   async activar(sorteoId: string, comercioId: string, actorId?: string) {
