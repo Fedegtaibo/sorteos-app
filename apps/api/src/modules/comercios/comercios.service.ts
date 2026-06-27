@@ -82,16 +82,95 @@ export class ComerciosService {
       .count('* as total')
       .first();
 
+    const totalSorteosNum = Number(totalSorteos?.total || 0);
+const sorteosFinalizadosNum = Number(sorteosFinalizados?.total || 0);
+const entregasConfirmadasNum = Number(entregasConfirmadas?.total || 0);
+const reclamosNum = Number(reclamos?.total || 0);
+
+const antiguedadDias = Math.max(
+  0,
+  Math.floor(
+    (Date.now() - new Date(comercio.created_at).getTime()) /
+      (1000 * 60 * 60 * 24),
+  ),
+);
+
+let puntaje = 20;
+
+if (comercio.estado === 'aprobado') puntaje += 30;
+
+puntaje += Math.min(sorteosFinalizadosNum * 10, 25);
+puntaje += Math.min(entregasConfirmadasNum * 8, 20);
+puntaje += Math.min(Math.floor(antiguedadDias / 30) * 3, 10);
+puntaje -= reclamosNum * 12;
+
+if (totalSorteosNum === 0) {
+  puntaje = Math.min(puntaje, 55);
+}
+
+puntaje = Math.max(0, Math.min(100, puntaje));
+
+let nivel = 'Inicial';
+let color = 'zinc';
+
+if (puntaje >= 85) {
+  nivel = 'Excelente';
+  color = 'emerald';
+} else if (puntaje >= 70) {
+  nivel = 'Muy confiable';
+  color = 'green';
+} else if (puntaje >= 50) {
+  nivel = 'En crecimiento';
+  color = 'amber';
+} else {
+  nivel = 'Observado';
+  color = 'red';
+}
+
+const motivos: string[] = [];
+
+if (comercio.estado === 'aprobado') {
+  motivos.push('Comercio verificado por la plataforma');
+}
+
+if (sorteosFinalizadosNum > 0) {
+  motivos.push(`${sorteosFinalizadosNum} sorteo(s) finalizado(s)`);
+}
+
+if (entregasConfirmadasNum > 0) {
+  motivos.push(`${entregasConfirmadasNum} entrega(s) confirmada(s)`);
+}
+
+if (antiguedadDias >= 30) {
+  motivos.push(`Más de ${Math.floor(antiguedadDias / 30)} mes(es) en Sortealo`);
+}
+
+if (reclamosNum > 0) {
+  motivos.push(`${reclamosNum} reclamo(s) registrado(s)`);
+}
+
+if (motivos.length === 0) {
+  motivos.push('Comercio en etapa inicial dentro de Sortealo');
+}
+
+const scoreConfianza = {
+  puntaje,
+  nivel,
+  color,
+  motivos,
+};  
+
     return {
       comercio,
       reputacion: {
-        verificado: comercio.estado === 'aprobado',
-        totalSorteos: Number(totalSorteos?.total || 0),
-        sorteosFinalizados: Number(sorteosFinalizados?.total || 0),
-        entregasConfirmadas: Number(entregasConfirmadas?.total || 0),
-        reclamos: Number(reclamos?.total || 0),
-      },
-      sorteos: sorteos.map((s) => ({
+  verificado: comercio.estado === 'aprobado',
+  totalSorteos: totalSorteosNum,
+  sorteosFinalizados: sorteosFinalizadosNum,
+  entregasConfirmadas: entregasConfirmadasNum,
+  reclamos: reclamosNum,
+},
+scoreConfianza,
+sorteos: sorteos.map((s) => ({
         ...s,
         comercio_id: comercioId,
         comercio_nombre: comercio.razon_social,

@@ -147,7 +147,7 @@ export default async function ComercioPublicoPage({
     notFound();
   }
 
-  const { comercio, reputacion, sorteos } = perfil;
+  const { comercio, reputacion, scoreConfianza, sorteos } = perfil;
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -228,6 +228,53 @@ export default async function ComercioPublicoPage({
               </div>
             </div>
           </div>
+
+          <div className="mt-10 rounded-[2rem] border border-amber-400/30 bg-zinc-950 p-6 shadow-2xl">
+  <div className="grid gap-6 lg:grid-cols-[220px_1fr] lg:items-center">
+    <div className="text-center lg:text-left">
+      <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
+        Nivel de confianza
+      </p>
+
+      <div className="mt-4 inline-flex h-36 w-36 items-center justify-center rounded-full border-8 border-amber-400 bg-black shadow-2xl">
+        <div>
+          <p className="text-4xl font-black text-white">
+            {scoreConfianza?.puntaje ?? 0}
+          </p>
+          <p className="text-xs font-black text-zinc-500">/100</p>
+        </div>
+      </div>
+
+      <p className="mt-4 text-xl font-black text-amber-300">
+        {scoreConfianza?.nivel || 'Inicial'}
+      </p>
+    </div>
+
+    <div>
+      <h2 className="text-2xl font-black text-white">
+        Señales de confianza del comercio
+      </h2>
+
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
+        Este puntaje se calcula con datos internos de Sortealo: verificación del comercio,
+        sorteos realizados, entregas confirmadas, antigüedad y reclamos registrados.
+      </p>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        {(scoreConfianza?.motivos || []).map((motivo: string) => (
+          <div
+            key={motivo}
+            className="rounded-2xl border border-zinc-800 bg-black p-4 text-sm font-bold text-zinc-300"
+          >
+            {motivo}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div> 
+
+         
 
           <div className="mt-10 grid gap-4 md:grid-cols-4">
             <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
