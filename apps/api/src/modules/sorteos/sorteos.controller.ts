@@ -98,7 +98,7 @@ export class SorteosController {
     @Body() dto: RealizarSorteoDto,
   ) {
     const comercio = await this.getComercioId(user.id);
-    return this.sorteosService.realizar(id, comercio.id, dto);
+    return this.sorteosService.realizar(id, comercio.id, dto, user.id);
   }
 
   // Helper: obtener comercio del usuario autenticado

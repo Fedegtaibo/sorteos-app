@@ -203,7 +203,7 @@ return sorteo;
     return { mensaje: 'Sorteo activado correctamente' };
   }
 
-  async realizar(sorteoId: string, comercioId: string, dto: RealizarSorteoDto) {
+  async realizar(sorteoId: string, comercioId: string, dto: RealizarSorteoDto, actorId?: string) {
     const sorteo = await this.getSorteoDeComercio(sorteoId, comercioId);
 
     if (sorteo.estado !== 'activo') {
@@ -277,6 +277,26 @@ return sorteo;
   url: '/dashboard/premios',
 });
 
+
+await this.auditService.registrar({
+  actorId: actorId || null,
+  actorRole: 'comercio',
+  accion: 'sorteo.realizado',
+  entidadTipo: 'sorteo',
+  entidadId: sorteoId,
+  comercioId,
+  sorteoId,
+  metadata: {
+    nombre: sorteo.nombre,
+    numeroGanador: chanceGanadora.numero_visible,
+    numeroId: chanceGanadora.numero_id,
+    participacionId: participacion.id,
+    ganadorId: participacion.usuario_id,
+    seedExterno: dto.seedExterno,
+    hashResultado,
+    totalParticipantes: chancesSoldas.length,
+  },
+});
 
 
 
