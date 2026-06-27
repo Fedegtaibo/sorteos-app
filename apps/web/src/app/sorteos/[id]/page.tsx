@@ -289,47 +289,49 @@ const numeros: any[] = getArrayFromResponse(numerosData);
                     <b>Total</b>
                     <strong>{formatMonto(totalSeleccion)}</strong>
                   </div>
+                    <div style={{ display: 'flex', gap: 16, marginTop: 24, flexWrap: 'wrap' }}>
+  <button className="back" onClick={() => setSelectedIds([])}>
+    Limpiar
+  </button>
 
-                  <div style={{ display: 'flex', gap: 16, marginTop: 24 }}>
-                    <button className="back" onClick={() => setSelectedIds([])}>
-                      Limpiar
-                    </button>
+  <button className="pay" onClick={reservarSeleccion} disabled={procesando}>
+    {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
+  </button>
 
-                    <button className="pay" onClick={reservarSeleccion} disabled={procesando}>
-                      {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
+  <button
+    className="pay"
+    style={{ background: '#16a34a' }}
+    disabled={procesando}
+    onClick={async () => {
+      try {
+        setProcesando(true);
 
-<button
-  className="pay"
-  style={{ background: '#16a34a' }}
-  disabled={procesando}
-  onClick={async () => {
-    try {
-      setProcesando(true);
+        if (selectedIds.length === 0) {
+          toast.error('Seleccioná al menos un número');
+          return;
+        }
 
-      if (selectedIds.length === 0) {
-        toast.error('Seleccioná un número');
-        return;
+        for (const numeroId of selectedIds) {
+          await pagosApi.reservar(id, numeroId);
+          await pagosApi.simularPago(id, numeroId);
+        }
+
+        toast.success('Pago simulado correctamente');
+        setSelectedIds([]);
+        await refetch();
+        router.push('/dashboard/participaciones');
+      } catch (err: any) {
+        toast.error(err.message || 'Error simulando pago');
+        await refetch();
+      } finally {
+        setProcesando(false);
       }
-
-      const numeroId = selectedIds[0];
-
-      await pagosApi.reservar(id, numeroId);
-      await pagosApi.simularPago(id, numeroId);
-
-      toast.success('Pago simulado correctamente');
-      setSelectedIds([]);
-      await refetch();
-    } catch (err: any) {
-      toast.error(err.message || 'Error simulando pago');
-    } finally {
-      setProcesando(false);
-    }
-  }}
->
-  Simular pago 🧪
-</button>
-                    </button>
-                  </div>
+    }}
+  >
+    Simular pago 🧪
+  </button>
+</div>
+                  
                 </section>
 
                 <div className="mobile-buy-bar">
