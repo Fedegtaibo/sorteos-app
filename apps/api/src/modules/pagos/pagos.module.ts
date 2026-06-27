@@ -1,3 +1,4 @@
+import { AuditModule } from '../audit/audit.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
@@ -9,6 +10,7 @@ import { PagosController } from './pagos.controller';
 @Module({
   imports: [
     ConfigModule,
+    AuditModule,
     BullModule.registerQueue({
       name: 'pagos',
     }),

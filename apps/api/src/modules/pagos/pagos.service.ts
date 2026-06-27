@@ -7,17 +7,19 @@ import { Knex } from 'knex';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import Redis from 'ioredis';
+import { AuditService } from '../audit/audit.service';
 
 @Injectable()
 export class PagosService {
   private readonly logger = new Logger(PagosService.name);
 
   constructor(
-    @Inject('KNEX') private readonly db: Knex,
-    @Inject('REDIS') private readonly redis: Redis,
-    @InjectQueue('pagos') private readonly pagosQueue: Queue,
-    private readonly config: ConfigService,
-  ) {}
+  @Inject('KNEX') private readonly db: Knex,
+  @Inject('REDIS') private readonly redis: Redis,
+  @InjectQueue('pagos') private readonly pagosQueue: Queue,
+  private readonly config: ConfigService,
+  private readonly auditService: AuditService,
+) {}
 
   // ─── RESERVA ──────────────────────────────────────────────
 
@@ -495,8 +497,8 @@ await this.db('liberaciones_fondos')
 
   // ─── DEV ──────────────────────────────────────────────────
 
-  async simularPagoAprobado(sorteoId: string, numeroId: string, userId: string) {
-    return this.db.transaction(async (trx) => {
+    async simularPagoAprobado(sorteoId: string, numeroId: string, userId: string) {
+    const resultado = await this.db.transaction(async (trx) => {
       const numero = await trx('numeros')
         .where({
           id: numeroId,
@@ -543,7 +545,7 @@ await this.db('liberaciones_fondos')
         participacion_id: participacion.id,
         usuario_id: userId,
         numero_id: numeroId,
-	proveedor: 'mercadopago',
+        proveedor: 'mercadopago',
         preference_id: devId,
         external_id: devId,
         monto: sorteo.valor_numero,
@@ -557,8 +559,37 @@ await this.db('liberaciones_fondos')
       return {
         mensaje: 'Pago simulado correctamente',
         participacion,
+        audit: {
+          sorteo,
+          numero,
+          devId,
+        },
       };
     });
+
+    await this.auditService.registrar({
+      actorId: userId,
+      actorRole: 'participante',
+      accion: 'pago.simulado',
+      entidadTipo: 'participacion',
+      entidadId: resultado.participacion.id,
+      comercioId: resultado.audit.sorteo.comercio_id,
+      sorteoId,
+      metadata: {
+        sorteoNombre: resultado.audit.sorteo.nombre,
+        numeroId,
+        numeroVisible: resultado.audit.numero.numero_visible,
+        participacionId: resultado.participacion.id,
+        monto: resultado.participacion.monto_pagado,
+        proveedor: 'mercadopago',
+        externalId: resultado.audit.devId,
+        estado: 'aprobado',
+      },
+    });
+
+    return {
+      mensaje: resultado.mensaje,
+      participacion: resultado.participacion,
+    };
   }
 }
- 
