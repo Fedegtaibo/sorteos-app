@@ -466,6 +466,25 @@ await this.db('liberaciones_fondos')
   }); 
 
 
+   await this.auditService.registrar({
+  actorId: userId,
+  actorRole: 'participante',
+  accion: 'premio.reclamado',
+  entidadTipo: 'entrega_premio',
+  entidadId: entregaId,
+  comercioId: entrega.comercio_id,
+  sorteoId: entrega.sorteo_id,
+  metadata: {
+    entregaId,
+    ganadorId: userId,
+    participacionId: entrega.participacion_id,
+    motivo: motivo || 'Reclamo iniciado por el ganador',
+    estadoAnterior: entrega.estado,
+    estadoNuevo: 'reclamado',
+    fondos: 'retenidos',
+  },
+});
+
     return {
       mensaje: 'Reclamo iniciado. Un administrador revisará el caso.',
       entrega: updated,
