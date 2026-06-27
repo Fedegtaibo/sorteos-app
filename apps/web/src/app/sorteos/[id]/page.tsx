@@ -1,6 +1,7 @@
 'use client';
 
 import '../../redesign/styles.css';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -118,7 +119,7 @@ const numeros: any[] = getArrayFromResponse(numerosData);
     return (
       <main className="phone">
         <section className="content">
-          <button className="back" onClick={() => router.push('/dashboard/explorar')}>
+          <button className="back" onClick={() => router.push('/')}>
             <ArrowLeft size={18} /> Volver
           </button>
           <h1>Sorteo no encontrado</h1>
@@ -224,9 +225,40 @@ const numeros: any[] = getArrayFromResponse(numerosData);
             <p>PREMIO</p>
             <h1>{sorteo.nombre}</h1>
 
-            <div className="shop-dot">
-              T <span>{sorteo.comercio_nombre}</span>
-            </div>
+            {sorteo.comercio_id ? (
+  <Link
+    href={`/comercios/${sorteo.comercio_id}`}
+    className="mt-4 flex items-center justify-between gap-4 rounded-3xl border border-amber-400/40 bg-amber-400/10 p-4 text-left transition hover:border-amber-300 hover:bg-amber-400/20"
+  >
+    <div className="flex min-w-0 items-center gap-3">
+      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-400 text-lg font-black text-black shadow-lg">
+        {String(sorteo.comercio_nombre || 'S').slice(0, 1)}
+      </div>
+
+      <div className="min-w-0">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">
+          Comercio verificado
+        </p>
+
+        <p className="truncate text-base font-black text-white">
+          {sorteo.comercio_nombre}
+        </p>
+
+        <p className="text-xs font-semibold text-zinc-400">
+          Ver perfil, reputación y otros sorteos
+        </p>
+      </div>
+    </div>
+
+    <span className="shrink-0 rounded-2xl bg-amber-400 px-4 py-2 text-xs font-black text-black">
+      Ver local →
+    </span>
+  </Link>
+) : (
+  <div className="shop-dot">
+    T <span>{sorteo.comercio_nombre}</span>
+  </div>
+)}
 
             {sorteo.descripcion && <p className="desc">{sorteo.descripcion}</p>}
 

@@ -11,6 +11,95 @@ import { Knex } from 'knex';
 export class ComerciosService {
   constructor(@Inject('KNEX') private readonly db: Knex) {}
 
+    async obtenerPerfilPublico(comercioId: string) {
+    const comercio = await this.db('comercios')
+      .join('users', 'comercios.user_id', 'users.id')
+      .where('comercios.id', comercioId)
+      .where('comercios.estado', 'aprobado')
+      .select(
+        'comercios.id',
+        'comercios.razon_social',
+        'comercios.telefono',
+        'comercios.estado',
+        'comercios.created_at',
+        'users.email',
+      )
+      .first();
+
+    if (!comercio) {
+      throw new NotFoundException('Comercio no encontrado');
+    }
+
+    const sorteos = await this.db('sorteos')
+      .where({
+        comercio_id: comercioId,
+        estado: 'activo',
+      })
+      .select(
+        'id',
+        'nombre',
+        'descripcion',
+        'imagen_principal_url',
+        'fecha_sorteo',
+        'valor_numero',
+        'cant_numeros',
+        'estado',
+      )
+      .orderBy('fecha_sorteo', 'asc');
+
+    const ids = sorteos.map((s) => s.id);
+
+    const vendidos = ids.length
+      ? await this.db('numeros')
+          .whereIn('sorteo_id', ids)
+          .where('estado', 'vendido')
+          .groupBy('sorteo_id')
+          .select('sorteo_id')
+          .count('* as total')
+      : [];
+
+    const vendidosMap = Object.fromEntries(
+      vendidos.map((v) => [v.sorteo_id, Number(v.total)]),
+    );
+
+    const totalSorteos = await this.db('sorteos')
+      .where({ comercio_id: comercioId })
+      .count('* as total')
+      .first();
+
+    const sorteosFinalizados = await this.db('sorteos')
+      .where({ comercio_id: comercioId, estado: 'finalizado' })
+      .count('* as total')
+      .first();
+
+    const entregasConfirmadas = await this.db('entregas_premios')
+      .where({ comercio_id: comercioId, estado: 'confirmado' })
+      .count('* as total')
+      .first();
+
+    const reclamos = await this.db('entregas_premios')
+      .where({ comercio_id: comercioId, estado: 'reclamado' })
+      .count('* as total')
+      .first();
+
+    return {
+      comercio,
+      reputacion: {
+        verificado: comercio.estado === 'aprobado',
+        totalSorteos: Number(totalSorteos?.total || 0),
+        sorteosFinalizados: Number(sorteosFinalizados?.total || 0),
+        entregasConfirmadas: Number(entregasConfirmadas?.total || 0),
+        reclamos: Number(reclamos?.total || 0),
+      },
+      sorteos: sorteos.map((s) => ({
+        ...s,
+        comercio_id: comercioId,
+        comercio_nombre: comercio.razon_social,
+        numeros_vendidos: vendidosMap[s.id] || 0,
+      })),
+    };
+  }
+
   async obtenerMiPerfil(userId: string) {
     const comercio = await this.db('comercios')
       .join('users', 'comercios.user_id', 'users.id')

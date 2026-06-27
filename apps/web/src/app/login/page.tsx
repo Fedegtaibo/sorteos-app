@@ -32,7 +32,21 @@ export default function LoginPage() {
   return (
     <main className="phone">
       <section className="content" style={{ minWidth: 'auto' }}>
-        <div className="card form" style={{ maxWidth: 620, margin: '80px auto' }}>
+  <div style={{ maxWidth: 620, margin: '40px auto 0' }}>
+    <Link
+      href="/"
+      className="back"
+      style={{
+        display: 'inline-flex',
+        marginBottom: 18,
+        textDecoration: 'none',
+      }}
+    >
+      ← Volver al inicio
+    </Link>
+  </div>
+
+  <div className="card form" style={{ maxWidth: 620, margin: '18px auto 80px' }}>
           <div style={{ marginBottom: 36 }}>
             <div style={{ fontSize: 42, marginBottom: 18 }}>🎯</div>
             <p>SORTEALO</p>

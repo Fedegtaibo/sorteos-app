@@ -4,12 +4,21 @@ import { ComerciosService } from './comercios.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { Public } from '../auth/decorators/public.decorator';
+
 
 @ApiTags('Comercios')
 @Controller()
 @ApiBearerAuth()
 export class ComerciosController {
   constructor(private readonly comerciosService: ComerciosService) {}
+
+  @Public()
+@Get('comercios/:id/publico')
+@ApiOperation({ summary: 'Perfil publico del comercio' })
+perfilPublico(@Param('id') id: string) {
+  return this.comerciosService.obtenerPerfilPublico(id);
+}
 
   @Get('comercio/perfil')
   @UseGuards(RolesGuard) @Roles('comercio')

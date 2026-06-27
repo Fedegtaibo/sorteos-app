@@ -24,12 +24,17 @@ export class SorteosService {
     let query = this.db('sorteos')
       .join('comercios', 'sorteos.comercio_id', 'comercios.id')
       .select(
-        'sorteos.id', 'sorteos.nombre', 'sorteos.descripcion',
-        'sorteos.imagen_principal_url', 'sorteos.fecha_sorteo',
-        'sorteos.valor_numero', 'sorteos.cant_numeros', 'sorteos.estado',
-        'comercios.razon_social as comercio_nombre',
-      );
-
+  'sorteos.id',
+  'sorteos.nombre',
+  'sorteos.descripcion',
+  'sorteos.imagen_principal_url',
+  'sorteos.fecha_sorteo',
+  'sorteos.valor_numero',
+  'sorteos.cant_numeros',
+  'sorteos.estado',
+  'comercios.id as comercio_id',
+  'comercios.razon_social as comercio_nombre',
+);
     if (filtros.estado) query = query.where('sorteos.estado', filtros.estado);
     else query = query.whereIn('sorteos.estado', ['activo']);
 
