@@ -1,7 +1,7 @@
 import {
   Controller, Post, Delete, Get, Patch, Param,
   Body, HttpCode, HttpStatus, Headers, RawBodyRequest, Req,
-  UseGuards,
+  UseGuards,ForbiddenException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -67,18 +67,26 @@ export class PagosController {
   }
 
   @Public()
-  @Post('dev/sorteos/:sorteoId/numeros/:numeroId/simular-pago')
-  @ApiOperation({ summary: 'DEV: simular pago aprobado' })
-  simularPagoAprobado(
-    @Param('sorteoId') sorteoId: string,
-    @Param('numeroId') numeroId: string,
-  ) {
-    return this.pagosService.simularPagoAprobado(
-      sorteoId,
-      numeroId,
-      '05c9d289-2554-44ff-aee3-5ace0c2be37f',
+@Post('dev/sorteos/:sorteoId/numeros/:numeroId/simular-pago')
+@ApiOperation({ summary: 'DEV: simular pago aprobado' })
+simularPagoAprobado(
+  @Param('sorteoId') sorteoId: string,
+  @Param('numeroId') numeroId: string,
+) {
+  const nodeEnv = this.config.get<string>('NODE_ENV');
+
+  if (nodeEnv !== 'development') {
+    throw new ForbiddenException(
+      'El pago simulado solo está disponible en desarrollo',
     );
   }
+
+  return this.pagosService.simularPagoAprobado(
+    sorteoId,
+    numeroId,
+    '05c9d289-2554-44ff-aee3-5ace0c2be37f',
+  );
+}
 
   @Post('sorteos/:sorteoId/checkout')
   @UseGuards(RolesGuard)
