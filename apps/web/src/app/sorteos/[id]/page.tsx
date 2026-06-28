@@ -133,6 +133,7 @@ const numeros: any[] = getArrayFromResponse(numerosData);
   const libres = numeros.filter((n) => n.estado === 'libre').length;
   const pct = Math.round((vendidos / Number(sorteo.cant_numeros)) * 100);
   const totalSeleccion = seleccionados.length * Number(sorteo.valor_numero);
+  const puedeSimularPago = process.env.NODE_ENV === 'development';
 
   const toggleNumero = (numero: any) => {
     if (numero.estado !== 'libre') return;
@@ -330,6 +331,7 @@ const numeros: any[] = getArrayFromResponse(numerosData);
     {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
   </button>
 
+  {puedeSimularPago && (
   <button
     className="pay"
     style={{ background: '#16a34a' }}
@@ -359,11 +361,11 @@ const numeros: any[] = getArrayFromResponse(numerosData);
         setProcesando(false);
       }
     }}
-  >
+   >
     Simular pago 🧪
   </button>
+)}
 </div>
-                  
                 </section>
 
                 <div className="mobile-buy-bar">
