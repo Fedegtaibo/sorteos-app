@@ -9,13 +9,24 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log'],
   });
 
-  // CORS — desarrollo local
-app.enableCors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-});
+    // CORS — abierto en desarrollo, restringido al frontend oficial en producción
+  const isProduction = process.env.NODE_ENV === 'production';
+  const frontendUrl = process.env.FRONTEND_URL;
+
+  app.enableCors({
+    origin: isProduction
+      ? (origin, callback) => {
+          if (!origin || origin === frontendUrl) {
+            return callback(null, true);
+          }
+
+          return callback(new Error(`Origen no permitido por CORS: ${origin}`), false);
+        }
+      : true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
 
   // Prefijo global de la API
   app.setGlobalPrefix('v1');
