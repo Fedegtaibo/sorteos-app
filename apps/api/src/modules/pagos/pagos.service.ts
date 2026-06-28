@@ -233,9 +233,12 @@ export class PagosService {
 
     if (payment.status !== 'approved') {
       this.logger.log(`Pago ${paymentId} no aprobado: ${payment.status}`);
+
       await this.db('pagos')
         .where({ preference_id: payment.preference_id })
-        .update({ estado: payment.status === 'rejected' ? 'rechazado' : 'pendiente' });
+        .update({
+          estado: payment.status === 'rejected' ? 'rechazado' : 'pendiente',
+        });
 
       return { status: payment.status };
     }
@@ -258,6 +261,9 @@ export class PagosService {
       sorteoId = sorteoRaw;
     }
 
+    const auditLogs: any[] = [];
+    let compraConfirmada = false;
+
     try {
       await this.db.transaction(async (trx) => {
         const numeros = await trx('numeros')
@@ -271,9 +277,17 @@ export class PagosService {
 
         if (numeros.length !== numeroIds.length) {
           this.logger.warn(
-            `Uno o más números no disponibles para pago ${paymentId}. No se confirma la compra.`,
+            `Uno o mas numeros no disponibles para pago ${paymentId}. No se confirma la compra.`,
           );
           return;
+        }
+
+        const sorteo = await trx('sorteos')
+          .where({ id: sorteoId })
+          .first();
+
+        if (!sorteo) {
+          throw new NotFoundException('Sorteo no encontrado');
         }
 
         const montoPorNumero = Number(payment.transaction_amount) / numeroIds.length;
@@ -328,7 +342,33 @@ export class PagosService {
           }
 
           await this.redis.del(`reserva:${numero.id}`);
+
+          auditLogs.push({
+            actorId: userId,
+            actorRole: 'participante',
+            accion: 'pago.mercadopago.aprobado',
+            entidadTipo: 'participacion',
+            entidadId: participacion.id,
+            comercioId: sorteo.comercio_id,
+            sorteoId,
+            metadata: {
+              paymentId: String(paymentId),
+              preferenceId: payment.preference_id,
+              externalId,
+              sorteoNombre: sorteo.nombre,
+              numeroId: numero.id,
+              numeroVisible: numero.numero_visible,
+              participacionId: participacion.id,
+              monto: montoPorNumero,
+              proveedor: 'mercadopago',
+              estado: 'aprobado',
+              paymentStatus: payment.status,
+              paymentMethodId: payment.payment_method_id || null,
+            },
+          });
         }
+
+        compraConfirmada = true;
       });
     } catch (err: any) {
       if (err.code === '23505') {
@@ -339,8 +379,17 @@ export class PagosService {
       throw err;
     }
 
-    return { confirmed: true, paymentId, numeroIds };
+    for (const log of auditLogs) {
+      await this.auditService.registrar(log);
+    }
+
+    return {
+      confirmed: compraConfirmada,
+      paymentId,
+      numeroIds,
+    };
   }
+
       async obtenerMisPremios(userId: string) {
     const premios = await this.db('entregas_premios')
       .join('sorteos', 'entregas_premios.sorteo_id', 'sorteos.id')
