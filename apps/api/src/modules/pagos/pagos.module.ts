@@ -2,7 +2,6 @@ import { AuditModule } from '../audit/audit.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
-import Knex from 'knex';
 
 import { PagosService } from './pagos.service';
 import { PagosController } from './pagos.controller';
@@ -17,15 +16,6 @@ import { PagosController } from './pagos.controller';
   ],
   providers: [
     {
-      provide: 'KNEX',
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) =>
-        Knex({
-          client: 'pg',
-          connection: config.get('DATABASE_URL'),
-        }),
-    },
-    {
       provide: 'REDIS',
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
@@ -36,6 +26,6 @@ import { PagosController } from './pagos.controller';
     PagosService,
   ],
   controllers: [PagosController],
-  exports: [PagosService, 'KNEX', 'REDIS'],
+  exports: [PagosService, 'REDIS'],
 })
 export class PagosModule {}

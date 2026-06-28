@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Knex from 'knex';
+import { getDatabaseConfig } from '../config/database.config';
 
 @Global()
 @Module({
@@ -8,15 +9,7 @@ import Knex from 'knex';
     {
       provide: 'KNEX',
       inject: [ConfigService],
-      useFactory: (config: ConfigService) =>
-        Knex({
-          client: 'pg',
-          connection: config.get('DATABASE_URL'),
-          pool: {
-            min: config.get('DATABASE_POOL_MIN', 2),
-            max: config.get('DATABASE_POOL_MAX', 10),
-          },
-        }),
+      useFactory: (config: ConfigService) => Knex(getDatabaseConfig(config)),
     },
   ],
   exports: ['KNEX'],
