@@ -187,7 +187,20 @@ sorteos: sorteos.map((s) => ({
       .first();
 
     if (!comercio) {
-      throw new NotFoundException('Perfil de comercio no encontrado');
+      const user = await this.db('users')
+        .where({ id: userId })
+        .first('id', 'email');
+
+      return {
+        id: null,
+        user_id: userId,
+        email: user?.email || '',
+        razon_social: '',
+        cuit: '',
+        telefono: '',
+        estado: 'sin_perfil',
+        comision_pct: 0,
+      };
     }
 
     return comercio;
@@ -197,7 +210,32 @@ sorteos: sorteos.map((s) => ({
     const comercio = await this.db('comercios').where({ user_id: userId }).first();
 
     if (!comercio) {
-      throw new NotFoundException('Comercio no encontrado');
+      if (!dto.razonSocial || !dto.cuit) {
+        throw new BadRequestException('Razon social y CUIT son obligatorios');
+      }
+
+      const existe = await this.db('comercios')
+        .where({ cuit: dto.cuit })
+        .first();
+
+      if (existe) {
+        throw new ConflictException({
+          code: 'CUIT_EN_USO',
+          message: 'Ese CUIT ya esta registrado',
+        });
+      }
+
+      const [created] = await this.db('comercios')
+        .insert({
+          user_id: userId,
+          razon_social: dto.razonSocial,
+          cuit: dto.cuit,
+          telefono: dto.telefono || null,
+          estado: 'pendiente',
+        })
+        .returning('*');
+
+      return created;
     }
 
     if (dto.cuit && dto.cuit !== comercio.cuit) {
@@ -209,7 +247,7 @@ sorteos: sorteos.map((s) => ({
       if (existe) {
         throw new ConflictException({
           code: 'CUIT_EN_USO',
-          message: 'Ese CUIT ya está registrado',
+          message: 'Ese CUIT ya esta registrado',
         });
       }
     }
@@ -228,11 +266,47 @@ sorteos: sorteos.map((s) => ({
 
   async obtenerEstadisticas(userId: string) {
     const comercio = await this.db('comercios')
-      .where({ user_id: userId, estado: 'aprobado' })
-      .first('id', 'comision_pct');
+      .where({ user_id: userId })
+      .first('id', 'comision_pct', 'estado');
+
+    const estadisticasVacias = (estado: string, comisionPct = 0) => ({
+      comercioEstado: estado,
+      sorteos: {
+        total: 0,
+        activos: 0,
+        finalizados: 0,
+        borradores: 0,
+      },
+      recaudacion: {
+        bruta: 0,
+        comision: 0,
+        neta: 0,
+        comisionPct,
+      },
+      participantes: {
+        unicos: 0,
+        ventasTotales: 0,
+      },
+      entregas: {
+        total: 0,
+        pendientes: 0,
+        preparando: 0,
+        enviados: 0,
+        entregados: 0,
+        confirmados: 0,
+        reclamados: 0,
+      },
+      topSorteos: [],
+      ventasUltimos30Dias: [],
+      topCompradores: [],
+    });
 
     if (!comercio) {
-      throw new NotFoundException('Comercio no aprobado');
+      return estadisticasVacias('sin_perfil');
+    }
+
+    if (comercio.estado !== 'aprobado') {
+      return estadisticasVacias(comercio.estado, Number(comercio.comision_pct || 0));
     }
 
     const sorteos = await this.db('sorteos')
@@ -316,22 +390,18 @@ sorteos: sorteos.map((s) => ({
           .first()
       : { total: 0 };
 
-
-const topCompradores = ids.length
-  ? await this.db('participaciones')
-      .join('users', 'participaciones.usuario_id', 'users.id')
-      .whereIn('participaciones.sorteo_id', ids)
-      .groupBy('users.id', 'users.email')
-      .select(
-        'users.email',
-        this.db.raw('COUNT(*) as total')
-      )
-      .orderBy('total', 'desc')
-      .limit(5)
-  : [];
-
+    const topCompradores = ids.length
+      ? await this.db('participaciones')
+          .join('users', 'participaciones.usuario_id', 'users.id')
+          .whereIn('participaciones.sorteo_id', ids)
+          .groupBy('users.id', 'users.email')
+          .select('users.email', this.db.raw('COUNT(*) as total'))
+          .orderBy('total', 'desc')
+          .limit(5)
+      : [];
 
     return {
+      comercioEstado: 'aprobado',
       sorteos: {
         total: sorteos.length,
         activos: sorteos.filter((s) => s.estado === 'activo').length,
@@ -362,10 +432,10 @@ const topCompradores = ids.length
         fecha: p.fecha,
         total: Number(p.total || 0),
       })),
-topCompradores: topCompradores.map((u: any) => ({
-  email: u.email,
-  total: Number(u.total),
-})),
+      topCompradores: topCompradores.map((u: any) => ({
+        email: u.email,
+        total: Number(u.total),
+      })),
     };
   }
 

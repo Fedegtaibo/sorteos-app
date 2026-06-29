@@ -86,6 +86,59 @@ export default function DashboardPage() {
   }
 
   if (role === 'comercio' && stats) {
+    if (stats.comercioEstado === 'sin_perfil') {
+      return (
+        <main className="min-h-screen bg-zinc-950 text-zinc-100">
+          <section className="mx-auto max-w-4xl px-6 py-16">
+            <div className="card p-10">
+              <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">
+                COMERCIO
+              </p>
+              <h1 className="mt-3 text-4xl font-black">
+                Completa tu perfil de comercio
+              </h1>
+              <p className="mt-4 text-zinc-400">
+                Para empezar a usar Sortealo como comercio necesitamos tus datos principales:
+                razon social, CUIT y telefono. Luego el administrador revisara la solicitud.
+              </p>
+              <Link href="/dashboard/perfil" className="btn-primary mt-8 inline-block">
+                Completar mi perfil
+              </Link>
+            </div>
+          </section>
+        </main>
+      );
+    }
+
+    if (stats.comercioEstado && stats.comercioEstado !== 'aprobado') {
+      return (
+        <main className="min-h-screen bg-zinc-950 text-zinc-100">
+          <section className="mx-auto max-w-4xl px-6 py-16">
+            <div className="card p-10">
+              <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">
+                COMERCIO EN REVISION
+              </p>
+              <h1 className="mt-3 text-4xl font-black">
+                Tu comercio esta pendiente de aprobacion
+              </h1>
+              <p className="mt-4 text-zinc-400">
+                Ya recibimos tus datos. Un administrador debe aprobar el comercio
+                antes de que puedas publicar sorteos y ver estadisticas completas.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 md:flex-row">
+                <Link href="/dashboard/perfil" className="btn-ghost inline-block">
+                  Ver mi perfil
+                </Link>
+                <Link href="/" className="btn-primary inline-block">
+                  Ir al inicio publico
+                </Link>
+              </div>
+            </div>
+          </section>
+        </main>
+      );
+    }
+
     const {
   sorteos,
   recaudacion,
