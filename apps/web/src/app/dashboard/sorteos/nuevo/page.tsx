@@ -7,7 +7,7 @@ export default function NuevoSorteoPage() {
   const router = useRouter();
   const crear = useCrearSorteo();
   const [form, setForm] = useState({
-    nombre: '', descripcion: '', fechaSorteo: '',
+    nombre: '', descripcion: '', imagenPrincipalUrl: '', fechaSorteo: '',
     valorNumero: '', cantNumeros: '', chancesPorNumero: '1',
   });
 
@@ -42,6 +42,20 @@ export default function NuevoSorteoPage() {
           <label className="label">Descripción</label>
           <textarea className="input resize-none" rows={3} placeholder="Describí el premio y las condiciones del sorteo..." value={form.descripcion} onChange={set('descripcion')} />
         </div>
+        <div>
+          <label className="label">Imagen principal URL</label>
+          <input
+            type="url"
+            className="input"
+            placeholder="https://ejemplo.com/imagen-del-premio.jpg"
+            value={form.imagenPrincipalUrl}
+            onChange={set('imagenPrincipalUrl')}
+          />
+          <p className="text-xs text-gray-400 mt-1">
+            Por ahora pegá una URL de imagen. Más adelante agregaremos carga directa desde archivo.
+          </p>
+        </div>
+
         <div>
           <label className="label">Fecha del sorteo *</label>
           <input type="datetime-local" className="input" required value={form.fechaSorteo} onChange={set('fechaSorteo')} min={new Date().toISOString().slice(0, 16)} />
