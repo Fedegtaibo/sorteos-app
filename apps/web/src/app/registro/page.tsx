@@ -15,6 +15,7 @@ export default function RegistroPage() {
     password: '',
     role: 'participante',
     nombre: '',
+    telefono: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -201,6 +202,23 @@ export default function RegistroPage() {
                     value={form.email}
                     onChange={(e) =>
                       setForm((f) => ({ ...f, email: e.target.value }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
+                    Celular
+                  </label>
+
+                  <input
+                    type="tel"
+                    className="w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 text-base font-bold text-white outline-none placeholder:text-zinc-600 focus:border-amber-400"
+                    placeholder="+54 9 341 1234567"
+                    required
+                    value={form.telefono}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, telefono: e.target.value }))
                     }
                   />
                 </div>

@@ -35,28 +35,27 @@ export class AuthService {
         password_hash: passwordHash,
         role: dto.role,
         email_verified: false,
+        telefono: dto.telefono || null,
       })
-      .returning(['id', 'email', 'role', 'email_verified', 'created_at']);
+      .returning(['id', 'email', 'role', 'email_verified', 'telefono', 'created_at']);
 
-    // Si es comercio, crear perfil de comercio en estado pendiente
-    if (dto.role === 'comercio') {
-      await this.db('comercios').insert({
-        user_id: user.id,
-        razon_social: dto.nombre || dto.email,
-        cuit: '00000000000', // Lo completara en el onboarding
-        estado: 'pendiente',
-      });
-    }
+    // Si es comercio, el perfil se crea luego desde /dashboard/perfil.
+    // Evitamos crear comercios con CUIT falso para no bloquear multiples registros.
 
     // TODO: enviar email de verificacion (sprint 2)
 
     const tokens = await this.generateTokens(user);
 
     return {
-      user: { id: user.id, email: user.email, role: user.role },
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        telefono: user.telefono,
+      },
       ...tokens,
       mensaje: dto.role === 'comercio'
-        ? 'Cuenta creada. Tu perfil de comercio esta pendiente de aprobacion.'
+        ? 'Cuenta creada. Completa tu perfil de comercio para solicitar aprobacion.'
         : 'Cuenta creada exitosamente.',
     };
   }
