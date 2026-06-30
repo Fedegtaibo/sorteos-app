@@ -25,6 +25,11 @@ export default function PerfilComercioPage() {
   const [razonSocial, setRazonSocial] = useState('');
   const [cuit, setCuit] = useState('');
   const [telefono, setTelefono] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [portadaUrl, setPortadaUrl] = useState('');
+  const [direccion, setDireccion] = useState('');
+  const [instagram, setInstagram] = useState('');
 
   useEffect(() => {
     if (!perfil) return;
@@ -146,11 +151,71 @@ export default function PerfilComercioPage() {
               placeholder="Ej: +54 9 351 1234567"
             />
           </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              WhatsApp
+            </span>
+            <input
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="Ej: +54 9 351 1234567"
+            />
+          </label>
+
+          <label className="block md:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Dirección
+            </span>
+            <input
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="Ej: Rosario, Santa Fe"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Instagram
+            </span>
+            <input
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="Ej: @mi_comercio"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Logo URL
+            </span>
+            <input
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="https://..."
+            />
+          </label>
+
+          <label className="block md:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Portada URL
+            </span>
+            <input
+              value={portadaUrl}
+              onChange={(e) => setPortadaUrl(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="https://..."
+            />
+          </label>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-zinc-500">
-            Más adelante agregaremos logo, dirección de despacho, datos bancarios y conexión con Mercado Pago.
+            Estos datos ayudan a validar el comercio y mejorar la confianza del perfil público.
           </p>
 
           <button

@@ -198,6 +198,11 @@ sorteos: sorteos.map((s) => ({
         razon_social: '',
         cuit: '',
         telefono: '',
+        whatsapp: '',
+        logo_url: '',
+        portada_url: '',
+        direccion: '',
+        instagram: '',
         estado: 'sin_perfil',
         comision_pct: 0,
       };
@@ -231,6 +236,11 @@ sorteos: sorteos.map((s) => ({
           razon_social: dto.razonSocial,
           cuit: dto.cuit,
           telefono: dto.telefono || null,
+          whatsapp: dto.whatsapp || dto.telefono || null,
+          logo_url: dto.logoUrl || null,
+          portada_url: dto.portadaUrl || null,
+          direccion: dto.direccion || null,
+          instagram: dto.instagram || null,
           estado: 'pendiente',
         })
         .returning('*');
@@ -258,6 +268,11 @@ sorteos: sorteos.map((s) => ({
         razon_social: dto.razonSocial || comercio.razon_social,
         cuit: dto.cuit || comercio.cuit,
         telefono: dto.telefono || comercio.telefono,
+        whatsapp: dto.whatsapp || comercio.whatsapp,
+        logo_url: dto.logoUrl || comercio.logo_url,
+        portada_url: dto.portadaUrl || comercio.portada_url,
+        direccion: dto.direccion || comercio.direccion,
+        instagram: dto.instagram || comercio.instagram,
       })
       .returning('*');
 
