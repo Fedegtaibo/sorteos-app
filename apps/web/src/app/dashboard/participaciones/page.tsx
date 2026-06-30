@@ -166,7 +166,7 @@ export default function ParticipacionesPage() {
                       <EstadoBadge estado={p.sorteo_estado} ganador={esGanador} />
                     </div>
 
-                    <div className="mt-3 grid gap-3 text-sm text-zinc-400 md:grid-cols-4">
+                    <div className="mt-3 grid gap-3 text-sm text-zinc-400 md:grid-cols-5">
                       <div>
                         <p className="text-xs uppercase tracking-wide text-zinc-600">
                           Comercio
@@ -202,6 +202,20 @@ export default function ParticipacionesPage() {
                           {formatFecha(p.created_at)}
                         </p>
                       </div>
+
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-zinc-600">
+                          Comprobante
+                        </p>
+                        <p className="mt-1 break-all font-semibold text-amber-300">
+                          {p.comprobante_codigo || 'Pendiente'}
+                        </p>
+                        {p.comprobante_emitido_at && (
+                          <p className="mt-1 text-xs text-zinc-500">
+                            Emitido: {formatFecha(p.comprobante_emitido_at)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -217,7 +231,7 @@ export default function ParticipacionesPage() {
                       </a>
                     ) : (
                       <span className="rounded-xl border border-zinc-800 px-4 py-2 text-sm font-bold text-zinc-500">
-                        Sin comprobante
+                        Sin PDF
                       </span>
                     )}
                   </div>

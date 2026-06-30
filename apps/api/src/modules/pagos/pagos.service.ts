@@ -299,11 +299,16 @@ export class PagosService {
             reservado_hasta: null,
           });
 
+          const comprobanteCodigo = `SOR-${new Date().getFullYear()}-${String(paymentId).slice(-10)}-${String(numero.id).slice(0, 6).toUpperCase()}`;
+          const comprobanteEmitidoAt = new Date();
+
           const [participacion] = await trx('participaciones').insert({
             usuario_id: userId,
             numero_id: numero.id,
             sorteo_id: sorteoId,
             monto_pagado: montoPorNumero,
+            comprobante_codigo: comprobanteCodigo,
+            comprobante_emitido_at: comprobanteEmitidoAt,
           }).returning('*');
 
           const externalId =
@@ -552,6 +557,8 @@ await this.db('liberaciones_fondos')
         'participaciones.id',
         'participaciones.monto_pagado',
         'participaciones.comprobante_url',
+        'participaciones.comprobante_codigo',
+        'participaciones.comprobante_emitido_at',
         'participaciones.created_at',
         'numeros.numero_visible',
         'sorteos.nombre as sorteo_nombre',
@@ -598,12 +605,17 @@ await this.db('liberaciones_fondos')
           reservado_hasta: null,
         });
 
+      const comprobanteCodigo = `SOR-${new Date().getFullYear()}-DEV-${String(Date.now()).slice(-8)}-${String(numeroId).slice(0, 6).toUpperCase()}`;
+      const comprobanteEmitidoAt = new Date();
+
       const [participacion] = await trx('participaciones')
         .insert({
           usuario_id: userId,
           numero_id: numeroId,
           sorteo_id: sorteoId,
           monto_pagado: sorteo.valor_numero,
+          comprobante_codigo: comprobanteCodigo,
+          comprobante_emitido_at: comprobanteEmitidoAt,
         })
         .returning('*');
 
