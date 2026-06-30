@@ -235,3 +235,73 @@
     opacity: 0.7;
   }
 }}
+
+
+/* HOTFIX DETALLE SORTEO LAYOUT */
+@media (min-width: 769px) {
+  .phone {
+    overflow-x: hidden;
+  }
+
+  .content {
+    min-width: 0;
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 0.85fr) minmax(420px, 1fr);
+    gap: 36px;
+    align-items: start;
+  }
+
+  .prize-card,
+  .chooser {
+    width: 100%;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+
+  .hero {
+    width: 100%;
+  }
+
+  .number-grid {
+    grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
+    gap: 12px;
+  }
+
+  .num {
+    width: 100%;
+    height: 76px;
+    min-width: 0;
+  }
+
+  .checkout,
+  .form {
+    max-width: 100%;
+  }
+
+  .pay {
+    width: 100%;
+  }
+
+  .buy-row {
+    grid-template-columns: 76px minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 1180px) and (min-width: 769px) {
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .number-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
