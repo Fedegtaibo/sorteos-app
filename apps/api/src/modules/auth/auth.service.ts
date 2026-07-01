@@ -29,6 +29,7 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
+    const emailVerificationToken = randomBytes(32).toString('hex');
 
     const [user] = await this.db('users')
       .insert({
@@ -36,6 +37,7 @@ export class AuthService {
         password_hash: passwordHash,
         role: dto.role,
         email_verified: false,
+        email_verification_token: emailVerificationToken,
         telefono: dto.telefono || null,
       })
       .returning(['id', 'email', 'role', 'email_verified', 'telefono', 'created_at']);
@@ -46,6 +48,7 @@ export class AuthService {
     // TODO: enviar email de verificacion (sprint 2)
 
     const tokens = await this.generateTokens(user);
+    const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
     return {
       user: {
@@ -55,9 +58,11 @@ export class AuthService {
         telefono: user.telefono,
       },
       ...tokens,
+      emailVerificationRequired: true,
+      verificationUrl: `${frontendUrl}/verificar-email?token=${emailVerificationToken}`,
       mensaje: dto.role === 'comercio'
-        ? 'Cuenta creada. Completa tu perfil de comercio para solicitar aprobacion.'
-        : 'Cuenta creada exitosamente.',
+        ? 'Cuenta creada. Completa tu perfil de comercio para solicitar aprobacion y verifica tu email.'
+        : 'Cuenta creada exitosamente. Verifica tu email para aumentar la seguridad de tu cuenta.',
     };
   }
 
