@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     @Inject('KNEX') private readonly db: Knex,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -50,6 +52,14 @@ export class AuthService {
     const tokens = await this.generateTokens(user);
     const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
+    const verificationUrl = `${frontendUrl}/verificar-email?token=${emailVerificationToken}`;
+
+    await this.emailService.enviarVerificacionEmail({
+      to: user.email,
+      verificationUrl,
+      nombre: dto.nombre || user.email,
+    });
+
     return {
       user: {
         id: user.id,
@@ -59,7 +69,7 @@ export class AuthService {
       },
       ...tokens,
       emailVerificationRequired: true,
-      verificationUrl: `${frontendUrl}/verificar-email?token=${emailVerificationToken}`,
+      verificationUrl,
       mensaje: dto.role === 'comercio'
         ? 'Cuenta creada. Completa tu perfil de comercio para solicitar aprobacion y verifica tu email.'
         : 'Cuenta creada exitosamente. Verifica tu email para aumentar la seguridad de tu cuenta.',
