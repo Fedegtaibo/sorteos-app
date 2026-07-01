@@ -33,6 +33,7 @@ api.interceptors.response.use(
 
 export const authApi = {
   register: (data: any) => api.post('/auth/register', data),
+  verifyEmail: (token: string) => api.post('/auth/verify-email', { token }),
   login: (data: any) => api.post('/auth/login', data),
   me: () => api.post('/auth/me'),
   logout: () => api.post('/auth/logout'),

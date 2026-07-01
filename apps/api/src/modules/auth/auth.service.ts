@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Knex } from 'knex';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -57,6 +58,51 @@ export class AuthService {
       mensaje: dto.role === 'comercio'
         ? 'Cuenta creada. Completa tu perfil de comercio para solicitar aprobacion.'
         : 'Cuenta creada exitosamente.',
+    };
+  }
+
+  async verifyEmail(token: string) {
+    if (!token || typeof token !== 'string') {
+      throw new BadRequestException({
+        code: 'TOKEN_REQUERIDO',
+        message: 'Token de verificacion requerido',
+      });
+    }
+
+    const user = await this.db('users')
+      .where({ email_verification_token: token })
+      .first('id', 'email', 'role', 'email_verified');
+
+    if (!user) {
+      throw new BadRequestException({
+        code: 'TOKEN_INVALIDO',
+        message: 'El enlace de verificacion no es valido o ya fue utilizado',
+      });
+    }
+
+    if (user.email_verified) {
+      return {
+        user: {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          email_verified: true,
+        },
+        mensaje: 'El email ya estaba verificado',
+      };
+    }
+
+    const [updated] = await this.db('users')
+      .where({ id: user.id })
+      .update({
+        email_verified: true,
+        email_verification_token: null,
+      })
+      .returning(['id', 'email', 'role', 'email_verified']);
+
+    return {
+      user: updated,
+      mensaje: 'Email verificado correctamente',
     };
   }
 
