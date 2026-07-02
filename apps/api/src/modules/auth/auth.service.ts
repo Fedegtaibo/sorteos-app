@@ -121,6 +121,50 @@ export class AuthService {
     };
   }
 
+  async resendVerificationEmail(userId: string) {
+    const user = await this.db('users')
+      .where({ id: userId })
+      .first('id', 'email', 'role', 'email_verified');
+
+    if (!user) {
+      throw new BadRequestException({
+        code: 'USUARIO_NO_ENCONTRADO',
+        message: 'Usuario no encontrado',
+      });
+    }
+
+    if (user.email_verified) {
+      return {
+        emailVerificationRequired: false,
+        mensaje: 'Tu email ya está verificado.',
+      };
+    }
+
+    const emailVerificationToken = randomBytes(32).toString('hex');
+
+    await this.db('users')
+      .where({ id: user.id })
+      .update({
+        email_verification_token: emailVerificationToken,
+      });
+
+    const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const verificationUrl = `${frontendUrl}/verificar-email?token=${emailVerificationToken}`;
+    const exposeVerificationUrl = this.config.get<string>('EXPOSE_VERIFICATION_URL') === 'true';
+
+    await this.emailService.enviarVerificacionEmail({
+      to: user.email,
+      verificationUrl,
+      nombre: user.email,
+    });
+
+    return {
+      emailVerificationRequired: true,
+      ...(exposeVerificationUrl ? { verificationUrl } : {}),
+      mensaje: 'Te enviamos un nuevo email de verificación.',
+    };
+  }
+
   async login(dto: LoginDto) {
     const user = await this.db('users')
       .where({ email: dto.email })

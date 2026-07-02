@@ -32,6 +32,15 @@ export class AuthController {
     return this.authService.verifyEmail(token);
   }
 
+  @Post('resend-verification-email')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Reenviar email de verificación' })
+  async resendVerificationEmail(@CurrentUser('id') userId: string) {
+    return this.authService.resendVerificationEmail(userId);
+  }
+
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
