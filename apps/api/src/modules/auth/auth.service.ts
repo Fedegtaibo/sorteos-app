@@ -47,12 +47,12 @@ export class AuthService {
     // Si es comercio, el perfil se crea luego desde /dashboard/perfil.
     // Evitamos crear comercios con CUIT falso para no bloquear multiples registros.
 
-    // TODO: enviar email de verificacion (sprint 2)
 
     const tokens = await this.generateTokens(user);
     const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
     const verificationUrl = `${frontendUrl}/verificar-email?token=${emailVerificationToken}`;
+    const exposeVerificationUrl = this.config.get<string>('NODE_ENV') !== 'production';
 
     await this.emailService.enviarVerificacionEmail({
       to: user.email,
@@ -69,7 +69,7 @@ export class AuthService {
       },
       ...tokens,
       emailVerificationRequired: true,
-      verificationUrl,
+      ...(exposeVerificationUrl ? { verificationUrl } : {}),
       mensaje: dto.role === 'comercio'
         ? 'Cuenta creada. Completa tu perfil de comercio para solicitar aprobacion y verifica tu email.'
         : 'Cuenta creada exitosamente. Verifica tu email para aumentar la seguridad de tu cuenta.',
