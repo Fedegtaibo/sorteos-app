@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Body, Param,
-  Query, UseGuards, HttpCode, HttpStatus,
+  Query, UseGuards, HttpCode, HttpStatus, ForbiddenException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { SorteosService } from './sorteos.service';
@@ -15,6 +15,15 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 @Controller()
 export class SorteosController {
   constructor(private readonly sorteosService: SorteosService) {}
+
+  private exigirEmailVerificado(user: any) {
+    if (user?.role !== 'admin' && user?.email_verified !== true) {
+      throw new ForbiddenException({
+        code: 'EMAIL_NO_VERIFICADO',
+        message: 'Tenés que verificar tu email antes de realizar esta acción.',
+      });
+    }
+  }
 
   // ─── PUBLICOS ─────────────────────────────────────────────
 
@@ -71,9 +80,10 @@ export class SorteosController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Crear nuevo sorteo en borrador' })
   async crear(@CurrentUser() user: any, @Body() dto: CreateSorteoDto) {
-  const comercio = await this.getComercioId(user.id);
-  return this.sorteosService.crear(comercio.id, dto, user.id);
-}
+    this.exigirEmailVerificado(user);
+    const comercio = await this.getComercioId(user.id);
+    return this.sorteosService.crear(comercio.id, dto, user.id);
+  }
 
   @Post('comercio/sorteos/:id/activar')
   @UseGuards(RolesGuard)
@@ -82,9 +92,10 @@ export class SorteosController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Activar sorteo — genera numeros y chances' })
   async activar(@Param('id') id: string, @CurrentUser() user: any) {
-  const comercio = await this.getComercioId(user.id);
-  return this.sorteosService.activar(id, comercio.id, user.id);
-}
+    this.exigirEmailVerificado(user);
+    const comercio = await this.getComercioId(user.id);
+    return this.sorteosService.activar(id, comercio.id, user.id);
+  }
 
   @Post('comercio/sorteos/:id/sortear')
   @UseGuards(RolesGuard)

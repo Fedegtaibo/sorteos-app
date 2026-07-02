@@ -25,6 +25,15 @@ export class PagosController {
     private readonly notificationsService: NotificationsService,
   ) {}
 
+  private exigirEmailVerificado(user: any) {
+    if (user?.role !== 'admin' && user?.email_verified !== true) {
+      throw new ForbiddenException({
+        code: 'EMAIL_NO_VERIFICADO',
+        message: 'Tenés que verificar tu email antes de realizar esta acción.',
+      });
+    }
+  }
+
   @Post('sorteos/:sorteoId/numeros/:numeroId/reservar')
   @UseGuards(RolesGuard)
   @Roles('participante')
@@ -34,9 +43,10 @@ export class PagosController {
   reservar(
     @Param('sorteoId') sorteoId: string,
     @Param('numeroId') numeroId: string,
-    @CurrentUser('id') userId: string,
+    @CurrentUser() user: any,
   ) {
-    return this.pagosService.reservarNumero(sorteoId, numeroId, userId);
+    this.exigirEmailVerificado(user);
+    return this.pagosService.reservarNumero(sorteoId, numeroId, user.id);
   }
 
   @Delete('sorteos/:sorteoId/numeros/:numeroId/reservar')
@@ -61,9 +71,10 @@ export class PagosController {
   checkout(
     @Param('sorteoId') sorteoId: string,
     @Param('numeroId') numeroId: string,
-    @CurrentUser('id') userId: string,
+    @CurrentUser() user: any,
   ) {
-    return this.pagosService.crearCheckout(sorteoId, numeroId, userId);
+    this.exigirEmailVerificado(user);
+    return this.pagosService.crearCheckout(sorteoId, numeroId, user.id);
   }
 
   @Public()
@@ -96,9 +107,10 @@ simularPagoAprobado(
   checkoutMultiple(
     @Param('sorteoId') sorteoId: string,
     @Body('numeroIds') numeroIds: string[],
-    @CurrentUser('id') userId: string,
+    @CurrentUser() user: any,
   ) {
-    return this.pagosService.crearCheckoutMultiple(sorteoId, numeroIds, userId);
+    this.exigirEmailVerificado(user);
+    return this.pagosService.crearCheckoutMultiple(sorteoId, numeroIds, user.id);
   }
 
   @Public()
