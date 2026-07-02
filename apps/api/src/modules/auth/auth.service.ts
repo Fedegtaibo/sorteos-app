@@ -52,7 +52,7 @@ export class AuthService {
     const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
     const verificationUrl = `${frontendUrl}/verificar-email?token=${emailVerificationToken}`;
-    const exposeVerificationUrl = this.config.get<string>('NODE_ENV') !== 'production';
+    const exposeVerificationUrl = this.config.get<string>('EXPOSE_VERIFICATION_URL') === 'true';
 
     await this.emailService.enviarVerificacionEmail({
       to: user.email,
