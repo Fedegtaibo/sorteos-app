@@ -2,6 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { sorteosApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
+const mensajeEmailNoVerificadoComercio =
+  'Necesitás verificar tu email antes de crear o activar sorteos. Revisá tu casilla o usá el botón “Reenviar email” en el dashboard.';
+
+const esErrorEmailNoVerificado = (err: any) =>
+  String(err?.message || '').toLowerCase().includes('verificar tu email');
+
 export function useSorteos(params?: any) {
   return useQuery({
     queryKey: ['sorteos', params],
@@ -41,7 +47,12 @@ export function useCrearSorteo() {
       qc.invalidateQueries({ queryKey: ['mis-sorteos'] });
       toast.success('Sorteo creado en borrador');
     },
-    onError: (err: Error) => toast.error(err.message),
+    onError: (err: Error) =>
+      toast.error(
+        esErrorEmailNoVerificado(err)
+          ? mensajeEmailNoVerificadoComercio
+          : err.message,
+      ),
   });
 }
 
@@ -53,7 +64,12 @@ export function useActivarSorteo() {
       qc.invalidateQueries({ queryKey: ['mis-sorteos'] });
       toast.success('Sorteo activado correctamente');
     },
-    onError: (err: Error) => toast.error(err.message),
+    onError: (err: Error) =>
+      toast.error(
+        esErrorEmailNoVerificado(err)
+          ? mensajeEmailNoVerificadoComercio
+          : err.message,
+      ),
   });
 }
 

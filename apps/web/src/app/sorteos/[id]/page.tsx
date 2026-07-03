@@ -150,6 +150,12 @@ const numeros: any[] = getArrayFromResponse(numerosData);
     );
   };
 
+  const mensajeEmailNoVerificadoCompra =
+    'Necesitás verificar tu email antes de comprar números. Revisá tu casilla o usá el botón “Reenviar email” en el dashboard.';
+
+  const esErrorEmailNoVerificado = (err: any) =>
+    String(err?.message || '').toLowerCase().includes('verificar tu email');
+
   const reservarSeleccion = async () => {
     if (!session) {
       router.push('/login');
@@ -180,7 +186,11 @@ const numeros: any[] = getArrayFromResponse(numerosData);
       toast.success('Reserva creada. Redirigiendo al pago...');
       window.location.href = checkoutUrl;
     } catch (err: any) {
-      toast.error(err.message || 'No se pudo iniciar el pago');
+      toast.error(
+        esErrorEmailNoVerificado(err)
+          ? mensajeEmailNoVerificadoCompra
+          : err.message || 'No se pudo iniciar el pago',
+      );
       await refetch();
     } finally {
       setProcesando(false);
@@ -355,7 +365,11 @@ const numeros: any[] = getArrayFromResponse(numerosData);
         await refetch();
         router.push('/dashboard/participaciones');
       } catch (err: any) {
-        toast.error(err.message || 'Error simulando pago');
+        toast.error(
+          esErrorEmailNoVerificado(err)
+            ? mensajeEmailNoVerificadoCompra
+            : err.message || 'Error simulando pago',
+        );
         await refetch();
       } finally {
         setProcesando(false);
