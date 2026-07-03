@@ -628,6 +628,27 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <footer className="mx-auto max-w-7xl px-4 pb-12">
+        <div className="rounded-[2rem] border border-white/10 bg-zinc-950 p-6">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-lg font-black text-white">Sortealo</p>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-500">
+                Plataforma para ordenar, registrar y facilitar sorteos online de comercios reales.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3 text-sm font-bold text-zinc-400">
+              <Link href="/terminos" className="hover:text-amber-300">Términos</Link>
+              <Link href="/privacidad" className="hover:text-amber-300">Privacidad</Link>
+              <Link href="/ayuda" className="hover:text-amber-300">Ayuda</Link>
+              <Link href="/contacto" className="hover:text-amber-300">Contacto</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+
     </main>
   );
 }
