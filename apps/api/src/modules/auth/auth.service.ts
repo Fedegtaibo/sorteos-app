@@ -152,11 +152,18 @@ export class AuthService {
     const verificationUrl = `${frontendUrl}/verificar-email?token=${emailVerificationToken}`;
     const exposeVerificationUrl = this.config.get<string>('EXPOSE_VERIFICATION_URL') === 'true';
 
-    await this.emailService.enviarVerificacionEmail({
+    const emailResult = await this.emailService.enviarVerificacionEmail({
       to: user.email,
       verificationUrl,
       nombre: user.email,
     });
+
+    if ((emailResult as any)?.skipped) {
+      throw new BadRequestException({
+        code: (emailResult as any)?.reason || 'EMAIL_NO_ENVIADO',
+        message: 'No pudimos reenviar el email de verificación. Intentá nuevamente más tarde.',
+      });
+    }
 
     return {
       emailVerificationRequired: true,

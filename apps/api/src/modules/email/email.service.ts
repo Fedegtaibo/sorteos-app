@@ -96,9 +96,26 @@ Si vos no creaste una cuenta en Sortealo, podés ignorar este mensaje.
         text,
       });
 
+      const resendError = (result as any)?.error;
+
+      if (resendError) {
+        this.logger.error(
+          `Resend rechazo el email de verificacion a ${data.to}: ${JSON.stringify(resendError)}`,
+        );
+
+        return {
+          skipped: true,
+          reason: 'EMAIL_SEND_FAILED',
+          error: resendError,
+        };
+      }
+
       this.logger.log(`Email de verificacion enviado a ${data.to}`);
 
-      return result;
+      return {
+        ok: true,
+        result,
+      };
     } catch (error: any) {
       this.logger.error(
         `No se pudo enviar email de verificacion a ${data.to}: ${error?.message || error}`,
