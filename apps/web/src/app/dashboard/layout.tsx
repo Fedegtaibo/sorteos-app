@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import NotificationBell from '@/components/NotificationBell';
+import { authApi } from '@/lib/api';
+import toast from 'react-hot-toast';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -14,6 +16,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const role = (session?.user as any)?.role;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
+  const [reenviandoEmail, setReenviandoEmail] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login');
@@ -22,6 +26,41 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (status !== 'authenticated') return;
+
+    const cargarEstadoEmail = async () => {
+      try {
+        const res: any = await authApi.me();
+        const user = res?.data?.user || res?.user;
+        setEmailVerified(user?.email_verified === true);
+      } catch {
+        setEmailVerified(null);
+      }
+    };
+
+    cargarEstadoEmail();
+  }, [status]);
+
+  const reenviarEmailVerificacion = async () => {
+    setReenviandoEmail(true);
+
+    try {
+      const res: any = await authApi.resendVerificationEmail();
+      const data = res?.data || res;
+      toast.success(data?.mensaje || 'Te enviamos un nuevo email de verificación.');
+    } catch (err: any) {
+      toast.error(err.message || 'No se pudo reenviar el email de verificación.');
+    } finally {
+      setReenviandoEmail(false);
+    }
+  };
+
+  const mostrarAvisoEmail =
+    status === 'authenticated' &&
+    role !== 'admin' &&
+    emailVerified === false;
 
   if (status === 'loading') {
     return (
@@ -158,6 +197,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         <section className="p-4 md:p-8">
+          {mostrarAvisoEmail && (
+            <div className="mb-6 rounded-2xl border border-amber-700 bg-amber-950/40 p-5 shadow-lg shadow-amber-950/10">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-sm font-black text-amber-300">
+                    Tu email todavía no está verificado
+                  </p>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    Verificá tu casilla para poder comprar números o publicar sorteos.
+                    Si no encontrás el correo, podés pedir uno nuevo.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={reenviarEmailVerificacion}
+                  disabled={reenviandoEmail}
+                  className="btn-primary whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {reenviandoEmail ? 'Enviando...' : 'Reenviar email'}
+                </button>
+              </div>
+            </div>
+          )}
+
           {children}
         </section>
       </main>
