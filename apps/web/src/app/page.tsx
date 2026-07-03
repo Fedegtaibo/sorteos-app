@@ -1,5 +1,6 @@
 
 import Link from 'next/link';
+import HomeIntroModal from '@/components/HomeIntroModal';
 import { formatMonto, formatFecha, estadoColor } from '@/lib/utils';
 
 async function getSorteos() {
@@ -197,6 +198,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-black text-white">
+      <HomeIntroModal />
       <header className="sticky top-0 z-30 border-b border-white/10 bg-black/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4">
           <Link href="/" className="flex min-w-0 items-center gap-3">
@@ -253,7 +255,7 @@ export default async function HomePage() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-400">
-              Sortealo conecta comercios verificados con participantes que buscan premios, transparencia y una experiencia simple de compra.
+              Sortealo es una plataforma para participar en sorteos online de comercios reales de forma simple, ordenada y transparente. Elegís un sorteo, seleccionás tus números, pagás online y tu participación queda registrada.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -318,6 +320,95 @@ export default async function HomePage() {
                 <p className="mt-2 text-sm text-zinc-500">Cuando un comercio publique uno, aparecerá acá.</p>
               </div>
             )}
+          </div>
+        </div>
+      </section>
+
+
+      <section className="mx-auto max-w-7xl px-4 py-12">
+        <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+          <div className="rounded-[2rem] border border-white/10 bg-zinc-950 p-7 shadow-2xl md:p-9">
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
+              Qué es Sortealo
+            </p>
+
+            <h2 className="mt-3 text-3xl font-black leading-tight text-white md:text-4xl">
+              Una forma más profesional de hacer y participar en sorteos.
+            </h2>
+
+            <p className="mt-5 text-base leading-8 text-zinc-400">
+              Muchos sorteos se hacen por redes sociales, mensajes privados o planillas manuales. Sortealo ordena ese proceso en una web pública: el comercio publica el premio, los participantes eligen números y cada operación queda registrada.
+            </p>
+
+            <p className="mt-4 text-sm leading-7 text-zinc-500">
+              La idea es simple: que el sorteo sea más claro para quien participa y más fácil de administrar para el comercio.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              {
+                titulo: 'Elegí un sorteo',
+                texto: 'Entrás al marketplace y ves premios publicados por comercios.',
+              },
+              {
+                titulo: 'Seleccioná números',
+                texto: 'Ves qué números están disponibles y elegís los que querés.',
+              },
+              {
+                titulo: 'Participá con registro',
+                texto: 'Tu pago y tus números quedan asociados a tu cuenta.',
+              },
+            ].map((item, index) => (
+              <div key={item.titulo} className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6">
+                <div className="mb-5 grid h-12 w-12 place-items-center rounded-2xl bg-amber-400 text-lg font-black text-black">
+                  {index + 1}
+                </div>
+
+                <h3 className="text-xl font-black text-white">
+                  {item.titulo}
+                </h3>
+
+                <p className="mt-3 text-sm leading-7 text-zinc-500">
+                  {item.texto}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-8">
+        <div className="rounded-[2rem] border border-amber-400/20 bg-amber-400/10 p-7 md:p-9">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
+                Por qué confiar
+              </p>
+
+              <h2 className="mt-3 text-3xl font-black leading-tight text-white">
+                Más claridad para participantes y comercios.
+              </h2>
+
+              <p className="mt-4 text-sm leading-7 text-zinc-400">
+                Sortealo no reemplaza la responsabilidad del comercio organizador, pero ayuda a que el sorteo quede mejor documentado, con números, pagos y participaciones registrados dentro de la plataforma.
+              </p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              {[
+                'Los números disponibles se ven online.',
+                'Cada participación queda asociada a un usuario.',
+                'El comercio tiene un perfil visible dentro de la plataforma.',
+                'Los pagos y comprobantes quedan registrados.',
+                'El proceso es más ordenado que hacerlo por mensajes manuales.',
+                'Sortealo permite acompañar y auditar mejor cada sorteo.',
+              ].map((texto) => (
+                <div key={texto} className="rounded-2xl border border-white/10 bg-black/40 p-4 text-sm font-semibold leading-6 text-zinc-300">
+                  {texto}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
