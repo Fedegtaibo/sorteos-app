@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { Knex } from 'knex';
 
 @Injectable()
@@ -66,6 +66,36 @@ export class AdminService {
     await this.db('users').where({ id: userId }).update({ is_blocked: bloquear });
     return { mensaje: bloquear ? 'Usuario bloqueado' : 'Usuario desbloqueado' };
   }
+
+  async verificarEmailUsuario(userId: string) {
+    const user = await this.db('users')
+      .where({ id: userId })
+      .first('id', 'email', 'role', 'email_verified');
+
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    if (user.email_verified === true) {
+      return {
+        mensaje: 'El email ya estaba verificado',
+        user,
+      };
+    }
+
+    const [actualizado] = await this.db('users')
+      .where({ id: userId })
+      .update({
+        email_verified: true,
+      })
+      .returning(['id', 'email', 'role', 'email_verified']);
+
+    return {
+      mensaje: 'Email verificado manualmente por admin',
+      user: actualizado,
+    };
+  }
+
 
   async listaSorteosTodos(filtros: { page?: number; limit?: number }) {
     const page = filtros.page || 1;

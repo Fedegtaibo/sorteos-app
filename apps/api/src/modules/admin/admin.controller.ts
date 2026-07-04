@@ -30,6 +30,12 @@ export class AdminController {
   @ApiOperation({ summary: 'Desbloquear usuario' })
   desbloquear(@Param('id') id: string) { return this.adminService.bloquearUsuario(id, false); }
 
+  @Post('usuarios/:id/verificar-email')
+  @ApiOperation({ summary: 'Verificar email de usuario manualmente' })
+  verificarEmail(@Param('id') id: string) {
+    return this.adminService.verificarEmailUsuario(id);
+  }
+
   @Get('sorteos')
   @ApiOperation({ summary: 'Todos los sorteos de la plataforma' })
   sorteos(@Query('page') page?: number) { return this.adminService.listaSorteosTodos({ page }); }
