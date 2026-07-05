@@ -141,7 +141,7 @@ export class PagosService {
   items,
   payer: { email: user.email },
   external_reference: externalReference,
-  notification_url: `${baseUrl}/webhooks/mercadopago`,
+  notification_url: `${baseUrl}/v1/webhooks/mercadopago`,
   expires: true,
   expiration_date_to: new Date(minReservadoHasta).toISOString(),
 };
