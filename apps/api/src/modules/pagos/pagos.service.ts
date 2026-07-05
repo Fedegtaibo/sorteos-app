@@ -137,20 +137,24 @@ export class PagosService {
         ? `${idsUnicos[0]}:${userId}:${sorteoId}`
         : `multi:${idsUnicos.join(',')}:${userId}:${sorteoId}`;
 
-    const preferenceBody = {
-      items,
-      payer: { email: user.email },
-      external_reference: externalReference,
-      notification_url: `${baseUrl}/webhooks/mercadopago`,
-      back_urls: {
-        success: `${frontendUrl}/pago/exitoso`,
-        failure: `${frontendUrl}/pago/fallido`,
-        pending: `${frontendUrl}/pago/pendiente`,
-      },
-      auto_return: 'approved',
-      expires: true,
-      expiration_date_to: new Date(minReservadoHasta).toISOString(),
-    };
+    const preferenceBody: any = {
+  items,
+  payer: { email: user.email },
+  external_reference: externalReference,
+  notification_url: `${baseUrl}/webhooks/mercadopago`,
+  expires: true,
+  expiration_date_to: new Date(minReservadoHasta).toISOString(),
+};
+
+if (frontendUrl && !frontendUrl.includes('localhost')) {
+  preferenceBody.back_urls = {
+    success: `${frontendUrl}/pago/exitoso`,
+    failure: `${frontendUrl}/pago/fallido`,
+    pending: `${frontendUrl}/pago/pendiente`,
+  };
+
+  preferenceBody.auto_return = 'approved';
+}
 
         const mpResponse = await fetch(
       'https://api.mercadopago.com/checkout/preferences',
