@@ -185,7 +185,9 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
 
     return {
       checkoutUrl:
-        preference.init_point || preference.sandbox_init_point,
+        this.config.get<string>('NODE_ENV') === 'production'
+          ? preference.init_point
+          : preference.sandbox_init_point || preference.init_point,
       preferenceId: preference.id,
       expira: new Date(minReservadoHasta),
       numeroIds: idsUnicos,
