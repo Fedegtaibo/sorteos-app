@@ -201,14 +201,18 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
       return { received: true, skipped: true };
     }
 
+    const nodeEnv = this.config.get<string>('NODE_ENV');
 
- 
+    if (nodeEnv !== 'production') {
+      const resultado = await this.confirmarPagoMP(String(body.data.id));
+      return { received: true, processedDirectly: true, resultado };
+    }
 
     await this.pagosQueue.add(
       'confirmar-pago-mp',
       { paymentId: body.data.id },
       {
-        jobId: `mp-payment-${body.data.id}`,
+        jobId: 'mp-payment-' + body.data.id,
         attempts: 5,
         backoff: { type: 'exponential', delay: 2000 },
         removeOnComplete: false,
