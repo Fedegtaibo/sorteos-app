@@ -326,20 +326,24 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
               ? String(paymentId)
               : `${paymentId}:${numero.id}`;
 
-          const updated = await trx('pagos')
-            .where({
-              preference_id: payment.preference_id,
-              numero_id: numero.id,
-              usuario_id: userId,
-            })
-            .update({
+          let updated = 0;
+
+          if (payment.preference_id) {
+            updated = await trx('pagos')
+              .where({
+                preference_id: payment.preference_id,
+                numero_id: numero.id,
+                usuario_id: userId,
+              })
+              .update({
               participacion_id: participacion.id,
               external_id: externalId,
               monto: montoPorNumero,
               estado: 'aprobado',
               webhook_payload: payment,
               procesado_at: new Date(),
-            });
+              });
+          }
 
           if (!updated) {
             await trx('pagos').insert({
