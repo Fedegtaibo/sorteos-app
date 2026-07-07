@@ -305,6 +305,54 @@ const numeros: any[] = getArrayFromResponse(numerosData);
             </h1>
             <p>Podés seleccionar varios números libres antes de pagar.</p>
 
+                        <section
+              className="card"
+              style={{
+                marginBottom: 28,
+                border: '1px solid rgba(245, 158, 11, 0.28)',
+                background: 'rgba(245, 158, 11, 0.08)',
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 12,
+                  fontWeight: 900,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: '#fbbf24',
+                }}
+              >
+                Antes de participar
+              </p>
+
+              <div style={{ marginTop: 14, display: 'grid', gap: 10 }}>
+                {[
+                  'Elegís uno o más números disponibles.',
+                  'La selección queda reservada por unos minutos mientras pagás.',
+                  'El pago se realiza por MercadoPago.',
+                  'Si el pago se aprueba, el número pasa a vendido.',
+                  'Tu comprobante queda guardado en Mis participaciones.',
+                ].map((texto, index) => (
+                  <div
+                    key={texto}
+                    style={{
+                      display: 'flex',
+                      gap: 10,
+                      alignItems: 'flex-start',
+                      fontSize: 13,
+                      lineHeight: 1.6,
+                      color: '#d4d4d8',
+                    }}
+                  >
+                    <b style={{ color: '#fbbf24' }}>{index + 1}.</b>
+                    <span>{texto}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+
             <div className="legend">
               <span>□ Libre</span>
               <span className="yellow">□ Seleccionado</span>
