@@ -24,6 +24,8 @@ export class PagosService {
   // ─── RESERVA ──────────────────────────────────────────────
 
   async reservarNumero(sorteoId: string, numeroId: string, userId: string) {
+    await this.liberarReservasVencidas(sorteoId);
+
     return this.db.transaction(async (trx) => {
       const numero = await trx('numeros')
         .where({ id: numeroId, sorteo_id: sorteoId, estado: 'libre' })
@@ -93,6 +95,8 @@ export class PagosService {
     }
 
     const idsUnicos = Array.from(new Set(numeroIds));
+
+    await this.liberarReservasVencidas(sorteoId);
 
     const numeros = await this.db('numeros')
       .whereIn('id', idsUnicos)
@@ -686,4 +690,22 @@ await this.db('liberaciones_fondos')
       participacion: resultado.participacion,
     };
   }
+  private async liberarReservasVencidas(sorteoId?: string) {
+    const query = this.db('numeros')
+      .where({ estado: 'reservado' })
+      .whereNotNull('reservado_hasta')
+      .where('reservado_hasta', '<', new Date());
+
+    if (sorteoId) {
+      query.andWhere({ sorteo_id: sorteoId });
+    }
+
+    return query.update({
+      estado: 'libre',
+      reservado_por: null,
+      reservado_hasta: null,
+      notif_expiracion_enviada: false,
+    });
+  }
+
 }

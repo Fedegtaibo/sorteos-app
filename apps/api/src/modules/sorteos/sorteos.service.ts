@@ -64,6 +64,8 @@ export class SorteosService {
   }
 
   async obtener(id: string) {
+    await this.liberarReservasVencidas(id);
+
     const sorteo = await this.db('sorteos')
       .join('comercios', 'sorteos.comercio_id', 'comercios.id')
       .where('sorteos.id', id)
@@ -91,6 +93,8 @@ export class SorteosService {
   }
 
   async obtenerNumeros(sorteoId: string) {
+    await this.liberarReservasVencidas(sorteoId);
+
     const sorteo = await this.db('sorteos').where({ id: sorteoId }).first('id', 'estado');
     if (!sorteo) throw new NotFoundException('Sorteo no encontrado');
 
@@ -354,6 +358,25 @@ await this.auditService.registrar({
         recaudacion: (statsMap[s.id]?.vendido || 0) * Number(s.valor_numero),
       })),
     };
+  }
+
+
+  private async liberarReservasVencidas(sorteoId?: string) {
+    const query = this.db('numeros')
+      .where({ estado: 'reservado' })
+      .whereNotNull('reservado_hasta')
+      .where('reservado_hasta', '<', new Date());
+
+    if (sorteoId) {
+      query.andWhere({ sorteo_id: sorteoId });
+    }
+
+    return query.update({
+      estado: 'libre',
+      reservado_por: null,
+      reservado_hasta: null,
+      notif_expiracion_enviada: false,
+    });
   }
 
   // ─── HELPERS PRIVADOS ─────────────────────────────────────
