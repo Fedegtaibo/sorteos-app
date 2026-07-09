@@ -55,15 +55,15 @@ export default function HomePage() {
             </div>
 
             <h1 className="max-w-5xl text-4xl font-black leading-[1.04] text-white md:text-6xl">
-              Compra con confianza.
+              Comprá con confianza.
               <span className="mt-2 block text-amber-400">
-                Vende con sorteos que convierten.
+                Vendé con sorteos que convierten.
               </span>
             </h1>
 
             <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-400">
               Sortealo convierte sorteos informales en una experiencia ordenada:
-              pagos seguros, numeros reservados, comprobantes automaticos y comercios verificados.
+              pagos seguros, números reservados, comprobantes automáticos y comercios verificados.
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -104,10 +104,10 @@ export default function HomePage() {
 
             <div className="mt-8 grid gap-3">
               {[
-                ['1', 'Elegis un sorteo real', 'Publicado por un comercio identificado.'],
-                ['2', 'Reservas tus numeros', 'La seleccion queda ordenada antes del pago.'],
-                ['3', 'Pagas de forma segura', 'El sistema registra la operacion.'],
-                ['4', 'Recibis comprobante', 'Tu participacion queda guardada en tu cuenta.'],
+                ['1', 'Elegís un sorteo real', 'Publicado por un comercio identificado.'],
+                ['2', 'Reservás tus números', 'La seleccion queda ordenada antes del pago.'],
+                ['3', 'Pagás de forma segura', 'El sistema registra la operación.'],
+                ['4', 'Recibís comprobante', 'Tu participacion queda guardada en tu cuenta.'],
               ].map(([numero, titulo, texto]) => (
                 <div key={numero} className="flex gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-400 text-sm font-black text-black">
@@ -130,11 +130,11 @@ export default function HomePage() {
           {[
             [
               'Para quien participa',
-              'Compra numeros con mas claridad, ve sus comprobantes y puede seguir cada participacion desde su cuenta.',
+              'Compra números con mas claridad, ve sus comprobantes y puede seguir cada participacion desde su cuenta.',
             ],
             [
               'Para comercios',
-              'Transforma un premio en una campana de venta ordenada, con pagos, numeros y participantes centralizados.',
+              'Transforma un premio en una campaña de venta ordenada, con pagos, números y participantes centralizados.',
             ],
             [
               'Para la confianza',
@@ -154,8 +154,8 @@ export default function HomePage() {
           {[
             ['Pagos seguros', 'Operaciones registradas.'],
             ['Comercios verificados', 'Negocios reales y activos.'],
-            ['Comprobantes automaticos', 'Participaciones guardadas.'],
-            ['Entregas auditables', 'Mas trazabilidad del premio.'],
+            ['Comprobantes automáticos', 'Participaciones guardadas.'],
+            ['Entregas auditables', 'Más trazabilidad del premio.'],
           ].map(([titulo, texto]) => (
             <div key={titulo} className="rounded-2xl bg-black/20 p-5">
               <p className="font-black text-white">{titulo}</p>
@@ -178,7 +178,7 @@ export default function HomePage() {
               </h2>
 
               <p className="mt-4 max-w-2xl font-semibold leading-7 text-black/70">
-                La exploracion de sorteos vive dentro de la cuenta.
+                La exploración de sorteos vive dentro de la cuenta.
                 La home solo tiene que explicar el producto y abrir la puerta.
               </p>
             </div>
