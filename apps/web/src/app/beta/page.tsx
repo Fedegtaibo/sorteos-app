@@ -35,7 +35,7 @@ export default function Page() {
             Beta pública controlada
           </p>
 
-          <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight text-white md:text-6xl">
+          <h1 className="mt-4 max-w-4xl text-3xl font-black leading-tight text-white md:text-5xl">
             Buscamos comercios fundadores para lanzar los primeros sorteos reales.
           </h1>
 
@@ -134,7 +134,7 @@ export default function Page() {
               Comercios fundadores
             </p>
 
-            <h2 className="mt-3 text-3xl font-black leading-tight md:text-4xl">
+            <h2 className="mt-3 text-2xl font-black leading-tight md:text-3xl">
               Si querés probar Sortealo con tu comercio, sumate a la beta.
             </h2>
 

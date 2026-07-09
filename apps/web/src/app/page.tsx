@@ -251,7 +251,7 @@ export default async function HomePage() {
               Sorteos verificados · Pagos seguros · Entregas auditables
             </div>
 
-            <h1 className="max-w-4xl text-5xl font-black leading-tight text-white md:text-7xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-tight text-white md:text-5xl">
               Descubrí premios reales en sorteos confiables.
             </h1>
 
@@ -614,7 +614,7 @@ export default async function HomePage() {
                 Para comercios
               </p>
 
-              <h2 className="mt-3 max-w-3xl text-4xl font-black leading-tight md:text-5xl">
+              <h2 className="mt-3 max-w-3xl text-2xl font-black leading-tight md:text-3xl">
                 Convertí tus productos en una campaña de ventas.
               </h2>
 

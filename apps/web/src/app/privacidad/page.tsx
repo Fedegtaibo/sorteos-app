@@ -26,7 +26,7 @@ export default function Page() {
             Información importante
           </p>
 
-          <h1 className="mt-4 text-4xl font-black leading-tight text-white md:text-5xl">
+          <h1 className="mt-4 text-3xl font-black leading-tight text-white md:text-4xl">
             Política de privacidad
           </h1>
 
