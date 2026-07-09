@@ -274,7 +274,14 @@ export default async function HomePage() {
                 Publicar como comercio
               </Link>
 
-		<InstallAppButton className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-7 py-4 text-center text-base font-black text-amber-300 hover:bg-amber-400 hover:text-black" />		
+		                <Link
+                  href="/beta"
+                  className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-7 py-4 text-center text-base font-black text-amber-300 hover:bg-amber-400 hover:text-black"
+                >
+                  Beta para comercios
+                </Link>
+
+              <InstallAppButton className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-7 py-4 text-center text-base font-black text-amber-300 hover:bg-amber-400 hover:text-black" />		
 
             </div>
 
