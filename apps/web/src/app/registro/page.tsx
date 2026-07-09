@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 export default function RegistroPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -17,6 +18,17 @@ export default function RegistroPage() {
     nombre: '',
     telefono: '',
   });
+
+  const telefonoLocal = form.telefono.replace(/^\+54\s?/, '');
+
+  const handleTelefonoChange = (value: string) => {
+    const limpio = value.replace(/^\+54\s*/, '').trimStart();
+
+    setForm((f) => ({
+      ...f,
+      telefono: limpio ? `+54 ${limpio}` : '',
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +44,7 @@ export default function RegistroPage() {
       });
 
       if (!res?.error) {
-        toast.success('¡Cuenta creada exitosamente!');
+        toast.success('Â¡Cuenta creada exitosamente!');
         router.push('/dashboard');
       }
     } catch (err: any) {
@@ -51,19 +63,19 @@ export default function RegistroPage() {
               href="/"
               className="mb-8 inline-flex rounded-2xl border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-white/10"
             >
-              ← Volver al inicio
+              â† Volver al inicio
             </Link>
 
             <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-amber-300">
               Sortealo
             </p>
 
-            <h1 className="max-w-xl text-6xl font-black leading-tight">
-              Creá tu cuenta y empezá a participar.
+            <h1 className="max-w-xl text-5xl font-black leading-tight">
+              CreÃ¡ tu cuenta y empezÃ¡ a participar.
             </h1>
 
             <p className="mt-6 max-w-lg text-lg leading-8 text-zinc-400">
-              Comprá números, seguí tus participaciones, recibí notificaciones y accedé a premios verificados desde tu panel.
+              ComprÃ¡ nÃºmeros, seguÃ­ tus participaciones, recibÃ­ comprobantes y accedÃ© a sorteos verificados desde tu panel.
             </p>
 
             <div className="mt-8 grid max-w-lg grid-cols-3 gap-3">
@@ -96,14 +108,14 @@ export default function RegistroPage() {
                 href="/"
                 className="inline-flex rounded-2xl border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-white/10"
               >
-                ← Volver al inicio
+                â† Volver al inicio
               </Link>
             </div>
 
             <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 shadow-2xl shadow-black/40 sm:p-8 md:p-10">
               <div className="mb-8 text-center">
                 <div className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-amber-400 text-3xl shadow-xl">
-                  🎯
+                  ðŸŽ¯
                 </div>
 
                 <p className="mt-5 text-xs font-black uppercase tracking-[0.3em] text-amber-300">
@@ -115,7 +127,7 @@ export default function RegistroPage() {
                 </h2>
 
                 <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-zinc-500">
-                  Elegí el tipo de cuenta y completá tus datos para empezar.
+                  ElegÃ­ el tipo de cuenta y completÃ¡ tus datos para empezar.
                 </p>
               </div>
 
@@ -130,13 +142,13 @@ export default function RegistroPage() {
                       {
                         value: 'participante',
                         label: 'Participante',
-                        icon: '🙋',
-                        desc: 'Quiero comprar números',
+                        icon: 'ðŸ™‹',
+                        desc: 'Quiero comprar nÃºmeros',
                       },
                       {
                         value: 'comercio',
                         label: 'Comercio',
-                        icon: '🏪',
+                        icon: 'ðŸª',
                         desc: 'Quiero crear sorteos',
                       },
                     ].map((r) => (
@@ -174,7 +186,7 @@ export default function RegistroPage() {
                 {form.role === 'comercio' && (
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
-                      Razón social
+                      RazÃ³n social
                     </label>
 
                     <input
@@ -211,34 +223,52 @@ export default function RegistroPage() {
                     Celular
                   </label>
 
-                  <input
-                    type="tel"
-                    className="w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 text-base font-bold text-white outline-none placeholder:text-zinc-600 focus:border-amber-400"
-                    placeholder="+54 9 341 1234567"
-                    required
-                    value={form.telefono}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, telefono: e.target.value }))
-                    }
-                  />
+                  <div className="flex overflow-hidden rounded-2xl border border-zinc-800 bg-black focus-within:border-amber-400">
+                    <div className="flex items-center border-r border-zinc-800 bg-amber-400 px-4 text-base font-black text-black">
+                      +54
+                    </div>
+
+                    <input
+                      type="tel"
+                      className="w-full bg-black px-5 py-4 text-base font-bold text-white outline-none placeholder:text-zinc-600"
+                      placeholder="9 341 1234567"
+                      required
+                      value={telefonoLocal}
+                      onChange={(e) => handleTelefonoChange(e.target.value)}
+                    />
+                  </div>
+
+                  <p className="mt-2 text-xs font-semibold leading-5 text-zinc-500">
+                    IngresÃ¡ 9 + caracterÃ­stica + nÃºmero. Ejemplo: 9 341 1234567.
+                  </p>
                 </div>
 
                 <div>
                   <label className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
-                    Contraseña
+                    ContraseÃ±a
                   </label>
 
-                  <input
-                    type="password"
-                    className="w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 text-base font-bold text-white outline-none placeholder:text-zinc-600 focus:border-amber-400"
-                    placeholder="Mínimo 8 caracteres"
-                    required
-                    minLength={8}
-                    value={form.password}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, password: e.target.value }))
-                    }
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      className="w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 pr-28 text-base font-bold text-white outline-none placeholder:text-zinc-600 focus:border-amber-400"
+                      placeholder="MÃ­nimo 8 caracteres"
+                      required
+                      minLength={8}
+                      value={form.password}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, password: e.target.value }))
+                      }
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-amber-300"
+                    >
+                      {showPassword ? 'Ocultar' : 'Mostrar'}
+                    </button>
+                  </div>
                 </div>
 
                 <button
@@ -246,14 +276,14 @@ export default function RegistroPage() {
                   disabled={loading}
                   className="w-full rounded-2xl bg-amber-400 px-6 py-4 text-base font-black text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {loading ? 'Creando cuenta...' : 'Crear cuenta →'}
+                  {loading ? 'Creando cuenta...' : 'Crear cuenta â†’'}
                 </button>
               </form>
 
               <p className="mt-7 text-center text-sm font-semibold text-zinc-500">
-                ¿Ya tenés cuenta?{' '}
+                Â¿Ya tenÃ©s cuenta?{' '}
                 <Link href="/login" className="font-black text-amber-300">
-                  Ingresá
+                  IngresÃ¡
                 </Link>
               </p>
             </div>
