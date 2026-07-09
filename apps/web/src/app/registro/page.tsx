@@ -11,6 +11,10 @@ export default function RegistroPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const handleGoogleSignIn = () => {
+    signIn('google', { callbackUrl: '/dashboard' });
+  };
+
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -131,6 +135,19 @@ export default function RegistroPage() {
                 </p>
               </div>
 
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="mb-5 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-4 text-base font-black text-white transition hover:bg-white/10"
+              >
+                Continuar con Google
+              </button>
+
+              <div className="mb-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-zinc-600">
+                <span className="h-px bg-white/10" />
+                <span>o creÃ¡ tu cuenta con email</span>
+                <span className="h-px bg-white/10" />
+              </div>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="mb-3 block text-xs font-black uppercase tracking-[0.2em] text-zinc-500">

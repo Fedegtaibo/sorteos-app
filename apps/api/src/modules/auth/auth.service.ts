@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { GoogleAuthDto } from './dto/google-auth.dto';
 import { EmailService } from '../email/email.service';
 
 @Injectable()
@@ -73,6 +74,70 @@ export class AuthService {
       mensaje: dto.role === 'comercio'
         ? 'Cuenta creada. Completa tu perfil de comercio para solicitar aprobacion y verifica tu email.'
         : 'Cuenta creada exitosamente. Verifica tu email para aumentar la seguridad de tu cuenta.',
+    };
+  }
+
+
+  async googleLogin(dto: GoogleAuthDto, internalSecret: string) {
+    const expectedSecret = this.config.get<string>('INTERNAL_AUTH_SECRET');
+
+    if (!expectedSecret || internalSecret !== expectedSecret) {
+      throw new UnauthorizedException({
+        code: 'GOOGLE_AUTH_NO_AUTORIZADO',
+        message: 'Autenticacion interna no autorizada',
+      });
+    }
+
+    const email = dto.email.trim().toLowerCase();
+
+    let user = await this.db('users')
+      .where({ email })
+      .first();
+
+    if (user?.is_blocked) {
+      throw new UnauthorizedException({
+        code: 'CUENTA_BLOQUEADA',
+        message: 'Tu cuenta fue bloqueada. Contacta con soporte.',
+      });
+    }
+
+    if (!user) {
+      const passwordHash = await bcrypt.hash(randomBytes(48).toString('hex'), 12);
+
+      [user] = await this.db('users')
+        .insert({
+          email,
+          password_hash: passwordHash,
+          role: 'participante',
+          email_verified: true,
+          email_verification_token: null,
+          telefono: null,
+        })
+        .returning(['id', 'email', 'role', 'email_verified', 'telefono', 'created_at']);
+    } else if (!user.email_verified) {
+      [user] = await this.db('users')
+        .where({ id: user.id })
+        .update({
+          email_verified: true,
+          email_verification_token: null,
+        })
+        .returning(['id', 'email', 'role', 'email_verified', 'telefono', 'created_at']);
+    }
+
+    const tokens = await this.generateTokens(user);
+
+    const refreshHash = await bcrypt.hash(tokens.refreshToken, 10);
+    await this.db('users').where({ id: user.id }).update({ refresh_token_hash: refreshHash });
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        email_verified: user.email_verified,
+        telefono: user.telefono,
+      },
+      ...tokens,
     };
   }
 

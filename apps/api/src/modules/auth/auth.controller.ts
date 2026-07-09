@@ -1,10 +1,11 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Headers, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { GoogleAuthDto } from './dto/google-auth.dto';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -50,6 +51,18 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+
+  @Public()
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @ApiOperation({ summary: 'Ingresar o registrar con Google' })
+  async google(
+    @Body() dto: GoogleAuthDto,
+    @Headers('x-internal-auth-secret') internalSecret: string,
+  ) {
+    return this.authService.googleLogin(dto, internalSecret);
+  }
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
