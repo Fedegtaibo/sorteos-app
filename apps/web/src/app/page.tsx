@@ -1,6 +1,5 @@
 
 import Link from 'next/link';
-import HomeIntroModal from '@/components/HomeIntroModal';
 import InstallAppButton from '@/components/InstallAppButton';
 import { formatMonto, formatFecha, estadoColor } from '@/lib/utils';
 
@@ -199,7 +198,6 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-black text-white">
-      <HomeIntroModal />
       <header className="sticky top-0 z-30 border-b border-white/10 bg-black/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4">
           <Link href="/" className="flex min-w-0 items-center gap-3">
@@ -242,87 +240,176 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.22),transparent_35%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.18),transparent_30%)]" />
+            <section className="relative overflow-hidden border-b border-white/10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.24),transparent_34%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.16),transparent_32%)]" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-24">
-          <div>
-            <div className="mb-5 inline-flex rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.25em] text-amber-300">
-              Sorteos verificados · Pagos seguros · Entregas auditables
+        <div className="relative mx-auto max-w-7xl px-4 py-14 lg:py-20">
+          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <div>
+              <div className="mb-8 flex flex-wrap gap-3">
+                <span className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-5 py-3 text-sm font-black text-amber-300">
+                  Para participantes
+                </span>
+
+                <span className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-zinc-400">
+                  Para comercios
+                </span>
+              </div>
+
+              <h1 className="max-w-4xl text-4xl font-black leading-[1.05] text-white md:text-6xl">
+                Compra con confianza.
+                <span className="mt-2 block text-amber-400">
+                  Vende con sorteos que convierten.
+                </span>
+              </h1>
+
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-400">
+                Sortealo centraliza sorteos de comercios reales con pagos seguros,
+                numeros reservados, comprobantes automaticos y seguimiento transparente.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <Link
+                  href="#marketplace"
+                  className="rounded-2xl bg-amber-400 px-7 py-4 text-center text-base font-black text-black shadow-2xl shadow-amber-400/20 hover:bg-amber-300"
+                >
+                  Ver sorteos activos
+                </Link>
+
+                <Link
+                  href="/registro"
+                  className="rounded-2xl border border-white/15 px-7 py-4 text-center text-base font-black text-white hover:bg-white/10"
+                >
+                  Quiero vender con Sortealo
+                </Link>
+
+                <InstallAppButton className="rounded-2xl border border-white/15 bg-white/5 px-7 py-4 text-center text-base font-black text-zinc-200 hover:bg-white/10" />
+              </div>
+
+              <div className="mt-10 grid max-w-2xl gap-4 sm:grid-cols-3">
+                {[
+                  ['1', 'Elegis', 'el sorteo que mas te gusta.'],
+                  ['2', 'Pagas', 'de forma segura y obtenes tu numero.'],
+                  ['3', 'Participas', 'y seguis el sorteo en tiempo real.'],
+                ].map(([numero, titulo, texto]) => (
+                  <div key={numero} className="flex gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-amber-400 text-sm font-black text-amber-300">
+                      {numero}
+                    </div>
+                    <div>
+                      <p className="font-black text-white">{titulo}</p>
+                      <p className="mt-1 text-sm leading-5 text-zinc-500">{texto}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <h1 className="max-w-4xl text-4xl font-black leading-tight text-white md:text-5xl">
-              Descubrí premios reales en sorteos confiables.
-            </h1>
+            <div className="overflow-hidden rounded-[2rem] border border-amber-400/25 bg-zinc-950 shadow-2xl shadow-amber-950/20">
+              {ultimoPublicado ? (
+                <>
+                  <div className="relative h-72 overflow-hidden bg-gradient-to-br from-amber-300 via-orange-500 to-zinc-950 md:h-80">
+                    {ultimoPublicado.imagen_principal_url ? (
+                      <img
+                        src={ultimoPublicado.imagen_principal_url}
+                        alt={ultimoPublicado.nombre}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <div className="grid h-24 w-24 place-items-center rounded-[2rem] bg-black/30 text-5xl font-black text-white shadow-2xl backdrop-blur">
+                          S
+                        </div>
+                      </div>
+                    )}
 
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-400">
-              Sortealo es una plataforma para participar en sorteos online de comercios reales de forma simple, ordenada y transparente. Elegís un sorteo, seleccionás tus números, pagás online y tu participación queda registrada.
-            </p>
+                    <div className="absolute left-5 top-5 rounded-full bg-emerald-500/15 px-4 py-2 text-xs font-black uppercase text-emerald-300 ring-1 ring-emerald-400/30">
+                      Activo
+                    </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="#marketplace"
-                className="rounded-2xl bg-amber-400 px-7 py-4 text-center text-base font-black text-black shadow-2xl shadow-amber-400/20 hover:bg-amber-300"
-              >
-                Explorar sorteos
-              </Link>
+                    <div className="absolute bottom-5 right-5 rounded-full bg-amber-300 px-4 py-2 text-xs font-black text-black shadow-xl">
+                      {porcentajeVendido(ultimoPublicado)}% vendido
+                    </div>
+                  </div>
 
-              <Link
-                href="/login"
-                className="rounded-2xl border border-white/15 px-7 py-4 text-center text-base font-black text-white hover:bg-white/10"
-              >
-                Publicar como comercio
-              </Link>
-                <InstallAppButton className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-7 py-4 text-center text-base font-black text-amber-300 hover:bg-amber-400 hover:text-black" />		
+                  <div className="p-6 md:p-7">
+                    <div className="flex items-start justify-between gap-5">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.22em] text-amber-300">
+                          Sorteo destacado
+                        </p>
+                        <h2 className="mt-2 text-3xl font-black leading-tight text-white">
+                          {ultimoPublicado.nombre}
+                        </h2>
+                        <p className="mt-2 text-sm font-semibold text-zinc-500">
+                          {ultimoPublicado.comercio_nombre || 'Comercio verificado'}
+                        </p>
+                      </div>
+                    </div>
 
-            </div>
+                    <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-2xl bg-white/5 p-4">
+                        <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">
+                          Precio por numero
+                        </p>
+                        <p className="mt-2 text-2xl font-black text-amber-300">
+                          {formatMonto(ultimoPublicado.valor_numero)}
+                        </p>
+                      </div>
 
-            <div className="mt-10 grid max-w-2xl grid-cols-3 gap-3">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                <p className="text-2xl font-black text-amber-300">{sorteos.length}</p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">Sorteos activos</p>
-              </div>
+                      <div className="rounded-2xl bg-white/5 p-4 sm:text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">
+                          Sortea
+                        </p>
+                        <p className="mt-2 text-sm font-black text-zinc-200">
+                          {formatFecha(ultimoPublicado.fecha_sorteo)}
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                <p className="text-2xl font-black text-amber-300">
-                  {sorteos.reduce((acc: number, s: any) => acc + Number(s.numeros_vendidos || 0), 0)}
-                </p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">Números vendidos</p>
-              </div>
+                    <div className="mt-6">
+                      <div className="mb-2 flex justify-between text-xs font-semibold text-zinc-500">
+                        <span>{Number(ultimoPublicado.numeros_vendidos || 0)} vendidos</span>
+                        <span>{Number(ultimoPublicado.cant_numeros || 0)} numeros</span>
+                      </div>
 
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                <p className="text-2xl font-black text-amber-300">24/7</p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">Marketplace online</p>
-              </div>
+                      <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+                        <div
+                          className="h-full rounded-full bg-amber-400 transition-all"
+                          style={{ width: `${porcentajeVendido(ultimoPublicado)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/sorteos/${ultimoPublicado.id}`}
+                      className="mt-6 block rounded-2xl bg-amber-400 px-5 py-4 text-center text-sm font-black text-black hover:bg-amber-300"
+                    >
+                      Participar ahora
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <div className="p-10 text-center">
+                  <p className="text-xl font-black text-white">Todavia no hay sorteos activos</p>
+                  <p className="mt-2 text-sm text-zinc-500">Cuando un comercio publique uno, aparecera aca.</p>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-zinc-950 p-4 shadow-2xl">
-            {ultimoPublicado ? (
-              <>
-                <div className="mb-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
-                      Sorteo destacado
-                    </p>
-                    <h2 className="mt-1 text-2xl font-black text-white">
-                      {ultimoPublicado.nombre}
-                    </h2>
-                  </div>
-
-                  <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-black text-emerald-300">
-                    Activo
-                  </span>
-                </div>
-
-                <SorteoCard sorteo={ultimoPublicado} />
-              </>
-            ) : (
-              <div className="rounded-[2rem] border border-dashed border-zinc-700 p-10 text-center">
-                <p className="text-xl font-black text-white">Todavía no hay sorteos activos</p>
-                <p className="mt-2 text-sm text-zinc-500">Cuando un comercio publique uno, aparecerá acá.</p>
+          <div className="mt-10 grid gap-3 rounded-[2rem] border border-white/10 bg-white/[0.04] p-4 md:grid-cols-4">
+            {[
+              ['Pagos seguros', 'Protegemos cada transaccion.'],
+              ['Comercios verificados', 'Solo negocios reales y activos.'],
+              ['Comprobantes automaticos', 'Recibis tu comprobante al instante.'],
+              ['Entregas auditables', 'Sorteos y entregas con trazabilidad.'],
+            ].map(([titulo, texto]) => (
+              <div key={titulo} className="rounded-2xl bg-black/20 p-4">
+                <p className="font-black text-white">{titulo}</p>
+                <p className="mt-1 text-sm leading-6 text-zinc-500">{texto}</p>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </section>
