@@ -43,7 +43,7 @@ function SorteoCard({ sorteo }: { sorteo: any }) {
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="grid h-24 w-24 place-items-center rounded-[2rem] bg-black/30 text-5xl font-black text-white shadow-2xl backdrop-blur">
+          <div className="grid h-24 w-24 place-items-center rounded-[2rem] bg-black/30 text-4xl font-black text-white shadow-2xl backdrop-blur">
             S
           </div>
         )}
@@ -246,7 +246,7 @@ export default function ExplorarSorteosPage() {
           Marketplace
         </p>
 
-        <h1 className="text-3xl font-black text-white md:text-5xl">
+        <h1 className="text-2xl font-black text-white md:text-3xl">
           Explorá sorteos activos
         </h1>
 

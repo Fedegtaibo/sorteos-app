@@ -54,13 +54,13 @@ export default function DashboardPage() {
         <section className="mx-auto max-w-6xl px-6 py-10">
           <div className="mb-10">
             <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">PARTICIPANTE</p>
-            <h1 className="text-4xl font-black mt-3">Mi cuenta</h1>
+            <h1 className="text-3xl font-black mt-3">Mi cuenta</h1>
             <p className="text-zinc-500 mt-3">{email}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="card p-8">
-              <div className="text-5xl mb-6">🎟️</div>
+              <div className="text-4xl mb-5">🎟️</div>
               <h2 className="text-2xl font-black mb-3">Mis participaciones</h2>
               <p className="text-zinc-500 mb-8">
                 Revisá los sorteos en los que participaste, tus números y comprobantes.
@@ -71,7 +71,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="card p-8">
-              <div className="text-5xl mb-6">🎯</div>
+              <div className="text-4xl mb-5">🎯</div>
               <h2 className="text-2xl font-black mb-3">Explorar sorteos</h2>
               <p className="text-zinc-500 mb-8">
                 Buscá sorteos activos y reservá tus próximos números.
@@ -82,7 +82,7 @@ export default function DashboardPage() {
             </div>
 
 		              <div className="card p-8 md:col-span-2">
-                <div className="text-5xl mb-6">📱</div>
+                <div className="text-4xl mb-5">📱</div>
                 <h2 className="text-2xl font-black mb-3">Instalar Sortealo</h2>
                 <p className="text-zinc-500 mb-8">
                   Agregá Sortealo a la pantalla principal de tu celular y usalo como una app.
@@ -106,7 +106,7 @@ export default function DashboardPage() {
               <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">
                 COMERCIO
               </p>
-              <h1 className="mt-3 text-4xl font-black">
+              <h1 className="mt-3 text-3xl font-black">
                 Completa tu perfil de comercio
               </h1>
               <p className="mt-4 text-zinc-400">
@@ -130,7 +130,7 @@ export default function DashboardPage() {
               <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">
                 COMERCIO EN REVISION
               </p>
-              <h1 className="mt-3 text-4xl font-black">
+              <h1 className="mt-3 text-3xl font-black">
                 Tu comercio esta pendiente de aprobacion
               </h1>
               <p className="mt-4 text-zinc-400">
@@ -184,7 +184,7 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
             <div>
               <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">PANEL DE COMERCIO</p>
-              <h1 className="text-4xl font-black mt-3">Dashboard</h1>
+              <h1 className="text-3xl font-black mt-3">Dashboard</h1>
               <p className="text-zinc-500 mt-3">Resumen avanzado de ventas, comisiones y logística.</p>
             </div>
             

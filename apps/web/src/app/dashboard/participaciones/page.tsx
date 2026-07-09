@@ -73,7 +73,7 @@ export default function ParticipacionesPage() {
             <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
               Participante
             </p>
-            <h1 className="text-3xl font-black text-white md:text-4xl">
+            <h1 className="text-2xl font-black text-white md:text-3xl">
               Mis participaciones
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-zinc-400">
@@ -91,7 +91,7 @@ export default function ParticipacionesPage() {
             <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
               Participaciones
             </p>
-            <p className="mt-3 text-3xl font-black text-white">
+            <p className="mt-3 text-2xl font-black text-white">
               {participaciones.length}
             </p>
           </div>
@@ -100,7 +100,7 @@ export default function ParticipacionesPage() {
             <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
               Sorteos activos
             </p>
-            <p className="mt-3 text-3xl font-black text-blue-300">
+            <p className="mt-3 text-2xl font-black text-blue-300">
               {activas}
             </p>
           </div>
@@ -109,7 +109,7 @@ export default function ParticipacionesPage() {
             <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
               Total participado
             </p>
-            <p className="mt-3 text-3xl font-black text-amber-400">
+            <p className="mt-3 text-2xl font-black text-amber-400">
               {formatMonto(totalInvertido)}
             </p>
           </div>
@@ -118,7 +118,7 @@ export default function ParticipacionesPage() {
 
       {participaciones.length === 0 ? (
         <section className="rounded-3xl border border-dashed border-zinc-700 bg-zinc-900 p-12 text-center">
-          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-zinc-800 text-4xl">
+          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-zinc-800 text-3xl">
             🎟
           </div>
           <h2 className="text-xl font-black text-white">
