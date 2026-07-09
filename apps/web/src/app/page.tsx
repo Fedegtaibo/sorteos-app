@@ -1,6 +1,7 @@
 
 import Link from 'next/link';
 import HomeIntroModal from '@/components/HomeIntroModal';
+import InstallAppButton from '@/components/InstallAppButton';
 import { formatMonto, formatFecha, estadoColor } from '@/lib/utils';
 
 async function getSorteos() {
@@ -272,6 +273,9 @@ export default async function HomePage() {
               >
                 Publicar como comercio
               </Link>
+
+		<InstallAppButton className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-7 py-4 text-center text-base font-black text-amber-300 hover:bg-amber-400 hover:text-black" />		
+
             </div>
 
             <div className="mt-10 grid max-w-2xl grid-cols-3 gap-3">

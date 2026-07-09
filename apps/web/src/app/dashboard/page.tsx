@@ -7,6 +7,7 @@ import { formatMonto } from '@/lib/utils';
 import Link from 'next/link';
 import VentasChart from '@/components/VentasChart';
 import EntregasChart from '@/components/EntregasChart';
+import InstallAppButton from '@/components/InstallAppButton';
 
 function MetricCard({
   label,
@@ -79,6 +80,17 @@ export default function DashboardPage() {
                 Ver sorteos
               </Link>
             </div>
+
+		              <div className="card p-8 md:col-span-2">
+                <div className="text-5xl mb-6">📱</div>
+                <h2 className="text-2xl font-black mb-3">Instalar Sortealo</h2>
+                <p className="text-zinc-500 mb-8">
+                  Agregá Sortealo a la pantalla principal de tu celular y usalo como una app.
+                </p>
+                <InstallAppButton compact className="btn-primary inline-block" />
+              </div>
+
+
           </div>
         </section>
       </main>
@@ -175,9 +187,15 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
               <h1 className="text-4xl font-black mt-3">Dashboard</h1>
               <p className="text-zinc-500 mt-3">Resumen avanzado de ventas, comisiones y logística.</p>
             </div>
-            <Link href="/dashboard/sorteos/nuevo" className="btn-primary">
-              + Nuevo sorteo
-            </Link>
+            
+		<div className="flex flex-col gap-3 sm:flex-row">
+  <InstallAppButton compact className="btn-ghost" />
+
+  <Link href="/dashboard/sorteos/nuevo" className="btn-primary">
+    + Nuevo sorteo
+  </Link>
+</div>
+
           </div>
             
           <div className="mb-8">
