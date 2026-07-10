@@ -9,6 +9,7 @@ import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const router = useRouter();
+  const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true';
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: '', password: '' });
@@ -59,42 +60,47 @@ export default function LoginPage() {
             <p>AccedÃ© a tu cuenta para administrar o participar en sorteos verificados.</p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            style={{
-              width: '100%',
-              marginBottom: 18,
-              border: '1px solid rgba(255,255,255,0.14)',
-              background: 'rgba(255,255,255,0.04)',
-              color: '#fff',
-              borderRadius: 18,
-              padding: '14px 18px',
-              fontWeight: 900,
-              cursor: 'pointer',
-            }}
-          >
-            Continuar con Google
-          </button>
+          {googleEnabled && (
+            <>
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                style={{
+                  width: '100%',
+                  marginBottom: 18,
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  background: 'rgba(255,255,255,0.04)',
+                  color: '#fff',
+                  borderRadius: 18,
+                  padding: '14px 18px',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                }}
+              >
+                Continuar con Google
+              </button>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr auto 1fr',
-              gap: 12,
-              alignItems: 'center',
-              marginBottom: 18,
-              color: '#71717a',
-              fontSize: 12,
-              fontWeight: 800,
-              textTransform: 'uppercase',
-              letterSpacing: '0.16em',
-            }}
-          >
-            <span style={{ height: 1, background: 'rgba(255,255,255,0.1)' }} />
-            <span>o ingresÃ¡ con email</span>
-            <span style={{ height: 1, background: 'rgba(255,255,255,0.1)' }} />
-          </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr auto 1fr',
+                  gap: 12,
+                  alignItems: 'center',
+                  marginBottom: 18,
+                  color: '#71717a',
+                  fontSize: 12,
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.16em',
+                }}
+              >
+                <span style={{ height: 1, background: 'rgba(255,255,255,0.1)' }} />
+                <span>o ingresÃ¡ con email</span>
+                <span style={{ height: 1, background: 'rgba(255,255,255,0.1)' }} />
+              </div>
+            </>
+          )}
+
           <form onSubmit={handleSubmit}>
             <label>
               EMAIL

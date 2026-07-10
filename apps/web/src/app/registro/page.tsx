@@ -9,12 +9,9 @@ import toast from 'react-hot-toast';
 
 export default function RegistroPage() {
   const router = useRouter();
+  const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true';
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/dashboard' });
-  };
-
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -24,6 +21,10 @@ export default function RegistroPage() {
   });
 
   const telefonoLocal = form.telefono.replace(/^\+54\s?/, '');
+
+  const handleGoogleSignIn = () => {
+    signIn('google', { callbackUrl: '/dashboard' });
+  };
 
   const handleTelefonoChange = (value: string) => {
     const limpio = value.replace(/^\+54\s*/, '').trimStart();
@@ -81,29 +82,6 @@ export default function RegistroPage() {
             <p className="mt-6 max-w-lg text-lg leading-8 text-zinc-400">
               ComprÃ¡ nÃºmeros, seguÃ­ tus participaciones, recibÃ­ comprobantes y accedÃ© a sorteos verificados desde tu panel.
             </p>
-
-            <div className="mt-8 grid max-w-lg grid-cols-3 gap-3">
-              <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
-                <p className="text-2xl font-black text-amber-300">100%</p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">
-                  Online
-                </p>
-              </div>
-
-              <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
-                <p className="text-2xl font-black text-amber-300">OK</p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">
-                  Verificado
-                </p>
-              </div>
-
-              <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
-                <p className="text-2xl font-black text-amber-300">24/7</p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">
-                  Disponible
-                </p>
-              </div>
-            </div>
           </div>
 
           <div>
@@ -135,19 +113,24 @@ export default function RegistroPage() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                className="mb-5 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-4 text-base font-black text-white transition hover:bg-white/10"
-              >
-                Continuar con Google
-              </button>
+              {googleEnabled && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    className="mb-5 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-4 text-base font-black text-white transition hover:bg-white/10"
+                  >
+                    Continuar con Google
+                  </button>
 
-              <div className="mb-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-zinc-600">
-                <span className="h-px bg-white/10" />
-                <span>o creÃ¡ tu cuenta con email</span>
-                <span className="h-px bg-white/10" />
-              </div>
+                  <div className="mb-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-zinc-600">
+                    <span className="h-px bg-white/10" />
+                    <span>o creÃ¡ tu cuenta con email</span>
+                    <span className="h-px bg-white/10" />
+                  </div>
+                </>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="mb-3 block text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
