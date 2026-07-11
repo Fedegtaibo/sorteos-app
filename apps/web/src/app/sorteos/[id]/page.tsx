@@ -353,6 +353,83 @@ const numeros: any[] = getArrayFromResponse(numerosData);
             </section>
 
 
+            <section
+              className="card"
+              style={{
+                marginBottom: 28,
+                border: '1px solid rgba(251, 191, 36, 0.22)',
+                background:
+                  'linear-gradient(135deg, rgba(251,191,36,0.10), rgba(24,24,27,0.92))',
+              }}
+            >
+              <p
+                style={{
+                  color: '#fbbf24',
+                  fontSize: 12,
+                  fontWeight: 900,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  margin: 0,
+                }}
+              >
+                Gestionado con Sortealo
+              </p>
+
+              <h2 style={{ marginTop: 10, marginBottom: 10 }}>
+                ParticipÃ¡s con registro, pago y comprobante.
+              </h2>
+
+              <p style={{ color: '#a1a1aa', fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+                Sortealo ordena el proceso para que cada nÃºmero, pago y participaciÃ³n quede
+                registrado. AsÃ­ el comercio puede administrar el sorteo con mÃ¡s transparencia y vos
+                podÃ©s seguir tu compra desde tu panel.
+              </p>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gap: 10,
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  marginTop: 18,
+                }}
+              >
+                {[
+                  {
+                    icon: 'ðŸ”’',
+                    title: 'Pago registrado',
+                    text: 'La operaciÃ³n queda asociada a tu cuenta.',
+                  },
+                  {
+                    icon: 'ðŸŽŸï¸',
+                    title: 'NÃºmero asignado',
+                    text: 'Si el pago se aprueba, el nÃºmero queda vendido.',
+                  },
+                  {
+                    icon: 'ðŸ§¾',
+                    title: 'Comprobante',
+                    text: 'PodÃ©s verlo luego en Mis participaciones.',
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    style={{
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 18,
+                      padding: 14,
+                      background: 'rgba(0,0,0,0.22)',
+                    }}
+                  >
+                    <div style={{ fontSize: 22, marginBottom: 8 }}>{item.icon}</div>
+                    <b style={{ display: 'block', color: '#fff', marginBottom: 4 }}>
+                      {item.title}
+                    </b>
+                    <span style={{ color: '#a1a1aa', fontSize: 13, lineHeight: 1.5 }}>
+                      {item.text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
             <div className="legend">
               <span>□ Libre</span>
               <span className="yellow">□ Seleccionado</span>
