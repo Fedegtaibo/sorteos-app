@@ -49,7 +49,7 @@ export default function RegistroPage() {
       });
 
       if (!res?.error) {
-        toast.success('Â¡Cuenta creada exitosamente!');
+        toast.success('¡Cuenta creada exitosamente!');
         router.push('/dashboard');
       }
     } catch (err: any) {
@@ -68,7 +68,7 @@ export default function RegistroPage() {
               href="/"
               className="mb-8 inline-flex rounded-2xl border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-white/10"
             >
-              â† Volver al inicio
+              ← Volver al inicio
             </Link>
 
             <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-amber-300">
@@ -76,11 +76,11 @@ export default function RegistroPage() {
             </p>
 
             <h1 className="max-w-xl text-5xl font-black leading-tight">
-              CreÃ¡ tu cuenta y empezÃ¡ a participar.
+              Creá tu cuenta y empezá a participar.
             </h1>
 
             <p className="mt-6 max-w-lg text-lg leading-8 text-zinc-400">
-              ComprÃ¡ nÃºmeros, seguÃ­ tus participaciones, recibÃ­ comprobantes y accedÃ© a sorteos verificados desde tu panel.
+              Comprá números, seguí tus participaciones, recibí comprobantes y accedé a sorteos verificados desde tu panel.
             </p>
           </div>
 
@@ -90,14 +90,14 @@ export default function RegistroPage() {
                 href="/"
                 className="inline-flex rounded-2xl border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-white/10"
               >
-                â† Volver al inicio
+                ← Volver al inicio
               </Link>
             </div>
 
             <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 shadow-2xl shadow-black/40 sm:p-8 md:p-10">
               <div className="mb-8 text-center">
                 <div className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-amber-400 text-3xl shadow-xl">
-                  ðŸŽ¯
+                  🎯
                 </div>
 
                 <p className="mt-5 text-xs font-black uppercase tracking-[0.3em] text-amber-300">
@@ -109,7 +109,7 @@ export default function RegistroPage() {
                 </h2>
 
                 <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-zinc-500">
-                  ElegÃ­ el tipo de cuenta y completÃ¡ tus datos para empezar.
+                  Elegí el tipo de cuenta y completá tus datos para empezar.
                 </p>
               </div>
 
@@ -125,7 +125,7 @@ export default function RegistroPage() {
 
                   <div className="mb-5 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-zinc-600">
                     <span className="h-px bg-white/10" />
-                    <span>o creÃ¡ tu cuenta con email</span>
+                    <span>o creá tu cuenta con email</span>
                     <span className="h-px bg-white/10" />
                   </div>
                 </>
@@ -142,13 +142,13 @@ export default function RegistroPage() {
                       {
                         value: 'participante',
                         label: 'Participante',
-                        icon: 'ðŸ™‹',
-                        desc: 'Quiero comprar nÃºmeros',
+                        icon: '\u{1F64B}',
+                        desc: 'Quiero comprar números',
                       },
                       {
                         value: 'comercio',
                         label: 'Comercio',
-                        icon: 'ðŸª',
+                        icon: '\u{1F3EA}',
                         desc: 'Quiero crear sorteos',
                       },
                     ].map((r) => (
@@ -186,7 +186,7 @@ export default function RegistroPage() {
                 {form.role === 'comercio' && (
                   <div>
                     <label className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
-                      RazÃ³n social
+                      Razón social
                     </label>
 
                     <input
@@ -239,20 +239,20 @@ export default function RegistroPage() {
                   </div>
 
                   <p className="mt-2 text-xs font-semibold leading-5 text-zinc-500">
-                    IngresÃ¡ 9 + caracterÃ­stica + nÃºmero. Ejemplo: 9 341 1234567.
+                    Ingresá 9 + característica + número. Ejemplo: 9 341 1234567.
                   </p>
                 </div>
 
                 <div>
                   <label className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
-                    ContraseÃ±a
+                    Contraseña
                   </label>
 
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       className="w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 pr-28 text-base font-bold text-white outline-none placeholder:text-zinc-600 focus:border-amber-400"
-                      placeholder="MÃ­nimo 8 caracteres"
+                      placeholder="Mínimo 8 caracteres"
                       required
                       minLength={8}
                       value={form.password}
@@ -276,14 +276,14 @@ export default function RegistroPage() {
                   disabled={loading}
                   className="w-full rounded-2xl bg-amber-400 px-6 py-4 text-base font-black text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {loading ? 'Creando cuenta...' : 'Crear cuenta â†’'}
+                  {loading ? 'Creando cuenta...' : 'Crear cuenta →'}
                 </button>
               </form>
 
               <p className="mt-7 text-center text-sm font-semibold text-zinc-500">
-                Â¿Ya tenÃ©s cuenta?{' '}
+                ¿Ya tenés cuenta?{' '}
                 <Link href="/login" className="font-black text-amber-300">
-                  IngresÃ¡
+                  Ingresá
                 </Link>
               </p>
             </div>

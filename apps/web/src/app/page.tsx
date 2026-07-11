@@ -98,7 +98,7 @@ export default function HomePage() {
             <h2 className="mt-4 text-3xl font-black leading-tight text-white md:text-4xl">
               El sorteo deja de ser una promesa informal.
               <span className="block text-zinc-500">
-                Pasa a ser una operaciÃ³n registrada.
+                Pasa a ser una operación registrada.
               </span>
             </h2>
 

@@ -376,13 +376,13 @@ const numeros: any[] = getArrayFromResponse(numerosData);
               </p>
 
               <h2 style={{ marginTop: 10, marginBottom: 10 }}>
-                ParticipÃ¡s con registro, pago y comprobante.
+                Participás con registro, pago y comprobante.
               </h2>
 
               <p style={{ color: '#a1a1aa', fontSize: 14, lineHeight: 1.7, margin: 0 }}>
-                Sortealo ordena el proceso para que cada nÃºmero, pago y participaciÃ³n quede
-                registrado. AsÃ­ el comercio puede administrar el sorteo con mÃ¡s transparencia y vos
-                podÃ©s seguir tu compra desde tu panel.
+                Sortealo ordena el proceso para que cada número, pago y participación quede
+                registrado. Así el comercio puede administrar el sorteo con más transparencia y vos
+                podés seguir tu compra desde tu panel.
               </p>
 
               <div
@@ -395,19 +395,19 @@ const numeros: any[] = getArrayFromResponse(numerosData);
               >
                 {[
                   {
-                    icon: 'ðŸ”’',
+                    icon: '🔒',
                     title: 'Pago registrado',
-                    text: 'La operaciÃ³n queda asociada a tu cuenta.',
+                    text: 'La operación queda asociada a tu cuenta.',
                   },
                   {
-                    icon: 'ðŸŽŸï¸',
-                    title: 'NÃºmero asignado',
-                    text: 'Si el pago se aprueba, el nÃºmero queda vendido.',
+                    icon: '\u{1F39F}\uFE0F',
+                    title: 'Número asignado',
+                    text: 'Si el pago se aprueba, el número queda vendido.',
                   },
                   {
-                    icon: 'ðŸ§¾',
+                    icon: '🧾',
                     title: 'Comprobante',
-                    text: 'PodÃ©s verlo luego en Mis participaciones.',
+                    text: 'Podés verlo luego en Mis participaciones.',
                   },
                 ].map((item) => (
                   <div

@@ -27,11 +27,11 @@ export default function LoginPage() {
     setLoading(false);
 
     if (res?.error) {
-      toast.error('Email o contraseÃ±a incorrectos');
+      toast.error('Email o contraseña incorrectos');
       return;
     }
 
-    toast.success('Â¡Bienvenido!');
+    toast.success('¡Bienvenido!');
     router.push('/dashboard');
   };
 
@@ -48,16 +48,16 @@ export default function LoginPage() {
               textDecoration: 'none',
             }}
           >
-            â† Volver al inicio
+            ← Volver al inicio
           </Link>
         </div>
 
         <div className="card form" style={{ maxWidth: 620, margin: '18px auto 80px' }}>
           <div style={{ marginBottom: 36 }}>
-            <div style={{ fontSize: 42, marginBottom: 18 }}>ðŸŽ¯</div>
+            <div style={{ fontSize: 42, marginBottom: 18 }}>🎯</div>
             <p>SORTEALO</p>
-            <h1>IniciÃ¡ sesiÃ³n</h1>
-            <p>AccedÃ© a tu cuenta para administrar o participar en sorteos verificados.</p>
+            <h1>Iniciá sesión</h1>
+            <p>Accedé a tu cuenta para administrar o participar en sorteos verificados.</p>
           </div>
 
           {googleEnabled && (
@@ -95,7 +95,7 @@ export default function LoginPage() {
                 }}
               >
                 <span style={{ height: 1, background: 'rgba(255,255,255,0.1)' }} />
-                <span>o ingresÃ¡ con email</span>
+                <span>o ingresá con email</span>
                 <span style={{ height: 1, background: 'rgba(255,255,255,0.1)' }} />
               </div>
             </>
@@ -114,11 +114,11 @@ export default function LoginPage() {
             </label>
 
             <label>
-              CONTRASEÃ‘A
+              CONTRASEÑA
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                  placeholder="••••••••"
                   required
                   value={form.password}
                   onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
@@ -147,12 +147,12 @@ export default function LoginPage() {
             </label>
 
             <button className="pay" style={{ width: '100%', marginTop: 32 }} disabled={loading}>
-              {loading ? 'Ingresando...' : 'Ingresar â†’'}
+              {loading ? 'Ingresando...' : 'Ingresar →'}
             </button>
           </form>
 
           <p style={{ marginTop: 28 }}>
-            Â¿No tenÃ©s cuenta? <Link href="/registro" className="yellow">Registrate</Link>
+            ¿No tenés cuenta? <Link href="/registro" className="yellow">Registrate</Link>
           </p>
         </div>
       </section>
