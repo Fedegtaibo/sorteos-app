@@ -37,6 +37,11 @@ export default function PerfilComercioPage() {
     setRazonSocial(perfil.razon_social || '');
     setCuit(perfil.cuit || '');
     setTelefono(perfil.telefono || '');
+    setWhatsapp(perfil.whatsapp || '');
+    setLogoUrl(perfil.logo_url || '');
+    setPortadaUrl(perfil.portada_url || '');
+    setDireccion(perfil.direccion || '');
+    setInstagram(perfil.instagram || '');
   }, [perfil]);
 
   const mutation = useMutation({
@@ -45,6 +50,11 @@ export default function PerfilComercioPage() {
         razonSocial,
         cuit,
         telefono,
+        whatsapp,
+        logoUrl,
+        portadaUrl,
+        direccion,
+        instagram,
       }),
     onSuccess: () => {
       toast.success('Perfil actualizado');
