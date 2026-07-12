@@ -44,17 +44,7 @@ export default function HomePage() {
 
         <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-24">
           <div>
-            <div className="mb-8 flex flex-wrap gap-3">
-              <span className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-5 py-3 text-sm font-black text-amber-300">
-                Para participantes
-              </span>
-
-              <span className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-zinc-400">
-                Para comercios
-              </span>
-            </div>
-
-            <h1 className="max-w-5xl text-4xl font-black leading-[1.04] text-white md:text-6xl">
+<h1 className="max-w-5xl text-4xl font-black leading-[1.04] text-white md:text-6xl">
               Comprá con confianza.
               <span className="mt-2 block text-amber-400">
                 Vendé con sorteos que convierten.
