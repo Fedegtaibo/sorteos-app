@@ -201,6 +201,33 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-    </main>
+    
+      {/* Footer de confianza Sortealo */}
+      <footer className="mt-20 border-t border-white/10 px-6 py-10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 text-sm text-zinc-500 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="font-black text-zinc-300">Sortealo</p>
+            <p className="mt-2 max-w-xl leading-6">
+              Plataforma para crear sorteos online con registro de participantes, números, pagos y comprobantes.
+            </p>
+          </div>
+
+          <nav className="flex flex-wrap gap-4 font-bold">
+            <Link href="/ayuda" className="hover:text-amber-300">
+              Ayuda
+            </Link>
+            <Link href="/contacto" className="hover:text-amber-300">
+              Contacto
+            </Link>
+            <Link href="/terminos" className="hover:text-amber-300">
+              Términos
+            </Link>
+            <Link href="/privacidad" className="hover:text-amber-300">
+              Privacidad
+            </Link>
+          </nav>
+        </div>
+      </footer>
+</main>
   );
 }
