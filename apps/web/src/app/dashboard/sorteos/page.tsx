@@ -234,29 +234,44 @@ export default function MisSorteosPage() {
                         </p>
                       </div>
 
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Potencial total
-                        </p>
-                        <p className="mt-1 font-semibold text-amber-300">
-                          {formatMonto(potencial)}
-                        </p>
-                      </div>
+                      
+			<div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3">
+  <p className="text-xs font-black uppercase tracking-wide text-amber-300">
+    Potencial total
+  </p>
+  <p className="mt-1 text-lg font-black text-amber-300">
+    {formatMonto(potencial)}
+  </p>
+</div>
+
                     </div>
 
-                    <div className="mt-5">
-                      <div className="mb-2 flex items-center justify-between text-xs font-bold text-zinc-500">
-                        <span>Avance de venta</span>
-                        <span>{pct}%</span>
-                      </div>
+                    
+			<div className="mt-5 rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4">
+  <div className="mb-3 flex items-center justify-between">
+    <div>
+      <p className="text-xs font-black uppercase tracking-wide text-blue-300">
+        Avance de venta
+      </p>
+      <p className="mt-1 text-sm text-zinc-400">
+        {vendidos} de {totalNumeros} números vendidos
+      </p>
+    </div>
 
-                      <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
-                        <div
-                          className="h-full rounded-full bg-blue-500"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
+    <p className="text-2xl font-black text-blue-300">
+      {pct}%
+    </p>
+  </div>
+
+  <div className="h-3 overflow-hidden rounded-full bg-zinc-800">
+    <div
+      className="h-full rounded-full bg-blue-500"
+      style={{ width: `${pct}%` }}
+    />
+  </div>
+</div>
+
+
 
                     <p className="mt-4 text-sm leading-7 text-zinc-500">
                       Este panel muestra una estimación basada en los números vendidos y el valor
