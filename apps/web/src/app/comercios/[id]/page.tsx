@@ -5,6 +5,9 @@ import {
   BadgeCheck,
   CalendarDays,
   Phone,
+  MessageCircle,
+  AtSign,
+  MapPin,
   ShieldCheck,
   Star,
 } from 'lucide-react';
@@ -149,10 +152,33 @@ export default async function ComercioPublicoPage({
 
   const { comercio, reputacion, scoreConfianza, sorteos } = perfil;
 
+  const whatsappLimpio = String(comercio.whatsapp || '').replace(/\D/g, '');
+  const whatsappHref = whatsappLimpio ? `https://wa.me/${whatsappLimpio}` : null;
+
+  const instagramValor = String(comercio.instagram || '').trim();
+  const instagramUsuario = instagramValor
+    .replace(/^@/, '')
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//, '')
+    .replace(/\/$/, '');
+
+  const instagramHref = instagramValor
+    ? instagramValor.startsWith('http')
+      ? instagramValor
+      : `https://instagram.com/${instagramUsuario}`
+    : null;
+
   return (
     <main className="min-h-screen bg-black text-white">
       <section className="relative overflow-hidden border-b border-white/10">
+        {comercio.portada_url && (
+          <img
+            src={comercio.portada_url}
+            alt={`Portada de ${comercio.razon_social}`}
+            className="absolute inset-0 h-full w-full object-cover opacity-25"
+          />
+        )}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.24),transparent_35%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.16),transparent_30%)]" />
+        <div className="absolute inset-0 bg-black/70" />
 
         <div className="relative mx-auto max-w-7xl px-4 py-10 md:py-16">
           
@@ -174,8 +200,16 @@ export default async function ComercioPublicoPage({
               </div>
 
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                <div className="grid h-24 w-24 shrink-0 place-items-center rounded-[2rem] bg-amber-400 text-4xl font-black text-black shadow-2xl">
-                  {String(comercio.razon_social || 'S').slice(0, 1)}
+                <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-[2rem] bg-amber-400 text-4xl font-black text-black shadow-2xl">
+                  {comercio.logo_url ? (
+                    <img
+                      src={comercio.logo_url}
+                      alt={`Logo de ${comercio.razon_social}`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    String(comercio.razon_social || 'S').slice(0, 1)
+                  )}
                 </div>
 
                 <div>
@@ -205,6 +239,54 @@ export default async function ComercioPublicoPage({
                     </p>
                   </div>
                 </div>
+                <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
+                  <MessageCircle size={18} className="text-emerald-300" />
+                  <div>
+                    <p className="text-xs text-zinc-500">WhatsApp</p>
+                    {whatsappHref ? (
+                      <a
+                        href={whatsappHref}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm font-bold text-emerald-300 hover:text-emerald-200"
+                      >
+                        {comercio.whatsapp}
+                      </a>
+                    ) : (
+                      <p className="text-sm font-bold text-white">No informado</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
+                  <AtSign size={18} className="text-pink-300" />
+                  <div>
+                    <p className="text-xs text-zinc-500">Instagram</p>
+                    {instagramHref ? (
+                      <a
+                        href={instagramHref}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm font-bold text-pink-300 hover:text-pink-200"
+                      >
+                        {comercio.instagram}
+                      </a>
+                    ) : (
+                      <p className="text-sm font-bold text-white">No informado</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
+                  <MapPin size={18} className="text-amber-300" />
+                  <div>
+                    <p className="text-xs text-zinc-500">Dirección</p>
+                    <p className="text-sm font-bold text-white">
+                      {comercio.direccion || 'No informada'}
+                    </p>
+                  </div>
+                </div>
+
 
                 <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
                   <CalendarDays size={18} className="text-amber-300" />
