@@ -96,7 +96,7 @@ export const adminApi = {
 
   sorteos: () => api.get("/admin/sorteos"),
 
-  usuarios: () => api.get("/admin/usuarios"),
+  usuarios: (page = 1) => api.get("/admin/usuarios", { params: { page } }),
 
   verificarEmail: (id: string) =>
     api.post(`/admin/usuarios/${id}/verificar-email`),
