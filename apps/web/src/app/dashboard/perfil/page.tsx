@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { comercioApi } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -84,7 +85,19 @@ export default function PerfilComercioPage() {
           Comercio
         </p>
 
-        <h1 className="text-3xl font-black text-white">Mi perfil</h1>
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <h1 className="text-3xl font-black text-white">Mi perfil</h1>
+
+          {perfil.id && (
+            <Link
+              href={`/comercios/${perfil.id}`}
+              target="_blank"
+              className="inline-flex items-center justify-center rounded-2xl border border-amber-400/40 bg-amber-400/10 px-5 py-3 text-sm font-black text-amber-300 transition hover:border-amber-300 hover:bg-amber-400/20"
+            >
+              Ver mi perfil público →
+            </Link>
+          )}
+        </div>
 
         <p className="mt-3 max-w-2xl text-sm text-zinc-400">
           Configurá los datos principales del comercio. Estos datos se usarán para validar el comercio, gestionar sorteos y organizar entregas de premios.
