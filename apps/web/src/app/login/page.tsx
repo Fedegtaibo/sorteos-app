@@ -37,26 +37,28 @@ export default function LoginPage() {
 
   return (
     <main className="phone">
-      <section className="content" style={{ minWidth: 'auto' }}>
-        <div style={{ maxWidth: 620, margin: '40px auto 0' }}>
+      <section className="content" style={{ minWidth: 'auto', paddingTop: 24, paddingBottom: 48 }}>
+        <div style={{ maxWidth: 560, margin: '0 auto' }}>
           <Link
             href="/"
             className="back"
             style={{
               display: 'inline-flex',
-              marginBottom: 18,
+              marginBottom: 10,
               textDecoration: 'none',
+              padding: '10px 16px',
+              fontSize: 15,
             }}
           >
             ← Volver al inicio
           </Link>
         </div>
 
-        <div className="card form" style={{ maxWidth: 620, margin: '18px auto 80px' }}>
-          <div style={{ marginBottom: 36 }}>
-            <div style={{ fontSize: 42, marginBottom: 18 }}>🎯</div>
+        <div className="card form" style={{ maxWidth: 560, margin: '12px auto 40px', padding: 30 }}>
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 34, marginBottom: 12 }}>🎯</div>
             <p>SORTEALO</p>
-            <h1>Iniciá sesión</h1>
+            <h1 style={{ fontSize: 36, margin: '8px 0 14px' }}>Iniciá sesión</h1>
             <p>Accedé a tu cuenta para administrar o participar en sorteos verificados.</p>
           </div>
 
@@ -102,7 +104,7 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit}>
-            <label>
+            <label style={{ marginTop: 18, fontSize: 15 }}>
               EMAIL
               <input
                 type="email"
@@ -110,10 +112,11 @@ export default function LoginPage() {
                 required
                 value={form.email}
                 onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                style={{ padding: '16px 18px', marginTop: 10, fontSize: 16 }}
               />
             </label>
 
-            <label>
+            <label style={{ marginTop: 18, fontSize: 15 }}>
               CONTRASEÑA
               <div style={{ position: 'relative' }}>
                 <input
@@ -122,7 +125,7 @@ export default function LoginPage() {
                   required
                   value={form.password}
                   onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-                  style={{ paddingRight: 105 }}
+                  style={{ padding: '16px 105px 16px 18px', marginTop: 10, fontSize: 16 }}
                 />
 
                 <button
@@ -146,7 +149,7 @@ export default function LoginPage() {
               </div>
             </label>
 
-            <button className="pay" style={{ width: '100%', marginTop: 32 }} disabled={loading}>
+            <button className="pay" style={{ width: '100%', marginTop: 22, padding: '16px 20px', fontSize: 16 }} disabled={loading}>
               {loading ? 'Ingresando...' : 'Ingresar →'}
             </button>
           </form>

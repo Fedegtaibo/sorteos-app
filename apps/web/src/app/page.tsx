@@ -42,7 +42,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.24),transparent_34%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.14),transparent_32%)]" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-24">
+        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-10 md:py-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-14">
           <div>
 <h1 className="max-w-5xl text-4xl font-black leading-[1.04] text-white md:text-6xl">
               Comprá con confianza.
@@ -80,7 +80,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="rounded-[2rem] border border-amber-400/25 bg-zinc-950 p-6 shadow-2xl shadow-amber-950/20 md:p-8">
+          <div className="rounded-[2rem] border border-amber-400/25 bg-zinc-950 p-5 shadow-2xl shadow-amber-950/20 md:p-6">
             <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
               La idea en una frase
             </p>
@@ -92,14 +92,14 @@ export default function HomePage() {
               </span>
             </h2>
 
-            <div className="mt-8 grid gap-3">
+            <div className="mt-5 grid gap-2">
               {[
                 ['1', 'Elegís un sorteo real', 'Publicado por un comercio identificado.'],
                 ['2', 'Reservás tus números', 'La seleccion queda ordenada antes del pago.'],
                 ['3', 'Pagás de forma segura', 'El sistema registra la operación.'],
                 ['4', 'Recibís comprobante', 'Tu participacion queda guardada en tu cuenta.'],
               ].map(([numero, titulo, texto]) => (
-                <div key={numero} className="flex gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                <div key={numero} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-400 text-sm font-black text-black">
                     {numero}
                   </div>

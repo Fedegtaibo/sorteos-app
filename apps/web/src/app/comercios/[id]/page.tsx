@@ -192,7 +192,7 @@ export default async function ComercioPublicoPage({
 
 
 
-          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-end">
+          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
             <div>
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
                 <BadgeCheck size={16} />
@@ -205,7 +205,7 @@ export default async function ComercioPublicoPage({
                     <img
                       src={comercio.logo_url}
                       alt={`Logo de ${comercio.razon_social}`}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-contain p-2"
                     />
                   ) : (
                     String(comercio.razon_social || 'S').slice(0, 1)
