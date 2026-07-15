@@ -221,6 +221,25 @@ export default function PerfilComercioPage() {
               className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
               placeholder="https://..."
             />
+
+            {logoUrl.trim() && (
+              <div className="mt-4 flex items-center gap-4 rounded-2xl border border-zinc-800 bg-black p-4">
+                <img
+                  src={logoUrl}
+                  alt="Vista previa del logo"
+                  className="h-20 w-20 rounded-2xl object-cover"
+                />
+
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+                    Vista previa
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-zinc-300">
+                    Vista previa del logo del comercio.
+                  </p>
+                </div>
+              </div>
+            )}
           </label>
 
           <label className="block md:col-span-2">
@@ -233,6 +252,25 @@ export default function PerfilComercioPage() {
               className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
               placeholder="https://..."
             />
+
+            {portadaUrl.trim() && (
+              <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-800 bg-black">
+                <img
+                  src={portadaUrl}
+                  alt="Vista previa de la portada"
+                  className="h-44 w-full object-cover"
+                />
+
+                <div className="p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+                    Vista previa
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-zinc-300">
+                    Vista previa de la portada del comercio.
+                  </p>
+                </div>
+              </div>
+            )}
           </label>
         </div>
 
