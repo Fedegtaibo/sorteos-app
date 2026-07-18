@@ -22,43 +22,166 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    // Verificar que el email no exista
-    const existing = await this.db('users').where({ email: dto.email }).first();
-    if (existing) {
-      throw new ConflictException({
-        code: 'EMAIL_EN_USO',
-        message: 'Ya existe una cuenta con ese email',
-      });
+    const email = dto.email.trim().toLowerCase();
+    const telefono = dto.telefono.trim();
+
+    let fechaNacimiento: Date | null = null;
+    let dniLimpio: string | null = null;
+
+    if (dto.role === 'participante') {
+      if (
+        !dto.apellido ||
+        !dto.fechaNacimiento ||
+        !dto.dni ||
+        !dto.nacionalidad ||
+        !dto.provincia ||
+        !dto.ciudad ||
+        !dto.direccion ||
+        !dto.codigoPostal ||
+        dto.mayor18Declarado !== true ||
+        dto.terminosAceptados !== true
+      ) {
+        throw new BadRequestException({
+          code: 'DATOS_PARTICIPANTE_INCOMPLETOS',
+          message: 'Complet\u00e1 todos los datos personales y de entrega.',
+        });
+      }
+
+      fechaNacimiento = new Date(`${dto.fechaNacimiento}T00:00:00.000Z`);
+
+      if (Number.isNaN(fechaNacimiento.getTime())) {
+        throw new BadRequestException({
+          code: 'FECHA_NACIMIENTO_INVALIDA',
+          message: 'La fecha de nacimiento no es v\u00e1lida.',
+        });
+      }
+
+      const hoy = new Date();
+      let edad = hoy.getUTCFullYear() - fechaNacimiento.getUTCFullYear();
+      const diferenciaMes = hoy.getUTCMonth() - fechaNacimiento.getUTCMonth();
+
+      if (
+        diferenciaMes < 0 ||
+        (diferenciaMes === 0 &&
+          hoy.getUTCDate() < fechaNacimiento.getUTCDate())
+      ) {
+        edad -= 1;
+      }
+
+      if (edad < 18) {
+        throw new BadRequestException({
+          code: 'EDAD_MINIMA',
+          message: 'Para registrarte como participante deb\u00e9s tener 18 a\u00f1os o m\u00e1s.',
+        });
+      }
+
+      dniLimpio = dto.dni.trim();
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
     const emailVerificationToken = randomBytes(32).toString('hex');
 
-    const [user] = await this.db('users')
-      .insert({
-        email: dto.email,
-        password_hash: passwordHash,
-        role: dto.role,
-        email_verified: false,
-        email_verification_token: emailVerificationToken,
-        telefono: dto.telefono || null,
-      })
-      .returning(['id', 'email', 'role', 'email_verified', 'telefono', 'created_at']);
+    let user: any;
 
-    // Si es comercio, el perfil se crea luego desde /dashboard/perfil.
-    // Evitamos crear comercios con CUIT falso para no bloquear multiples registros.
+    try {
+      user = await this.db.transaction(async (trx) => {
+        const existing = await trx('users').where({ email }).first('id');
 
+        if (existing) {
+          throw new ConflictException({
+            code: 'EMAIL_EN_USO',
+            message: 'Ya existe una cuenta con ese email',
+          });
+        }
+
+        if (dto.role === 'participante' && dniLimpio) {
+          const existingDni = await trx('perfiles_participantes')
+            .where({ dni: dniLimpio })
+            .first('id');
+
+          if (existingDni) {
+            throw new ConflictException({
+              code: 'DNI_EN_USO',
+              message: 'Ya existe una cuenta asociada a ese DNI',
+            });
+          }
+        }
+
+        const [createdUser] = await trx('users')
+          .insert({
+            email,
+            password_hash: passwordHash,
+            role: dto.role,
+            email_verified: false,
+            email_verification_token: emailVerificationToken,
+            telefono,
+          })
+          .returning([
+            'id',
+            'email',
+            'role',
+            'email_verified',
+            'telefono',
+            'created_at',
+          ]);
+
+        if (dto.role === 'participante' && fechaNacimiento && dniLimpio) {
+          await trx('perfiles_participantes').insert({
+            user_id: createdUser.id,
+            nombre: dto.nombre.trim(),
+            apellido: dto.apellido!.trim(),
+            fecha_nacimiento: dto.fechaNacimiento,
+            dni: dniLimpio,
+            nacionalidad: dto.nacionalidad!.trim(),
+            provincia: dto.provincia!.trim(),
+            ciudad: dto.ciudad!.trim(),
+            direccion: dto.direccion!.trim(),
+            codigo_postal: dto.codigoPostal!.trim(),
+            mayor_18_declarado: true,
+            mayor_18_declarado_at: trx.fn.now(),
+            terminos_aceptados_at: trx.fn.now(),
+          });
+        }
+
+        return createdUser;
+      });
+    } catch (error: any) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+
+      if (error?.code === '23505') {
+        const constraint = String(error?.constraint || '');
+
+        if (constraint.includes('dni')) {
+          throw new ConflictException({
+            code: 'DNI_EN_USO',
+            message: 'Ya existe una cuenta asociada a ese DNI',
+          });
+        }
+
+        throw new ConflictException({
+          code: 'EMAIL_EN_USO',
+          message: 'Ya existe una cuenta con ese email',
+        });
+      }
+
+      throw error;
+    }
 
     const tokens = await this.generateTokens(user);
-    const frontendUrl = this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const frontendUrl =
+      this.config.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
-    const verificationUrl = `${frontendUrl}/verificar-email?token=${emailVerificationToken}`;
-    const exposeVerificationUrl = this.config.get<string>('EXPOSE_VERIFICATION_URL') === 'true';
+    const verificationUrl =
+      `${frontendUrl}/verificar-email?token=${emailVerificationToken}`;
+    const exposeVerificationUrl =
+      this.config.get<string>('EXPOSE_VERIFICATION_URL') === 'true';
 
     await this.emailService.enviarVerificacionEmail({
       to: user.email,
       verificationUrl,
-      nombre: dto.nombre || user.email,
+      nombre: dto.nombre.trim(),
     });
 
     return {
@@ -71,12 +194,12 @@ export class AuthService {
       ...tokens,
       emailVerificationRequired: true,
       ...(exposeVerificationUrl ? { verificationUrl } : {}),
-      mensaje: dto.role === 'comercio'
-        ? 'Cuenta creada. Completa tu perfil de comercio para solicitar aprobacion y verifica tu email.'
-        : 'Cuenta creada exitosamente. Verifica tu email para aumentar la seguridad de tu cuenta.',
+      mensaje:
+        dto.role === 'comercio'
+          ? 'Cuenta creada. Complet\u00e1 tu perfil de comercio para solicitar aprobaci\u00f3n y verific\u00e1 tu email.'
+          : 'Cuenta creada exitosamente. Verific\u00e1 tu email para aumentar la seguridad de tu cuenta.',
     };
   }
-
 
   async googleLogin(dto: GoogleAuthDto, internalSecret: string) {
     const expectedSecret = this.config.get<string>('INTERNAL_AUTH_SECRET');
@@ -102,19 +225,14 @@ export class AuthService {
     }
 
     if (!user) {
-      const passwordHash = await bcrypt.hash(randomBytes(48).toString('hex'), 12);
+      throw new BadRequestException({
+        code: 'REGISTRO_COMPLETO_REQUERIDO',
+        message:
+          'Para crear una cuenta nueva completÃ¡ el formulario de registro con tus datos personales.',
+      });
+    }
 
-      [user] = await this.db('users')
-        .insert({
-          email,
-          password_hash: passwordHash,
-          role: 'participante',
-          email_verified: true,
-          email_verification_token: null,
-          telefono: null,
-        })
-        .returning(['id', 'email', 'role', 'email_verified', 'telefono', 'created_at']);
-    } else if (!user.email_verified) {
+    if (!user.email_verified) {
       [user] = await this.db('users')
         .where({ id: user.id })
         .update({
