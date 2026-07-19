@@ -1,0 +1,293 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { comercioApi } from '@/lib/api';
+import toast from 'react-hot-toast';
+
+function getPerfil(res: any) {
+  if (!res) return null;
+  if (res?.data?.data) return res.data.data;
+  if (res?.data) return res.data;
+  return res;
+}
+
+export default function PerfilComercioPage() {
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['comercio-perfil'],
+    queryFn: () => comercioApi.perfil() as any,
+  });
+
+  const perfil = getPerfil(data);
+
+  const [razonSocial, setRazonSocial] = useState('');
+  const [cuit, setCuit] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [portadaUrl, setPortadaUrl] = useState('');
+  const [direccion, setDireccion] = useState('');
+  const [instagram, setInstagram] = useState('');
+
+  useEffect(() => {
+    if (!perfil) return;
+
+    setRazonSocial(perfil.razon_social || '');
+    setCuit(perfil.cuit || '');
+    setTelefono(perfil.telefono || '');
+    setWhatsapp(perfil.whatsapp || '');
+    setLogoUrl(perfil.logo_url || '');
+    setPortadaUrl(perfil.portada_url || '');
+    setDireccion(perfil.direccion || '');
+    setInstagram(perfil.instagram || '');
+  }, [perfil]);
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      comercioApi.actualizarPerfil({
+        razonSocial,
+        cuit,
+        telefono,
+        whatsapp,
+        logoUrl,
+        portadaUrl,
+        direccion,
+        instagram,
+      }),
+    onSuccess: () => {
+      toast.success('Perfil actualizado');
+      queryClient.invalidateQueries({ queryKey: ['comercio-perfil'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'No se pudo actualizar el perfil');
+    },
+  });
+
+  if (isLoading) {
+    return <div className="animate-pulse text-zinc-400">Cargando perfil...</div>;
+  }
+
+  if (!perfil) {
+    return (
+      <section className="rounded-3xl border border-red-900 bg-red-950/30 p-8 text-red-200">
+        No se pudo cargar el perfil del comercio.
+      </section>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <section className="rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-8 shadow-2xl">
+        <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
+          Comercio
+        </p>
+
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <h1 className="text-3xl font-black text-white">Mi perfil</h1>
+
+          {perfil.id && (
+            <Link
+              href={`/comercios/${perfil.id}`}
+              target="_blank"
+              className="inline-flex items-center justify-center rounded-2xl border border-amber-400/40 bg-amber-400/10 px-5 py-3 text-sm font-black text-amber-300 transition hover:border-amber-300 hover:bg-amber-400/20"
+            >
+              Ver mi perfil público →
+            </Link>
+          )}
+        </div>
+
+        <p className="mt-3 max-w-2xl text-sm text-zinc-400">
+          Configurá los datos principales del comercio. Estos datos se usarán para validar el comercio, gestionar sorteos y organizar entregas de premios.
+        </p>
+      </section>
+
+      <section className="grid gap-5 md:grid-cols-3">
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+            Email de acceso
+          </p>
+          <p className="mt-3 break-all text-lg font-black text-white">
+            {perfil.email}
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+            Estado
+          </p>
+          <p className="mt-3 text-lg font-black text-emerald-300">
+            {perfil.estado}
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+            Comisión
+          </p>
+          <p className="mt-3 text-lg font-black text-amber-300">
+            {Number(perfil.comision_pct || 0)}%
+          </p>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
+        <h2 className="mb-6 text-2xl font-black text-white">
+          Datos fiscales y contacto
+        </h2>
+
+        <div className="grid gap-5 md:grid-cols-2">
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Razón social
+            </span>
+            <input
+              value={razonSocial}
+              onChange={(e) => setRazonSocial(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="Ej: Tech Store Córdoba SRL"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              CUIT
+            </span>
+            <input
+              value={cuit}
+              onChange={(e) => setCuit(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="Ej: 30-12345678-9"
+            />
+          </label>
+
+          <label className="block md:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Teléfono
+            </span>
+            <input
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="Ej: +54 9 351 1234567"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              WhatsApp
+            </span>
+            <input
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="Ej: +54 9 351 1234567"
+            />
+          </label>
+
+          <label className="block md:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Dirección
+            </span>
+            <input
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="Ej: Rosario, Santa Fe"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Instagram
+            </span>
+            <input
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="Ej: @mi_comercio"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Logo URL
+            </span>
+            <input
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="https://..."
+            />
+
+            {logoUrl.trim() && (
+              <div className="mt-4 flex items-center gap-4 rounded-2xl border border-zinc-800 bg-black p-4">
+                <img
+                  src={logoUrl}
+                  alt="Vista previa del logo"
+                  className="h-20 w-20 rounded-2xl object-cover"
+                />
+
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+                    Vista previa
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-zinc-300">
+                    Vista previa del logo del comercio.
+                  </p>
+                </div>
+              </div>
+            )}
+          </label>
+
+          <label className="block md:col-span-2">
+            <span className="mb-2 block text-sm font-bold text-zinc-400">
+              Portada URL
+            </span>
+            <input
+              value={portadaUrl}
+              onChange={(e) => setPortadaUrl(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
+              placeholder="https://..."
+            />
+
+            {portadaUrl.trim() && (
+              <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-800 bg-black">
+                <img
+                  src={portadaUrl}
+                  alt="Vista previa de la portada"
+                  className="h-44 w-full object-cover"
+                />
+
+                <div className="p-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
+                    Vista previa
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-zinc-300">
+                    Vista previa de la portada del comercio.
+                  </p>
+                </div>
+              </div>
+            )}
+          </label>
+        </div>
+
+        <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-zinc-500">
+            Estos datos ayudan a validar el comercio y mejorar la confianza del perfil público.
+          </p>
+
+          <button
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+            className="btn-primary"
+          >
+            {mutation.isPending ? 'Guardando...' : 'Guardar cambios'}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}

@@ -10,6 +10,7 @@ import { randomBytes } from 'crypto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
+import { UpdatePerfilParticipanteDto } from './dto/update-perfil-participante.dto';
 import { EmailService } from '../email/email.service';
 
 @Injectable()
@@ -420,6 +421,105 @@ export class AuthService {
     // Invalidar el refresh token borrando el hash
     await this.db('users').where({ id: userId }).update({ refresh_token_hash: null });
     return { mensaje: 'Sesion cerrada correctamente' };
+  }
+
+  async obtenerPerfilParticipante(userId: string) {
+    const perfil = await this.db('users')
+      .leftJoin(
+        'perfiles_participantes',
+        'users.id',
+        'perfiles_participantes.user_id',
+      )
+      .where('users.id', userId)
+      .where('users.role', 'participante')
+      .select(
+        'users.id',
+        'users.email',
+        'users.telefono',
+        'users.email_verified',
+        'perfiles_participantes.nombre',
+        'perfiles_participantes.apellido',
+        'perfiles_participantes.fecha_nacimiento',
+        'perfiles_participantes.dni',
+        'perfiles_participantes.nacionalidad',
+        'perfiles_participantes.provincia',
+        'perfiles_participantes.ciudad',
+        'perfiles_participantes.direccion',
+        'perfiles_participantes.codigo_postal',
+      )
+      .first();
+
+    if (!perfil) {
+      throw new BadRequestException({
+        code: 'PERFIL_PARTICIPANTE_NO_ENCONTRADO',
+        message: 'No se encontro el perfil del participante.',
+      });
+    }
+
+    return { perfil };
+  }
+
+  async actualizarPerfilParticipante(
+    userId: string,
+    dto: UpdatePerfilParticipanteDto,
+  ) {
+    const user = await this.db('users')
+      .where({ id: userId, role: 'participante' })
+      .first('id');
+
+    if (!user) {
+      throw new BadRequestException({
+        code: 'USUARIO_NO_ES_PARTICIPANTE',
+        message: 'La cuenta no corresponde a un participante.',
+      });
+    }
+
+    const perfil = await this.db('perfiles_participantes')
+      .where({ user_id: userId })
+      .first('id');
+
+    if (!perfil) {
+      throw new BadRequestException({
+        code: 'PERFIL_PARTICIPANTE_INCOMPLETO',
+        message: 'La cuenta todavia no tiene un perfil completo.',
+      });
+    }
+
+    const userUpdates: Record<string, unknown> = {};
+    const perfilUpdates: Record<string, unknown> = {};
+
+    if (dto.telefono !== undefined) userUpdates.telefono = dto.telefono.trim();
+    if (dto.nombre !== undefined) perfilUpdates.nombre = dto.nombre.trim();
+    if (dto.apellido !== undefined) perfilUpdates.apellido = dto.apellido.trim();
+    if (dto.nacionalidad !== undefined) perfilUpdates.nacionalidad = dto.nacionalidad.trim();
+    if (dto.provincia !== undefined) perfilUpdates.provincia = dto.provincia.trim();
+    if (dto.ciudad !== undefined) perfilUpdates.ciudad = dto.ciudad.trim();
+    if (dto.direccion !== undefined) perfilUpdates.direccion = dto.direccion.trim();
+    if (dto.codigoPostal !== undefined) perfilUpdates.codigo_postal = dto.codigoPostal.trim();
+
+    if (
+      Object.keys(userUpdates).length === 0 &&
+      Object.keys(perfilUpdates).length === 0
+    ) {
+      throw new BadRequestException({
+        code: 'SIN_CAMBIOS',
+        message: 'No se enviaron datos para actualizar.',
+      });
+    }
+
+    await this.db.transaction(async (trx) => {
+      if (Object.keys(userUpdates).length > 0) {
+        await trx('users').where({ id: userId }).update(userUpdates);
+      }
+
+      if (Object.keys(perfilUpdates).length > 0) {
+        await trx('perfiles_participantes')
+          .where({ user_id: userId })
+          .update(perfilUpdates);
+      }
+    });
+
+    return this.obtenerPerfilParticipante(userId);
   }
 
   private async generateTokens(user: { id: string; email: string; role: string }) {

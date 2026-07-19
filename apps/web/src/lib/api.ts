@@ -35,6 +35,9 @@ export const authApi = {
   resendVerificationEmail: () => api.post("/auth/resend-verification-email"),
   login: (data: any) => api.post("/auth/login", data),
   me: () => api.post("/auth/me"),
+  perfilParticipante: () => api.get("/auth/me/perfil"),
+  actualizarPerfilParticipante: (data: any) =>
+    api.patch("/auth/me/perfil", data),
   logout: () => api.post("/auth/logout"),
 };
 

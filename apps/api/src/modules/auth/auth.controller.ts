@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Headers, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Body, Headers, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -6,6 +6,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
+import { UpdatePerfilParticipanteDto } from './dto/update-perfil-participante.dto';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -81,6 +82,23 @@ export class AuthController {
   @ApiOperation({ summary: 'Cerrar sesion' })
   async logout(@CurrentUser('sub') userId: string) {
     return this.authService.logout(userId);
+  }
+
+  @Get('me/perfil')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Obtener perfil del participante autenticado' })
+  async obtenerPerfilParticipante(@CurrentUser('id') userId: string) {
+    return this.authService.obtenerPerfilParticipante(userId);
+  }
+
+  @Patch('me/perfil')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Actualizar perfil del participante autenticado' })
+  async actualizarPerfilParticipante(
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdatePerfilParticipanteDto,
+  ) {
+    return this.authService.actualizarPerfilParticipante(userId, dto);
   }
 
   @Post('me')

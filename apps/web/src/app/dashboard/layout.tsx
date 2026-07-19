@@ -75,6 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       { href: '/dashboard', label: 'Inicio', icon: '●' },
       { href: '/dashboard/participaciones', label: 'Mis participaciones', icon: '🎟️' },
       { href: '/dashboard/premios', label: 'Mis premios', icon: '🏆' },
+      { href: '/dashboard/perfil', label: 'Mi perfil', icon: '◆' },
     ],
     comercio: [
       { href: '/dashboard', label: 'Inicio', icon: '●' },
