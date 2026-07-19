@@ -250,6 +250,20 @@ return sorteo;
     })).digest('hex');
 
    await this.db.transaction(async (trx) => {
+  const perfilGanador = await trx('perfiles_participantes')
+    .where({ user_id: participacion.usuario_id })
+    .first();
+
+  const direccionEntrega = perfilGanador
+    ? [
+        perfilGanador.direccion,
+        perfilGanador.ciudad,
+        perfilGanador.provincia,
+        `CP ${perfilGanador.codigo_postal}`,
+        perfilGanador.nacionalidad,
+      ].join(', ')
+    : null;
+
   await trx('sorteos').where({ id: sorteoId }).update({
     estado: 'finalizado',
     ganador_participacion_id: participacion.id,
@@ -269,6 +283,7 @@ return sorteo;
       ganador_id: participacion.usuario_id,
       comercio_id: sorteo.comercio_id,
       estado: 'pendiente',
+      direccion_entrega: direccionEntrega,
     })
     .onConflict('sorteo_id')
     .ignore();
