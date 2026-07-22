@@ -1,0 +1,89 @@
+:root {
+  /* ACTIVA primitive colors (RGB channels support Tailwind opacity modifiers). */
+  --color-activa-amber: 245 177 26;
+  --color-activa-amber-hover: 232 154 0;
+  --color-activa-teal: 14 111 107;
+  --color-activa-teal-hover: 7 92 89;
+  --color-activa-teal-soft: 221 237 236;
+  --color-activa-graphite: 26 29 33;
+  --color-activa-graphite-secondary: 37 42 48;
+  --color-activa-graphite-medium: 65 71 78;
+  --color-activa-warm-white: 250 248 245;
+  --color-activa-mist: 239 236 230;
+  --color-white: 255 255 255;
+
+  /* Functional colors. */
+  --color-success: 22 163 106;
+  --color-information: 47 115 218;
+  --color-warning: 217 144 0;
+  --color-error: 217 68 82;
+  --color-disabled: 152 162 179;
+
+  /* Semantic colors. */
+  --color-background-page: var(--color-activa-warm-white);
+  --color-background-surface: var(--color-white);
+  --color-background-surface-muted: var(--color-activa-mist);
+  --color-background-inverse: var(--color-activa-graphite);
+  --color-text-primary: var(--color-activa-graphite);
+  --color-text-secondary: var(--color-activa-graphite-medium);
+  --color-text-inverse: var(--color-activa-warm-white);
+  --color-text-link: var(--color-activa-teal);
+  --color-text-disabled: var(--color-disabled);
+  --color-action-primary: var(--color-activa-amber);
+  --color-action-primary-hover: var(--color-activa-amber-hover);
+  --color-action-primary-text: var(--color-activa-graphite);
+  --color-action-secondary: var(--color-activa-teal);
+  --color-action-secondary-hover: var(--color-activa-teal-hover);
+  --color-action-secondary-text: var(--color-white);
+  --color-border-default: var(--color-activa-mist);
+  --color-border-strong: var(--color-activa-graphite-medium);
+  --color-border-focus: var(--color-activa-teal);
+  --color-status-success: var(--color-success);
+  --color-status-information: var(--color-information);
+  --color-status-warning: var(--color-warning);
+  --color-status-error: var(--color-error);
+  --color-status-disabled: var(--color-disabled);
+
+  /* Spacing. */
+  --spacing-0: 0px;
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+
+  /* Shape and elevation. */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+  --shadow-xs: 0 1px 2px rgb(26 29 33 / 6%);
+  --shadow-sm: 0 4px 12px rgb(26 29 33 / 8%);
+  --shadow-md: 0 12px 32px rgb(26 29 33 / 12%);
+  --shadow-lg: 0 24px 64px rgb(26 29 33 / 16%);
+
+  /* Motion. */
+  --motion-fast: 160ms;
+  --motion-base: 240ms;
+  --motion-slow: 420ms;
+  --motion-easing: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Layers. */
+  --layer-base: 0;
+  --layer-content: 10;
+  --layer-sticky: 30;
+  --layer-dropdown: 50;
+  --layer-overlay: 70;
+  --layer-modal: 80;
+  --layer-toast: 90;
+  --layer-critical: 100;
+}
