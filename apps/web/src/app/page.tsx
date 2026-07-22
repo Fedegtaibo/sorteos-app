@@ -120,27 +120,81 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-14">
-        <div className="grid gap-5 md:grid-cols-3">
-          {[
-            [
-              'Para quien participa',
-              'Compra números con mas claridad, ve sus comprobantes y puede seguir cada participacion desde su cuenta.',
-            ],
-            [
-              'Para comercios',
-              'Transforma un premio en una campaña de venta ordenada, con pagos, números y participantes centralizados.',
-            ],
-            [
-              'Para la confianza',
-              'Cada paso queda registrado: sorteo, comercio, numero elegido, pago, comprobante y entrega.',
-            ],
-          ].map(([titulo, texto]) => (
-            <div key={titulo} className="rounded-[2rem] border border-white/10 bg-zinc-950 p-7 shadow-2xl shadow-black/20">
-              <h2 className="text-2xl font-black text-white">{titulo}</h2>
-              <p className="mt-4 leading-7 text-zinc-400">{texto}</p>
-            </div>
-          ))}
+      <section className="bg-background-page text-text-primary">
+        <div className="mx-auto max-w-7xl px-activa-16 py-activa-64 sm:px-activa-24 lg:px-activa-40 lg:py-activa-80">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-wider text-action-secondary">
+              Una experiencia para todos
+            </p>
+            <h2 className="mt-activa-12 font-display text-3xl font-semibold leading-tight sm:text-4xl">
+              Más claridad para participar y más herramientas para crecer
+            </h2>
+            <p className="mt-activa-16 text-base leading-7 text-text-secondary sm:text-lg">
+              ACTIVA organiza cada campaña para que personas y comercios puedan avanzar con
+              información clara, operaciones registradas y seguimiento de principio a fin.
+            </p>
+          </div>
+
+          <div className="mt-activa-40 grid gap-activa-20 lg:grid-cols-3">
+            {[
+              {
+                eyebrow: 'Para las personas',
+                title: 'Participá con información clara',
+                icon: 'participation' as const,
+                items: [
+                  'Conocé el comercio y las condiciones antes de elegir.',
+                  'Consultá tus participaciones y comprobantes desde tu cuenta.',
+                  'Seguí la selección, el resultado y la entrega en un mismo lugar.',
+                ],
+              },
+              {
+                eyebrow: 'Para los comercios',
+                title: 'Convertí oportunidades en campañas medibles',
+                icon: 'store' as const,
+                items: [
+                  'Presentá beneficios, productos o experiencias de forma ordenada.',
+                  'Administrá participaciones y pagos con registros vinculados.',
+                  'Construí confianza con procesos claros y verificables.',
+                ],
+              },
+              {
+                eyebrow: 'Para la confianza',
+                title: 'Cada etapa deja un registro',
+                icon: 'shield-check' as const,
+                items: [
+                  'Campaña, participación, pago, selección, resultado y entrega.',
+                  'Información organizada para reducir dudas y tareas manuales.',
+                  'Más trazabilidad para personas, comercios y administración.',
+                ],
+              },
+            ].map((item) => (
+              <Card key={item.title} variant="surface" className="h-full">
+                <CardContent className="p-activa-24">
+                  <span className="flex size-12 items-center justify-center rounded-activa-md bg-activa-teal-soft text-action-secondary">
+                    <ActivaIcon name={item.icon} size={24} />
+                  </span>
+                  <p className="mt-activa-20 text-sm font-semibold text-action-secondary">
+                    {item.eyebrow}
+                  </p>
+                  <h3 className="mt-activa-8 font-display text-xl font-semibold leading-7 text-text-primary">
+                    {item.title}
+                  </h3>
+                  <ul className="mt-activa-20 space-y-activa-12">
+                    {item.items.map((text) => (
+                      <li key={text} className="flex gap-activa-8 text-sm leading-6 text-text-secondary">
+                        <ActivaIcon
+                          name="check"
+                          size={16}
+                          className="mt-activa-4 shrink-0 text-action-secondary"
+                        />
+                        <span>{text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
