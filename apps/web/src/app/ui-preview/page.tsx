@@ -1,7 +1,15 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 
+import {
+  ActivaHero,
+  ActivaPattern,
+  ActivaProgressSteps,
+  ActivaSurface,
+} from '@/components/brand';
+import { ActivaIcon, type ActivaIconName } from '@/components/icons';
 import {
   Alert,
   Badge,
@@ -77,6 +85,25 @@ const colorSamples = [
     className: 'bg-status-error',
   },
 ] as const;
+
+const previewIcons: ReadonlyArray<{ name: ActivaIconName; label: string }> = [
+  { name: 'home', label: 'Inicio' },
+  { name: 'search', label: 'Buscar' },
+  { name: 'campaign', label: 'Campaña' },
+  { name: 'participation', label: 'Participación' },
+  { name: 'selection', label: 'Selección' },
+  { name: 'store', label: 'Comercio' },
+  { name: 'delivery', label: 'Entrega' },
+  { name: 'profile', label: 'Perfil' },
+  { name: 'shield-check', label: 'Seguridad' },
+  { name: 'help', label: 'Ayuda' },
+  { name: 'bell', label: 'Notificación' },
+  { name: 'benefit', label: 'Beneficio' },
+  { name: 'check-circle', label: 'Confirmado' },
+  { name: 'pending', label: 'Pendiente' },
+  { name: 'warning', label: 'Advertencia' },
+  { name: 'error', label: 'Error' },
+];
 
 export default function UiPreviewPage() {
   const [showClosableAlert, setShowClosableAlert] = useState(true);
@@ -308,6 +335,155 @@ export default function UiPreviewPage() {
                 <CardContent><p className="text-sm">Oportunidades que merecen atención especial.</p></CardContent>
                 <CardFooter><Button variant="secondary" size="sm">Ver detalle</Button></CardFooter>
               </Card>
+            </div>
+          </section>
+
+          <section aria-labelledby="brand-identity-title">
+            <div className="mb-activa-24">
+              <h2 id="brand-identity-title" className="font-display text-2xl font-semibold">Identidad de marca</h2>
+              <p className="mt-activa-8 text-text-secondary">Aplicaciones oficiales del logotipo sobre fondos de contraste controlado.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-activa-16 md:grid-cols-2">
+              <Card>
+                <CardContent className="flex min-h-48 items-center justify-center pt-activa-24">
+                  <Image
+                    src="/brand/logos/activa-logo-horizontal-color.svg"
+                    alt="ACTIVA"
+                    width={1600}
+                    height={300}
+                    className="h-auto w-full max-w-md"
+                  />
+                </CardContent>
+                <CardFooter><p className="text-sm text-text-secondary">Logo horizontal color sobre superficie clara</p></CardFooter>
+              </Card>
+              <Card variant="inverse" className="overflow-hidden">
+                <CardContent className="flex min-h-48 items-center justify-center pt-activa-24">
+                  <Image
+                    src="/brand/logos/activa-logo-horizontal-white.svg"
+                    alt="ACTIVA en blanco"
+                    width={1600}
+                    height={300}
+                    className="h-auto w-full max-w-md"
+                  />
+                </CardContent>
+                <CardFooter><p className="text-sm text-text-inverse/75">Logo horizontal blanco sobre grafito</p></CardFooter>
+              </Card>
+              <Card>
+                <CardContent className="flex min-h-56 items-center justify-center pt-activa-24">
+                  <Image
+                    src="/brand/logos/activa-logo-horizontal-tagline-color.svg"
+                    alt="ACTIVA, oportunidades que se convierten en experiencias"
+                    width={1600}
+                    height={420}
+                    className="h-auto w-full max-w-md"
+                  />
+                </CardContent>
+                <CardFooter><p className="text-sm text-text-secondary">Logo horizontal con tagline</p></CardFooter>
+              </Card>
+              <Card variant="muted">
+                <CardContent className="flex min-h-56 items-center justify-center pt-activa-24">
+                  <Image
+                    src="/brand/logos/activa-isotipo-color.svg"
+                    alt="Isotipo de ACTIVA"
+                    width={1024}
+                    height={1024}
+                    className="size-36 sm:size-40"
+                  />
+                </CardContent>
+                <CardFooter><p className="text-sm text-text-secondary">Isotipo color sobre superficie secundaria</p></CardFooter>
+              </Card>
+            </div>
+          </section>
+
+          <section aria-labelledby="iconography-title">
+            <div className="mb-activa-24">
+              <h2 id="iconography-title" className="font-display text-2xl font-semibold">Iconografía</h2>
+              <p className="mt-activa-8 text-text-secondary">Muestra funcional a 24 y 32 píxeles con nombres visibles.</p>
+            </div>
+            <Card>
+              <CardContent className="grid grid-cols-2 gap-activa-12 pt-activa-24 sm:grid-cols-4 lg:grid-cols-8">
+                {previewIcons.map((icon, index) => (
+                  <div
+                    key={icon.name}
+                    className="flex min-h-28 flex-col items-center justify-center gap-activa-12 rounded-activa-md border border-border-default bg-background-surface-muted p-activa-12 text-center"
+                  >
+                    <ActivaIcon
+                      name={icon.name}
+                      size={index % 2 === 0 ? 32 : 24}
+                      title={icon.label}
+                      className="text-action-secondary"
+                    />
+                    <span className="text-xs font-semibold text-text-primary">{icon.label}</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </section>
+
+          <section aria-labelledby="graphic-system-title">
+            <div className="mb-activa-24">
+              <h2 id="graphic-system-title" className="font-display text-2xl font-semibold">Sistema gráfico</h2>
+              <p className="mt-activa-8 text-text-secondary">Superficies, patrones y progresión aplicados con moderación.</p>
+            </div>
+            <div className="space-y-activa-24">
+              <div className="grid grid-cols-1 gap-activa-16 lg:grid-cols-3">
+                <ActivaSurface variant="light" activeCut className="min-h-48 border border-border-default p-activa-24 shadow-activa-sm">
+                  <Badge variant="brand">Superficie clara</Badge>
+                  <h3 className="mt-activa-16 font-display text-xl font-semibold">Claridad para el contenido principal</h3>
+                  <p className="mt-activa-8 max-w-sm text-sm text-text-secondary">Una base cálida con identidad sutil.</p>
+                </ActivaSurface>
+                <ActivaSurface variant="dark" className="min-h-48 p-activa-24 shadow-activa-sm">
+                  <Badge variant="brand">Superficie oscura</Badge>
+                  <h3 className="mt-activa-16 font-display text-xl font-semibold">Contraste para mensajes destacados</h3>
+                  <p className="mt-activa-8 max-w-sm text-sm text-text-inverse/75">Grafito y luz para una lectura precisa.</p>
+                </ActivaSurface>
+                <ActivaSurface variant="teal" className="min-h-48 p-activa-24 shadow-activa-sm">
+                  <Badge variant="brand">Superficie teal</Badge>
+                  <h3 className="mt-activa-16 font-display text-xl font-semibold">Confianza en momentos clave</h3>
+                  <p className="mt-activa-8 max-w-sm text-sm text-white/80">Una superficie institucional para orientar acciones.</p>
+                </ActivaSurface>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Progreso</CardTitle>
+                  <CardDescription>Estados reales del componente de pasos ACTIVA.</CardDescription>
+                </CardHeader>
+                <CardContent className="overflow-x-auto">
+                  <div className="min-w-[560px] pb-activa-8">
+                    <ActivaProgressSteps
+                      steps={[
+                        { label: 'Datos', state: 'done' },
+                        { label: 'Validación', state: 'active' },
+                        { label: 'Confirmación', state: 'pending' },
+                      ]}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <ActivaHero className="p-activa-24 sm:p-activa-40">
+                <div className="max-w-2xl">
+                  <Badge variant="brand">ACTIVA</Badge>
+                  <h3 className="mt-activa-16 font-display text-2xl font-semibold sm:text-3xl">Oportunidades que se convierten en experiencias.</h3>
+                  <p className="mt-activa-12 text-sm text-white/80 sm:text-base">Tecnología humana, clara y confiable.</p>
+                </div>
+              </ActivaHero>
+
+              <div className="grid grid-cols-1 gap-activa-16 md:grid-cols-3">
+                <div className="relative min-h-44 overflow-hidden rounded-activa-lg border border-border-default bg-background-surface shadow-activa-sm">
+                  <ActivaPattern type="diagonal-light" className="absolute inset-0" />
+                  <p className="absolute bottom-4 left-4 rounded-activa-full bg-background-surface px-activa-12 py-activa-8 text-sm font-semibold shadow-activa-xs">Diagonal claro</p>
+                </div>
+                <div className="relative min-h-44 overflow-hidden rounded-activa-lg bg-background-inverse shadow-activa-sm">
+                  <ActivaPattern type="diagonal-dark" className="absolute inset-0" />
+                  <p className="absolute bottom-4 left-4 rounded-activa-full bg-background-inverse px-activa-12 py-activa-8 text-sm font-semibold text-text-inverse shadow-activa-xs">Diagonal oscuro</p>
+                </div>
+                <div className="relative min-h-44 overflow-hidden rounded-activa-lg bg-activa-teal-soft shadow-activa-sm">
+                  <ActivaPattern type="nodes" className="absolute inset-0" />
+                  <p className="absolute bottom-4 left-4 rounded-activa-full bg-background-surface px-activa-12 py-activa-8 text-sm font-semibold shadow-activa-xs">Nodos de oportunidad</p>
+                </div>
+              </div>
             </div>
           </section>
         </div>

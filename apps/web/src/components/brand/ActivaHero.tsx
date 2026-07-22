@@ -9,7 +9,7 @@ export function ActivaHero({
 }) {
   return (
     <section
-      className={`relative overflow-hidden rounded-[2rem] bg-[#1A1D21] text-white ${className}`}
+      className={`activa-hero relative overflow-hidden rounded-[2rem] bg-[#1A1D21] text-white ${className}`}
       style={{
         backgroundImage:
           "url('/brand/graphics/hero-background-dark.svg')",

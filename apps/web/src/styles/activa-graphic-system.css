@@ -4,6 +4,7 @@
   --activa-teal: #0E6F6B;
   --activa-teal-dark: #075C59;
   --activa-graphite: #1A1D21;
+  --activa-graphite-rgb: 26 29 33;
   --activa-graphite-2: #252A30;
   --activa-warm-white: #FAF8F5;
   --activa-mist: #EFECE6;
@@ -44,6 +45,14 @@
 .activa-surface--amber {
   color: var(--activa-graphite);
   background-image: url('/brand/graphics/surface-amber.svg');
+}
+
+.activa-surface--dark [class~='bg-action-primary/20'],
+.activa-surface--teal [class~='bg-action-primary/20'],
+.activa-hero [class~='bg-action-primary/20'] {
+  color: var(--activa-warm-white);
+  background-color: rgb(var(--activa-graphite-rgb) / 82%);
+  box-shadow: inset 0 0 0 1px rgb(250 248 245 / 28%);
 }
 
 .activa-pattern--diagonal-light {
