@@ -1,43 +1,30 @@
 import Link from 'next/link';
 import InstallAppButton from '@/components/InstallAppButton';
+import { PublicHeader } from '@/components/layout';
+
+const publicNavigation = [
+  { href: '/', label: 'Inicio' },
+  { href: '/ayuda', label: 'Ayuda' },
+  { href: '/contacto', label: 'Contacto' },
+  { href: '/login', label: 'Ingresar' },
+] as const;
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-black text-white">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-4">
-          <Link href="/" className="flex min-w-0 items-center gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-400 text-lg font-black text-black">
-              S
-            </span>
-
-            <div className="min-w-0">
-              <p className="truncate text-lg font-black text-white">
-                Sortealo
-              </p>
-              <p className="hidden text-xs text-zinc-500 sm:block">
-                Sorteos claros para comercios reales
-              </p>
-            </div>
+      <PublicHeader
+        navigation={publicNavigation}
+        variant="light"
+        logoHref="/"
+        actions={(
+          <Link
+            href="/registro"
+            className="inline-flex h-11 items-center justify-center rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+          >
+            Crear cuenta
           </Link>
-
-          <div className="flex shrink-0 items-center gap-2">
-            <Link
-              href="/login"
-              className="rounded-xl px-3 py-2 text-sm font-bold text-zinc-300 hover:bg-white/10"
-            >
-              Ingresar
-            </Link>
-
-            <Link
-              href="/registro"
-              className="rounded-xl bg-amber-400 px-3 py-2 text-sm font-black text-black hover:bg-amber-300 sm:px-4"
-            >
-              Crear cuenta
-            </Link>
-          </div>
-        </div>
-      </header>
+        )}
+      />
 
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.24),transparent_34%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.14),transparent_32%)]" />
