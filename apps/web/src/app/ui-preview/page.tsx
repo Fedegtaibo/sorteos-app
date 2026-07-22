@@ -20,7 +20,15 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  Checkbox,
+  Divider,
   Input,
+  Radio,
+  Select,
+  Skeleton,
+  Spinner,
+  Switch,
+  Textarea,
 } from '@/components/ui';
 
 const colorSamples = [
@@ -107,6 +115,9 @@ const previewIcons: ReadonlyArray<{ name: ActivaIconName; label: string }> = [
 
 export default function UiPreviewPage() {
   const [showClosableAlert, setShowClosableAlert] = useState(true);
+  const [basicSwitch, setBasicSwitch] = useState(false);
+  const [activeSwitch, setActiveSwitch] = useState(true);
+  const [describedSwitch, setDescribedSwitch] = useState(true);
 
   return (
     <main className="min-h-screen bg-background-page text-text-primary">
@@ -485,6 +496,263 @@ export default function UiPreviewPage() {
                 </div>
               </div>
             </div>
+          </section>
+
+          <section aria-labelledby="textarea-select-title">
+            <div className="mb-activa-24">
+              <h2 id="textarea-select-title" className="font-display text-2xl font-semibold">Textarea y Select</h2>
+              <p className="mt-activa-8 text-text-secondary">Campos extensos y selecciones nativas para campañas y comercios.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-activa-24 xl:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Textarea</CardTitle>
+                  <CardDescription>Mensajes, estados y restricciones de edición.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-activa-24 pt-activa-12 md:grid-cols-2">
+                  <Textarea label="Descripción de campaña" placeholder="Contá de qué se trata la campaña" />
+                  <Textarea
+                    label="Condiciones de participación"
+                    helperText="Explicá las condiciones con un lenguaje claro."
+                    placeholder="Ingresá las condiciones"
+                  />
+                  <Textarea
+                    label="Mensaje promocional"
+                    error="El mensaje debe incluir una descripción de la propuesta."
+                    defaultValue="Promoción disponible"
+                  />
+                  <Textarea
+                    label="Resumen para revisión"
+                    success="El resumen está listo para continuar."
+                    defaultValue="Campaña preparada para la revisión del comercio."
+                  />
+                  <Textarea
+                    label="Nota aprobada"
+                    readOnly
+                    defaultValue="Contenido validado por el equipo responsable."
+                  />
+                  <Textarea
+                    label="Observaciones cerradas"
+                    disabled
+                    defaultValue="La campaña finalizada no admite cambios."
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Select</CardTitle>
+                  <CardDescription>Opciones nativas con estados claramente comunicados.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-activa-24 pt-activa-12 md:grid-cols-2">
+                  <Select label="Tipo de campaña" placeholder="Seleccioná una opción" defaultValue="">
+                    <option value="beneficio">Beneficio</option>
+                    <option value="experiencia">Experiencia</option>
+                    <option value="promocion">Promoción</option>
+                  </Select>
+                  <Select label="Rubro del comercio" defaultValue="gastronomia">
+                    <option value="gastronomia">Gastronomía</option>
+                    <option value="bienestar">Bienestar</option>
+                    <option value="tecnologia">Tecnología</option>
+                  </Select>
+                  <Select label="Alcance de campaña" error="Seleccioná un alcance válido." placeholder="Elegí el alcance" defaultValue="">
+                    <option value="local">Local</option>
+                    <option value="regional">Regional</option>
+                  </Select>
+                  <Select label="Estado editorial" success="La campaña está lista para revisión." defaultValue="lista">
+                    <option value="borrador">Borrador</option>
+                    <option value="lista">Lista para revisión</option>
+                  </Select>
+                  <Select label="Comercio asignado" readOnly defaultValue="comercio-demo">
+                    <option value="comercio-demo">Comercio de demostración</option>
+                  </Select>
+                  <Select label="Categoría archivada" disabled defaultValue="archivo">
+                    <option value="archivo">Campañas archivadas</option>
+                  </Select>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <section aria-labelledby="selection-preferences-title">
+            <div className="mb-activa-24">
+              <h2 id="selection-preferences-title" className="font-display text-2xl font-semibold">Selección y preferencias</h2>
+              <p className="mt-activa-8 text-text-secondary">Controles nativos y preferencias binarias con etiquetas explícitas.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-activa-16 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Checkbox</CardTitle>
+                  <CardDescription>Selecciones independientes y estados mixtos.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-activa-16">
+                  <Checkbox label="Incluir comercios asociados" />
+                  <Checkbox label="Campaña destacada" defaultChecked />
+                  <Checkbox label="Selección parcial" indeterminate />
+                  <Checkbox
+                    label="Aceptar revisión comercial"
+                    description="El comercio podrá sugerir ajustes antes de publicar."
+                  />
+                  <Checkbox label="Confirmar condiciones" error="Debés confirmar las condiciones para continuar." />
+                  <Checkbox label="Opción no disponible" disabled />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Radio</CardTitle>
+                  <CardDescription>Una elección dentro de un conjunto relacionado.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <fieldset className="space-y-activa-16">
+                    <legend className="mb-activa-16 text-sm font-semibold text-text-primary">Visibilidad de campaña</legend>
+                    <Radio name="campaign-visibility" value="public" label="Pública" defaultChecked />
+                    <Radio name="campaign-visibility" value="private" label="Privada" />
+                    <Radio
+                      name="campaign-visibility"
+                      value="scheduled"
+                      label="Programada"
+                      description="Se publicará en la fecha definida por el comercio."
+                    />
+                    <Radio
+                      name="campaign-visibility"
+                      value="invalid"
+                      label="Sin configuración"
+                      error="Elegí una configuración disponible."
+                    />
+                    <Radio name="campaign-visibility" value="archived" label="Archivada" disabled />
+                  </fieldset>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Switch</CardTitle>
+                  <CardDescription>Preferencias inmediatas con estado anunciado.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-activa-16">
+                  <Switch
+                    checked={basicSwitch}
+                    onCheckedChange={setBasicSwitch}
+                    label="Notificaciones apagadas"
+                  />
+                  <Switch
+                    checked={activeSwitch}
+                    onCheckedChange={setActiveSwitch}
+                    label="Alertas de campaña encendidas"
+                  />
+                  <Switch
+                    checked={describedSwitch}
+                    onCheckedChange={setDescribedSwitch}
+                    label="Resumen semanal"
+                    description="Recibí un resumen de actividad de campañas y comercios."
+                  />
+                  <Switch checked={false} disabled label="Preferencia no disponible" />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <section aria-labelledby="loading-structure-title">
+            <div className="mb-activa-24">
+              <h2 id="loading-structure-title" className="font-display text-2xl font-semibold">Carga y estructura</h2>
+              <p className="mt-activa-8 text-text-secondary">Indicadores de progreso, contenido provisional y separadores.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-activa-16 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Spinner</CardTitle>
+                  <CardDescription>Tamaños y variantes para distintos fondos.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-activa-20">
+                  <div className="flex flex-wrap items-end gap-activa-24">
+                    <div className="flex flex-col items-center gap-activa-8">
+                      <Spinner size="sm" label="Carga pequeña" />
+                      <span className="text-xs text-text-secondary">Small</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-activa-8">
+                      <Spinner size="md" label="Carga mediana" />
+                      <span className="text-xs text-text-secondary">Medium</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-activa-8">
+                      <Spinner size="lg" label="Carga grande" />
+                      <span className="text-xs text-text-secondary">Large</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-activa-8">
+                      <Spinner variant="brand" label="Carga de marca" />
+                      <span className="text-xs text-text-secondary">Brand</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between rounded-activa-md bg-background-inverse p-activa-16 text-text-inverse">
+                    <span className="text-sm font-semibold">Inverse sobre grafito</span>
+                    <Spinner variant="inverse" label="Cargando contenido inverso" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Skeleton</CardTitle>
+                  <CardDescription>Formas básicas que respetan reduced motion.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-activa-20">
+                  <div>
+                    <p className="mb-activa-8 text-xs font-semibold text-text-secondary">Texto</p>
+                    <Skeleton variant="text" className="max-w-xs" />
+                  </div>
+                  <div>
+                    <p className="mb-activa-8 text-xs font-semibold text-text-secondary">Circular</p>
+                    <Skeleton variant="circular" />
+                  </div>
+                  <div>
+                    <p className="mb-activa-8 text-xs font-semibold text-text-secondary">Rectangular</p>
+                    <Skeleton variant="rectangular" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card aria-label="Tarjeta de campaña cargando" aria-busy="true">
+                <CardHeader>
+                  <CardTitle>Tarjeta en carga</CardTitle>
+                  <CardDescription>Composición breve de contenido provisional.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-activa-16">
+                  <Skeleton variant="rectangular" className="h-32" />
+                  <div className="flex items-center gap-activa-12">
+                    <Skeleton variant="circular" />
+                    <div className="flex-1 space-y-activa-8">
+                      <Skeleton variant="text" className="w-3/4" />
+                      <Skeleton variant="text" className="w-1/2" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="mt-activa-16">
+              <CardHeader>
+                <CardTitle>Divider</CardTitle>
+                <CardDescription>Separación semántica en contextos claros y oscuros.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 gap-activa-24 pt-activa-12 lg:grid-cols-2">
+                <div className="space-y-activa-16">
+                  <p className="text-sm font-semibold">Separador horizontal</p>
+                  <Divider />
+                  <p className="text-sm text-text-secondary">Contenido posterior al separador.</p>
+                  <Divider label="Nueva sección" />
+                  <div className="flex h-12 items-center gap-activa-16">
+                    <span className="text-sm font-semibold">Campaña</span>
+                    <Divider orientation="vertical" />
+                    <span className="text-sm text-text-secondary">Comercio asociado</span>
+                  </div>
+                </div>
+                <div className="rounded-activa-md bg-background-inverse p-activa-20 text-text-inverse">
+                  <p className="text-sm font-semibold">Contexto inverso</p>
+                  <Divider color="inverse" label="Información" className="my-activa-16" />
+                  <p className="text-sm text-text-inverse/75">El divisor mantiene contraste sobre la superficie grafito.</p>
+                </div>
+              </CardContent>
+            </Card>
           </section>
         </div>
       </div>
