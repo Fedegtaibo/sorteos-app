@@ -21,12 +21,13 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'surface', ...props }, ref) => (
     <div
       ref={ref}
+      {...props}
+      data-variant={variant}
       className={cn(
-        'rounded-activa-lg border shadow-activa-sm transition-[border-color,box-shadow] duration-fast ease-activa',
+        'group rounded-activa-lg border shadow-activa-sm transition-[border-color,box-shadow] duration-fast ease-activa',
         variantClasses[variant],
         className,
       )}
-      {...props}
     />
   ),
 );
@@ -43,7 +44,16 @@ export const CardTitle = forwardRef<HTMLHeadingElement, ComponentPropsWithoutRef
 CardTitle.displayName = 'CardTitle';
 
 export const CardDescription = forwardRef<HTMLParagraphElement, ComponentPropsWithoutRef<'p'>>(
-  ({ className, ...props }, ref) => <p ref={ref} className={cn('mt-activa-4 text-sm text-text-secondary', className)} {...props} />,
+  ({ className, ...props }, ref) => (
+    <p
+      ref={ref}
+      className={cn(
+        'mt-activa-4 text-sm text-text-secondary group-data-[variant=inverse]:text-text-inverse/75',
+        className,
+      )}
+      {...props}
+    />
+  ),
 );
 CardDescription.displayName = 'CardDescription';
 
