@@ -2,7 +2,14 @@ import Link from 'next/link';
 import InstallAppButton from '@/components/InstallAppButton';
 import { ActivaIcon } from '@/components/icons';
 import { PublicHeader } from '@/components/layout';
-import { Badge, Card, CardContent } from '@/components/ui';
+import {
+  Badge,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui';
 
 const publicNavigation = [
   { href: '/', label: 'Inicio' },
@@ -198,19 +205,63 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-14">
-        <div className="grid gap-3 rounded-[2rem] border border-white/10 bg-white/[0.04] p-4 md:grid-cols-4">
-          {[
-            ['Pagos seguros', 'Operaciones registradas.'],
-            ['Comercios verificados', 'Negocios reales y activos.'],
-            ['Comprobantes automáticos', 'Participaciones guardadas.'],
-            ['Entregas auditables', 'Más trazabilidad del premio.'],
-          ].map(([titulo, texto]) => (
-            <div key={titulo} className="rounded-2xl bg-black/20 p-5">
-              <p className="font-black text-white">{titulo}</p>
-              <p className="mt-1 text-sm leading-6 text-zinc-500">{texto}</p>
-            </div>
-          ))}
+      <section className="bg-background-inverse text-text-inverse">
+        <div className="mx-auto max-w-7xl px-activa-16 py-activa-64 sm:px-activa-24 lg:px-activa-40 lg:py-activa-80">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-wider text-action-primary">
+              Confianza en cada etapa
+            </p>
+            <h2 className="mt-activa-12 font-display text-3xl font-semibold leading-tight text-text-inverse sm:text-4xl">
+              Información organizada para avanzar con mayor claridad
+            </h2>
+            <p className="mt-activa-16 text-base leading-7 text-text-inverse/75 sm:text-lg">
+              ACTIVA vincula campañas, participaciones, pagos y resultados para que cada parte
+              del proceso pueda consultarse y seguirse desde un mismo sistema.
+            </p>
+          </div>
+
+          <div className="mt-activa-40 grid gap-activa-16 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                title: 'Operaciones registradas',
+                description: 'Cada pago queda vinculado con la participación correspondiente.',
+                icon: 'card' as const,
+              },
+              {
+                title: 'Comercios identificados',
+                description: 'Cada campaña muestra quién la impulsa y la información pública disponible.',
+                icon: 'store' as const,
+              },
+              {
+                title: 'Comprobantes disponibles',
+                description: 'Las personas pueden consultar sus participaciones y registros desde su cuenta.',
+                icon: 'receipt' as const,
+              },
+              {
+                title: 'Seguimiento de la entrega',
+                description: 'El proceso conserva información para facilitar el control y la trazabilidad.',
+                icon: 'delivery' as const,
+              },
+            ].map((item) => (
+              <Card
+                key={item.title}
+                variant="inverse"
+                className="h-full border-text-inverse/15 bg-background-surface/5 shadow-none"
+              >
+                <CardHeader className="h-full p-activa-20">
+                  <span className="flex size-11 items-center justify-center rounded-activa-md bg-action-primary text-action-primary-text">
+                    <ActivaIcon name={item.icon} size={24} />
+                  </span>
+                  <CardTitle className="mt-activa-20 text-lg leading-6 text-text-inverse">
+                    {item.title}
+                  </CardTitle>
+                  <CardDescription className="mt-activa-8 leading-6">
+                    {item.description}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
