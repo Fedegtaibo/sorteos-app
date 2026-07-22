@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 
 import {
@@ -10,6 +11,14 @@ import {
   ActivaSurface,
 } from '@/components/brand';
 import { ActivaIcon, type ActivaIconName } from '@/components/icons';
+import {
+  BrandLogo,
+  DashboardSidebar,
+  MobileNavigation,
+  NavigationItem,
+  PageHeader,
+  PublicHeader,
+} from '@/components/layout';
 import {
   Alert,
   Badge,
@@ -113,11 +122,34 @@ const previewIcons: ReadonlyArray<{ name: ActivaIconName; label: string }> = [
   { name: 'error', label: 'Error' },
 ];
 
+const publicNavigation = [
+  { href: '/', label: 'Inicio', icon: 'home', active: true },
+  { href: '/ayuda', label: 'Ayuda', icon: 'help' },
+  { href: '/contacto', label: 'Contacto', icon: 'mail' },
+  { href: '/login', label: 'Ingresar', icon: 'profile' },
+] as const;
+
+const dashboardNavigation = [
+  { href: '/dashboard', label: 'Inicio', icon: 'home', active: true },
+  { href: '/dashboard/explorar', label: 'Explorar', icon: 'search' },
+  { href: '/dashboard/participaciones', label: 'Participaciones', icon: 'participation' },
+  { href: '/dashboard/premios', label: 'Beneficios', icon: 'benefit' },
+  { href: '/dashboard/perfil', label: 'Perfil', icon: 'profile' },
+] as const;
+
+const mobileNavigation = [
+  { href: '/dashboard', label: 'Inicio', icon: 'home', active: true },
+  { href: '/dashboard/explorar', label: 'Explorar', icon: 'search' },
+  { href: '/dashboard/participaciones', label: 'Actividad', icon: 'participation' },
+  { href: '/dashboard/perfil', label: 'Perfil', icon: 'profile' },
+] as const;
+
 export default function UiPreviewPage() {
   const [showClosableAlert, setShowClosableAlert] = useState(true);
   const [basicSwitch, setBasicSwitch] = useState(false);
   const [activeSwitch, setActiveSwitch] = useState(true);
   const [describedSwitch, setDescribedSwitch] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
     <main className="min-h-screen bg-background-page text-text-primary">
@@ -753,6 +785,216 @@ export default function UiPreviewPage() {
                 </div>
               </CardContent>
             </Card>
+          </section>
+
+          <section aria-labelledby="brand-headers-title">
+            <div className="mb-activa-24">
+              <h2 id="brand-headers-title" className="font-display text-2xl font-semibold">Marca y encabezados</h2>
+              <p className="mt-activa-8 text-text-secondary">Escalas de marca y estructura editorial para páginas ACTIVA.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-activa-16 xl:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>BrandLogo</CardTitle>
+                  <CardDescription>Variantes oficiales en sus tres tamaños.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-activa-20">
+                  <div>
+                    <p className="mb-activa-12 text-xs font-semibold uppercase tracking-wider text-text-secondary">Color</p>
+                    <div className="flex flex-wrap items-center gap-activa-24">
+                      <BrandLogo variant="color" size="sm" alt="ACTIVA color pequeño" />
+                      <BrandLogo variant="color" size="md" alt="ACTIVA color mediano" />
+                      <BrandLogo variant="color" size="lg" alt="ACTIVA color grande" />
+                    </div>
+                  </div>
+                  <div className="rounded-activa-md bg-background-inverse p-activa-20">
+                    <p className="mb-activa-12 text-xs font-semibold uppercase tracking-wider text-text-inverse/75">Blanco sobre grafito</p>
+                    <div className="flex flex-wrap items-center gap-activa-24">
+                      <BrandLogo variant="white" size="sm" alt="ACTIVA blanco pequeño" />
+                      <BrandLogo variant="white" size="md" alt="ACTIVA blanco mediano" />
+                      <BrandLogo variant="white" size="lg" alt="ACTIVA blanco grande" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-activa-12 text-xs font-semibold uppercase tracking-wider text-text-secondary">Símbolo</p>
+                    <div className="flex flex-wrap items-center gap-activa-24">
+                      <BrandLogo variant="symbol" size="sm" alt="Símbolo ACTIVA pequeño" />
+                      <BrandLogo variant="symbol" size="md" alt="Símbolo ACTIVA mediano" />
+                      <BrandLogo variant="symbol" size="lg" alt="Símbolo ACTIVA grande" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>PageHeader</CardTitle>
+                  <CardDescription>Jerarquía, contexto, breadcrumbs y acciones.</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-activa-24">
+                  <PageHeader
+                    eyebrow="Gestión de campañas"
+                    title="Campañas activas"
+                    description="Organizá oportunidades, revisá su estado y coordiná acciones con los comercios participantes."
+                    breadcrumbs={[
+                      { label: 'Inicio', href: '/dashboard' },
+                      { label: 'Campañas', href: '/dashboard/sorteos' },
+                      { label: 'Campañas activas' },
+                    ]}
+                    actions={(
+                      <>
+                        <Button variant="tertiary">Exportar</Button>
+                        <Button>Nueva campaña</Button>
+                      </>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <section aria-labelledby="public-navigation-title">
+            <div className="mb-activa-24">
+              <h2 id="public-navigation-title" className="font-display text-2xl font-semibold">Navegación pública</h2>
+              <p className="mt-activa-8 text-text-secondary">Headers claros y transparentes con navegación recibida por props.</p>
+            </div>
+            <div className="space-y-activa-16">
+              <Card className="overflow-visible">
+                <CardHeader>
+                  <CardTitle>Variante light</CardTitle>
+                  <CardDescription>Reducí el viewport para probar su menú móvil accesible.</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-activa-12">
+                  <div className="rounded-activa-md border border-border-default">
+                    <PublicHeader
+                      navigation={publicNavigation}
+                      variant="light"
+                      logoHref="/"
+                      actions={<Button size="sm">Crear cuenta</Button>}
+                      className="rounded-activa-md"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <ActivaHero className="overflow-visible p-activa-16 sm:p-activa-24">
+                <PublicHeader
+                  navigation={publicNavigation}
+                  variant="transparent"
+                  logoVariant="white"
+                  logoHref="/"
+                  actions={(
+                    <Link
+                      href="/registro"
+                      className="inline-flex h-9 items-center justify-center rounded-activa-sm bg-action-primary px-activa-12 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+                    >
+                      Crear cuenta
+                    </Link>
+                  )}
+                  className="rounded-activa-md border-white/20 [&_nav_a]:!text-text-inverse"
+                />
+                <div className="px-activa-16 pb-activa-24 pt-activa-32 sm:px-activa-24">
+                  <p className="font-display text-xl font-semibold text-text-inverse">Header transparente sobre sistema gráfico oscuro</p>
+                  <p className="mt-activa-8 text-sm text-text-inverse/75">La estructura permanece legible sin agregar navegación específica.</p>
+                </div>
+              </ActivaHero>
+            </div>
+          </section>
+
+          <section aria-labelledby="dashboard-navigation-title">
+            <div className="mb-activa-24">
+              <h2 id="dashboard-navigation-title" className="font-display text-2xl font-semibold">Navegación de dashboard</h2>
+              <p className="mt-activa-8 text-text-secondary">Sidebar desacoplado de sesión, roles y autenticación.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-activa-16 xl:grid-cols-[1fr_280px]">
+              <Card className="overflow-hidden">
+                <CardHeader>
+                  <CardTitle>Sidebar interactivo: {sidebarCollapsed ? 'colapsado' : 'desplegado'}</CardTitle>
+                  <CardDescription>Usá el control lateral para alternar su estado.</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-activa-12">
+                  <div className="relative h-[520px] overflow-hidden rounded-activa-md border border-border-default bg-background-surface-muted">
+                    <DashboardSidebar
+                      items={dashboardNavigation}
+                      collapsed={sidebarCollapsed}
+                      onCollapsedChange={setSidebarCollapsed}
+                      logoHref="/dashboard"
+                      user={(
+                        <div className="flex items-center gap-activa-8 rounded-activa-sm bg-background-surface-muted p-activa-8">
+                          <span className="flex size-8 shrink-0 items-center justify-center rounded-activa-full bg-action-primary text-xs font-bold text-action-primary-text">UA</span>
+                          <div className="min-w-0">
+                            <p className="truncate text-xs font-semibold text-text-primary">Usuario de ejemplo</p>
+                            <p className="truncate text-xs text-text-secondary">Perfil demostrativo</p>
+                          </div>
+                        </div>
+                      )}
+                      footerAction={<Button variant="ghost" size="sm" className="w-full">Cerrar sesión</Button>}
+                      className="!absolute !translate-x-0"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="overflow-hidden">
+                <CardHeader>
+                  <CardTitle>Sidebar colapsado</CardTitle>
+                  <CardDescription>Iconos con tooltip nativo.</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-activa-12">
+                  <div className="relative h-[520px] overflow-hidden rounded-activa-md border border-border-default bg-background-surface-muted">
+                    <DashboardSidebar
+                      items={dashboardNavigation}
+                      collapsed
+                      logoHref="/dashboard"
+                      user={<Badge variant="active">UA</Badge>}
+                      footerAction={<Button variant="ghost" size="icon" aria-label="Cerrar sesión"><ActivaIcon name="logout" size={20} /></Button>}
+                      className="!absolute !translate-x-0"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <section aria-labelledby="items-mobile-navigation-title">
+            <div className="mb-activa-24">
+              <h2 id="items-mobile-navigation-title" className="font-display text-2xl font-semibold">Items y navegación móvil</h2>
+              <p className="mt-activa-8 text-text-secondary">Estados individuales y una barra inferior de cuatro destinos reales.</p>
+            </div>
+            <div className="grid grid-cols-1 gap-activa-16 lg:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>NavigationItem</CardTitle>
+                  <CardDescription>Estados normal, activo, badge, disabled y collapsed.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-activa-8 pt-activa-12 sm:grid-cols-2">
+                  <NavigationItem href="/ayuda" label="Normal" icon="help" />
+                  <NavigationItem href="/dashboard" label="Activo" icon="home" active />
+                  <NavigationItem href="/dashboard/participaciones" label="Con novedades" icon="participation" badge={<Badge variant="information" size="sm">3 nuevas</Badge>} />
+                  <NavigationItem href="/contacto" label="No disponible" icon="mail" disabled />
+                  <div className="w-20 rounded-activa-md border border-border-default p-activa-8">
+                    <NavigationItem href="/dashboard/perfil" label="Perfil colapsado" icon="profile" collapsed />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>MobileNavigation</CardTitle>
+                  <CardDescription>Simulación contenida; en uso real permanece fija y sólo móvil.</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-activa-12">
+                  <div className="relative mx-auto h-80 max-w-sm overflow-hidden rounded-activa-xl border-4 border-border-strong bg-background-surface-muted shadow-activa-md">
+                    <div className="p-activa-20">
+                      <BrandLogo variant="symbol" size="sm" />
+                      <p className="mt-activa-24 font-display text-lg font-semibold">Vista móvil de ejemplo</p>
+                      <p className="mt-activa-8 text-sm text-text-secondary">La navegación inferior conserva icono, texto y estado activo.</p>
+                    </div>
+                    <MobileNavigation items={mobileNavigation} className="!absolute md:!block" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </section>
         </div>
       </div>
