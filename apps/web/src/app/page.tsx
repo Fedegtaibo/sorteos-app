@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import InstallAppButton from '@/components/InstallAppButton';
+import { ActivaIcon } from '@/components/icons';
 import { PublicHeader } from '@/components/layout';
+import { Badge, Card, CardContent } from '@/components/ui';
 
 const publicNavigation = [
   { href: '/', label: 'Inicio' },
@@ -26,79 +28,95 @@ export default function HomePage() {
         )}
       />
 
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.24),transparent_34%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.14),transparent_32%)]" />
-
-        <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-10 md:py-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-14">
+      <section className="border-b border-border-strong bg-background-inverse text-text-inverse">
+        <div className="mx-auto grid max-w-7xl gap-activa-40 px-activa-16 py-activa-48 sm:px-activa-24 md:py-activa-64 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-activa-40 lg:py-activa-80">
           <div>
-<h1 className="max-w-5xl text-4xl font-black leading-[1.04] text-white md:text-6xl">
-              Comprá con confianza.
-              <span className="mt-2 block text-amber-400">
-                Vendé con sorteos que convierten.
-              </span>
+            <Badge variant="brand" className="bg-action-primary text-action-primary-text">
+              Tecnología para acceder a tus objetivos
+            </Badge>
+
+            <h1 className="mt-activa-20 max-w-3xl font-display text-4xl font-semibold leading-tight text-text-inverse sm:text-5xl lg:text-6xl">
+              Transformamos oportunidades en experiencias
             </h1>
 
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-400">
-              Sortealo convierte sorteos informales en una experiencia ordenada:
-              pagos seguros, números reservados, comprobantes automáticos y comercios verificados.
+            <p className="mt-activa-24 max-w-2xl text-lg leading-8 text-text-inverse/75">
+              ACTIVA conecta personas y comercios mediante campañas claras, participaciones
+              registradas y procesos confiables de principio a fin.
             </p>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-activa-32 flex flex-col gap-activa-12 sm:flex-row sm:flex-wrap">
               <Link
                 href="/registro"
-                className="rounded-2xl bg-amber-400 px-7 py-4 text-center text-base font-black text-black shadow-2xl shadow-amber-400/20 hover:bg-amber-300"
+                className="inline-flex h-[52px] items-center justify-center rounded-activa-sm bg-action-primary px-activa-20 text-base font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background-inverse"
               >
                 Crear cuenta
               </Link>
 
               <Link
                 href="/login"
-                className="rounded-2xl border border-white/15 px-7 py-4 text-center text-base font-black text-white hover:bg-white/10"
+                className="inline-flex h-[52px] items-center justify-center rounded-activa-sm border border-text-inverse/30 bg-transparent px-activa-20 text-base font-semibold text-text-inverse transition-colors duration-fast ease-activa hover:bg-background-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background-inverse"
               >
-                Ingresar a Sortealo
+                Ingresar a ACTIVA
               </Link>
 
-              <InstallAppButton className="rounded-2xl border border-white/15 bg-white/5 px-7 py-4 text-center text-base font-black text-zinc-200 hover:bg-white/10" />
-            </div>
-
-            <p className="mt-6 max-w-xl text-sm leading-6 text-zinc-500">
-              Al ingresar, cada usuario accede a su espacio para descubrir sorteos,
-              seguir participaciones, ver comprobantes y gestionar publicaciones.
-            </p>
-          </div>
-
-          <div className="rounded-[2rem] border border-amber-400/25 bg-zinc-950 p-5 shadow-2xl shadow-amber-950/20 md:p-6">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
-              La idea en una frase
-            </p>
-
-            <h2 className="mt-4 text-3xl font-black leading-tight text-white md:text-4xl">
-              El sorteo deja de ser una promesa informal.
-              <span className="block text-zinc-500">
-                Pasa a ser una operación registrada.
-              </span>
-            </h2>
-
-            <div className="mt-5 grid gap-2">
-              {[
-                ['1', 'Elegís un sorteo real', 'Publicado por un comercio identificado.'],
-                ['2', 'Reservás tus números', 'La seleccion queda ordenada antes del pago.'],
-                ['3', 'Pagás de forma segura', 'El sistema registra la operación.'],
-                ['4', 'Recibís comprobante', 'Tu participacion queda guardada en tu cuenta.'],
-              ].map(([numero, titulo, texto]) => (
-                <div key={numero} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-400 text-sm font-black text-black">
-                    {numero}
-                  </div>
-
-                  <div>
-                    <p className="font-black text-white">{titulo}</p>
-                    <p className="mt-1 text-sm leading-6 text-zinc-500">{texto}</p>
-                  </div>
-                </div>
-              ))}
+              <InstallAppButton className="h-[52px] rounded-activa-sm border border-text-inverse/30 bg-transparent px-activa-20 text-base font-semibold text-text-inverse transition-colors duration-fast ease-activa hover:bg-background-surface/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background-inverse" />
             </div>
           </div>
+
+          <Card
+            variant="inverse"
+            className="border-text-inverse/20 bg-background-surface/5 shadow-activa-lg"
+          >
+            <CardContent className="p-activa-20 sm:p-activa-24">
+              <div className="grid gap-activa-12">
+                {[
+                  {
+                    icon: 'campaign' as const,
+                    title: 'Descubrís una campaña',
+                    description: 'Conocé el comercio, el beneficio y todas las condiciones.',
+                  },
+                  {
+                    icon: 'participation' as const,
+                    title: 'Elegís tu participación',
+                    description: 'Seleccioná una opción disponible y revisá el detalle antes de continuar.',
+                  },
+                  {
+                    icon: 'card' as const,
+                    title: 'El pago queda registrado',
+                    description: 'La operación y la participación quedan vinculadas automáticamente.',
+                  },
+                  {
+                    icon: 'result' as const,
+                    title: 'Seguís todo el proceso',
+                    description: 'Consultá la selección, el resultado y la entrega desde tu cuenta.',
+                  },
+                ].map((step, index) => (
+                  <div
+                    key={step.title}
+                    className="flex gap-activa-12 rounded-activa-md border border-text-inverse/15 bg-background-inverse/60 p-activa-16"
+                  >
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-activa-full bg-action-primary text-action-primary-text">
+                      <ActivaIcon name={step.icon} size={20} />
+                      <span className="sr-only">Paso {index + 1}</span>
+                    </span>
+
+                    <div>
+                      <h2 className="font-display text-base font-semibold text-text-inverse">
+                        {step.title}
+                      </h2>
+                      <p className="mt-activa-4 text-sm leading-6 text-text-inverse/70">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <p className="mt-activa-20 border-t border-text-inverse/15 pt-activa-16 text-sm font-semibold leading-6 text-text-inverse/80">
+                Una experiencia ordenada, verificable y pensada para generar confianza.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
