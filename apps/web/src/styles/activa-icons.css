@@ -1,0 +1,62 @@
+:root {
+  --activa-icon-size-sm: 16px;
+  --activa-icon-size-md: 20px;
+  --activa-icon-size-lg: 24px;
+  --activa-icon-size-xl: 32px;
+
+  --activa-icon-stroke: 2;
+  --activa-icon-graphite: #1A1D21;
+  --activa-icon-white: #FFFFFF;
+  --activa-icon-amber: #F5B11A;
+  --activa-icon-teal: #0E6F6B;
+  --activa-icon-success: #16A36A;
+  --activa-icon-info: #2F73DA;
+  --activa-icon-warning: #D99000;
+  --activa-icon-error: #D94452;
+  --activa-icon-disabled: #98A2B3;
+}
+
+.activa-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.activa-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(26, 29, 33, 0.12);
+  border-radius: 12px;
+  color: var(--activa-icon-graphite);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.activa-icon-button:hover {
+  color: var(--activa-icon-amber);
+  border-color: rgba(245, 177, 26, 0.55);
+  background: rgba(245, 177, 26, 0.08);
+}
+
+.activa-icon-button:active {
+  transform: translateY(1px);
+}
+
+.activa-icon-button:focus-visible {
+  outline: 3px solid rgba(14, 111, 107, 0.28);
+  outline-offset: 2px;
+}
+
+.activa-icon-button:disabled {
+  color: var(--activa-icon-disabled);
+  cursor: not-allowed;
+  opacity: 0.65;
+}

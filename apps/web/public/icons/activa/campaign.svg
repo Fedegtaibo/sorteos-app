@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+  fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round"
+  role="img" aria-label="Campaña">
+  <path d="M4 13V7h4l8-3v12l-8-3z"/><path d="M8 13v6h4l-1-5"/><path d="M19 8v4"/>
+</svg>
