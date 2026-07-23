@@ -3,12 +3,25 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
 import NotificationBell from '@/components/NotificationBell';
+import { ActivaIcon, type ActivaIconName } from '@/components/icons';
+import { BrandLogo, NavigationItem } from '@/components/layout';
+import { Badge, Button, Divider } from '@/components/ui';
 import { authApi } from '@/lib/api';
 import toast from 'react-hot-toast';
+
+type DashboardNavLink = {
+  href: string;
+  label: string;
+  icon: ActivaIconName;
+};
+
+const roleLabels: Record<string, string> = {
+  participante: 'Participante',
+  comercio: 'Comercio',
+  admin: 'Administrador',
+};
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -64,32 +77,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-5xl animate-pulse">S</div>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-activa-12 bg-background-page text-text-primary">
+        <span className="animate-pulse">
+          <BrandLogo variant="symbol" size="lg" alt="ACTIVA" />
+        </span>
+        <p className="text-sm font-semibold text-text-secondary">
+          Cargando tu cuenta…
+        </p>
       </div>
     );
   }
 
-  const navLinks = {
+  const navLinks: Record<'participante' | 'comercio' | 'admin', DashboardNavLink[]> = {
     participante: [
-      { href: '/dashboard', label: 'Inicio', icon: '●' },
-      { href: '/dashboard/participaciones', label: 'Mis participaciones', icon: '🎟️' },
-      { href: '/dashboard/premios', label: 'Mis premios', icon: '🏆' },
-      { href: '/dashboard/perfil', label: 'Mi perfil', icon: '◆' },
+      { href: '/dashboard', label: 'Inicio', icon: 'home' },
+      { href: '/dashboard/participaciones', label: 'Mis participaciones', icon: 'participation' },
+      { href: '/dashboard/premios', label: 'Mis beneficios', icon: 'benefit' },
+      { href: '/dashboard/perfil', label: 'Mi perfil', icon: 'profile' },
     ],
     comercio: [
-      { href: '/dashboard', label: 'Inicio', icon: '●' },
-      { href: '/dashboard/sorteos', label: 'Mis sorteos', icon: '🎯' },
-      { href: '/dashboard/sorteos/nuevo', label: 'Nuevo sorteo', icon: '+' },
-      { href: '/dashboard/entregas', label: 'Entregas', icon: '📦' },
-{ href: '/dashboard/perfil', label: 'Mi perfil', icon: '◆' },
-      ],
+      { href: '/dashboard', label: 'Inicio', icon: 'home' },
+      { href: '/dashboard/sorteos', label: 'Mis campañas', icon: 'campaign' },
+      { href: '/dashboard/sorteos/nuevo', label: 'Crear campaña', icon: 'plus' },
+      { href: '/dashboard/entregas', label: 'Entregas', icon: 'delivery' },
+      { href: '/dashboard/perfil', label: 'Mi perfil', icon: 'profile' },
+    ],
     admin: [
-      { href: '/dashboard', label: 'Inicio', icon: '●' },
-      { href: '/dashboard/admin/comercios', label: 'Comercios', icon: '🏪' },
-      { href: '/dashboard/admin/sorteos', label: 'Todos los sorteos', icon: '🎯' },
-      { href: '/dashboard/admin/usuarios', label: 'Usuarios', icon: '👥' },
-      { href: '/dashboard/admin/reclamos', label: 'Reclamos', icon: '⚖️' },
+      { href: '/dashboard', label: 'Inicio', icon: 'home' },
+      { href: '/dashboard/admin/comercios', label: 'Comercios', icon: 'store' },
+      { href: '/dashboard/admin/sorteos', label: 'Todas las campañas', icon: 'campaign' },
+      { href: '/dashboard/admin/usuarios', label: 'Usuarios', icon: 'user' },
+      { href: '/dashboard/admin/reclamos', label: 'Reclamos', icon: 'warning' },
     ],
   };
 
@@ -97,101 +115,97 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const SidebarContent = () => (
     <>
-      <div className="p-5 md:p-6 border-b border-zinc-800">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <span className="w-11 h-11 rounded-2xl bg-amber-400 text-black grid place-items-center text-xl font-black">
-            S
-          </span>
-          <div>
-            <p className="font-black text-lg leading-tight">Sortealo</p>
-            <p className="text-xs text-zinc-500">Sorteos verificados</p>
-          </div>
-        </Link>
+      <div className="border-b border-border-default px-activa-20 py-activa-20 md:px-activa-24">
+        <BrandLogo variant="color" size="md" href="/dashboard" alt="ACTIVA" />
+        <p className="mt-activa-8 text-xs font-medium text-text-secondary">
+          Oportunidades y experiencias
+        </p>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        {links.map((l) => {
-          const active = pathname === l.href;
-          return (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all border',
-                active
-                  ? 'bg-amber-400 text-black border-amber-400 shadow-lg shadow-amber-400/10'
-                  : 'bg-zinc-900/50 text-zinc-400 border-zinc-800 hover:bg-zinc-900 hover:text-zinc-100',
-              )}
-            >
-              <span className="text-base">{l.icon}</span>
-              {l.label}
-            </Link>
-          );
-        })}
+      <nav
+        aria-label="Secciones del panel"
+        className="flex-1 space-y-activa-4 overflow-y-auto p-activa-16"
+      >
+        {links.map((link) => (
+          <NavigationItem
+            key={link.href}
+            href={link.href}
+            label={link.label}
+            icon={link.icon}
+            active={pathname === link.href}
+          />
+        ))}
       </nav>
 
-      <div className="p-4 border-t border-zinc-800">
-        <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-4 mb-3">
-          <p className="text-xs text-zinc-500 truncate mb-2">{session?.user?.email}</p>
-          <span
-            className={cn(
-              'text-xs font-black px-3 py-1 rounded-full uppercase',
-              role === 'admin'
-                ? 'bg-red-950 text-red-300'
-                : role === 'comercio'
-                  ? 'bg-amber-950 text-amber-300'
-                  : 'bg-sky-950 text-sky-300',
-            )}
+      <div className="border-t border-border-default p-activa-16">
+        <div className="mb-activa-12 rounded-activa-md border border-border-default bg-background-surface-muted p-activa-12">
+          <p className="truncate text-xs text-text-secondary">
+            {session?.user?.email}
+          </p>
+          <Badge
+            variant={role === 'comercio' ? 'brand' : role === 'admin' ? 'information' : 'active'}
+            size="sm"
+            className="mt-activa-8"
           >
-            {role}
-          </span>
+            {roleLabels[role] || role}
+          </Badge>
         </div>
 
-        <button
+        <Divider className="mb-activa-12" />
+
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full justify-start"
+          leftIcon={<ActivaIcon name="logout" size={18} />}
           onClick={() => signOut({ callbackUrl: '/' })}
-          className="w-full px-4 py-3 rounded-2xl text-sm font-bold text-zinc-400 bg-zinc-900 border border-zinc-800 hover:text-red-300 hover:border-red-900 transition-all"
         >
           Cerrar sesión
-        </button>
+        </Button>
       </div>
     </>
   );
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <aside className="hidden md:flex w-72 bg-zinc-950 border-r border-zinc-800 flex-col fixed h-full">
+    <div className="min-h-screen bg-background-page text-text-primary">
+      <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col border-r border-border-default bg-background-surface md:flex">
         <SidebarContent />
       </aside>
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] md:hidden">
+        <div className="fixed inset-0 z-overlay md:hidden">
           <button
+            type="button"
             aria-label="Cerrar menú"
             onClick={() => setMobileMenuOpen(false)}
-            className="absolute inset-0 bg-black/70"
+            className="absolute inset-0 bg-background-inverse/70"
           />
 
-          <aside className="relative z-[101] flex h-full w-[86vw] max-w-xs flex-col bg-zinc-950 border-r border-zinc-800 shadow-2xl">
+          <aside
+            id="dashboard-mobile-navigation"
+            aria-label="Navegación del panel"
+            className="relative z-modal flex h-full w-[86vw] max-w-xs flex-col border-r border-border-default bg-background-surface shadow-activa-lg"
+          >
             <SidebarContent />
           </aside>
         </div>
       )}
 
       <main className="min-h-screen md:ml-72">
-        <header className="sticky top-0 z-40 flex items-center justify-between border-b border-zinc-800 bg-zinc-950/90 px-4 py-3 backdrop-blur md:justify-end md:px-8 md:py-4">
+        <header className="sticky top-0 z-sticky flex min-h-16 items-center justify-between border-b border-border-default bg-background-surface/95 px-activa-16 backdrop-blur md:justify-end md:px-activa-32">
           <button
+            type="button"
             onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden rounded-xl border border-zinc-800 bg-zinc-900 p-2 text-zinc-100"
+            className="flex size-11 items-center justify-center rounded-activa-sm border border-border-default bg-background-surface text-text-primary transition-colors duration-fast ease-activa hover:bg-background-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus md:hidden"
             aria-label="Abrir menú"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="dashboard-mobile-navigation"
           >
-            <Menu size={22} />
+            <ActivaIcon name="menu" size={22} />
           </button>
 
-          <div className="md:hidden flex items-center gap-2">
-            <span className="h-9 w-9 rounded-xl bg-amber-400 text-black grid place-items-center font-black">
-              S
-            </span>
-            <span className="font-black">Sortealo</span>
+          <div className="flex items-center md:hidden">
+            <BrandLogo variant="color" size="sm" href="/dashboard" alt="ACTIVA" />
           </div>
 
           <NotificationBell />
