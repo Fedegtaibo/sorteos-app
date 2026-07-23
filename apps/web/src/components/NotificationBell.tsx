@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Bell, Gift, X, Trophy, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { ActivaIcon } from '@/components/icons';
+import { Button, Card } from '@/components/ui';
 import { notificationsApi } from '@/lib/api';
 
 
@@ -103,24 +104,24 @@ const handleNotificationClick = async (notification: any) => {
   const celebration =
     winnerNotification && typeof document !== 'undefined'
       ? createPortal(
-          <div className="fixed inset-0 z-[2147483647] flex items-center justify-center overflow-hidden bg-black">
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-300 via-pink-500 to-purple-900" />
+          <div className="fixed inset-0 z-[2147483647] flex items-center justify-center overflow-hidden bg-background-inverse">
+            <div className="absolute inset-0 bg-gradient-to-br from-action-primary via-action-secondary to-background-inverse" />
 
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.35),transparent_32%,rgba(0,0,0,0.72))]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.3),transparent_32%,rgba(26,29,33,0.78))]" />
 
-            <div className="absolute left-10 top-10 text-white/30 animate-pulse">
-              <Sparkles size={120} />
+            <div className="absolute left-10 top-10 animate-pulse text-text-inverse/25">
+              <ActivaIcon name="star" size={120} strokeWidth={1.25} />
             </div>
 
-            <div className="absolute right-10 bottom-10 text-white/30 animate-pulse">
-              <Trophy size={140} />
+            <div className="absolute bottom-10 right-10 animate-pulse text-text-inverse/25">
+              <ActivaIcon name="benefit" size={140} strokeWidth={1.25} />
             </div>
 
             <div className="absolute inset-0 pointer-events-none">
               {Array.from({ length: 70 }).map((_, i) => (
                 <div
                   key={i}
-                  className="absolute h-3 w-3 rounded-full bg-yellow-300 animate-bounce"
+                  className="absolute h-3 w-3 animate-bounce rounded-activa-full bg-action-primary"
                   style={{
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,
@@ -132,41 +133,45 @@ const handleNotificationClick = async (notification: any) => {
             </div>
 
             <button
+              type="button"
               onClick={() => setWinnerNotification(null)}
-              className="absolute top-6 right-6 z-20 rounded-full bg-black/40 p-3 text-white hover:bg-black/70"
+              aria-label="Cerrar celebración"
+              className="absolute right-6 top-6 z-20 flex size-12 items-center justify-center rounded-activa-full bg-background-inverse/60 text-text-inverse transition-colors duration-fast ease-activa hover:bg-background-inverse focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-background-inverse"
             >
-              <X size={36} />
+              <ActivaIcon name="close" size={28} />
             </button>
 
-            <div className="relative z-10 mx-4 max-w-5xl text-center">
-              <div className="mb-8 inline-flex h-32 w-32 items-center justify-center rounded-full bg-yellow-300 text-black shadow-2xl animate-pulse">
-                <Gift size={76} />
+            <div className="relative z-10 mx-activa-16 max-w-5xl text-center">
+              <div className="mb-activa-32 inline-flex size-32 animate-pulse items-center justify-center rounded-activa-full bg-action-primary text-action-primary-text shadow-activa-lg">
+                <ActivaIcon name="benefit" size={76} strokeWidth={1.75} />
               </div>
 
-              <div className="text-xl md:text-3xl font-black tracking-[0.35em] text-yellow-200 drop-shadow-xl">
-                SORTEALO
+              <div className="font-display text-xl font-semibold tracking-[0.35em] text-action-primary md:text-3xl">
+                ACTIVA
               </div>
 
-              <h1 className="mt-6 text-7xl md:text-[10rem] leading-none font-black text-white drop-shadow-2xl">
-                GANASTE
+              <h1 className="mt-activa-24 font-display text-5xl font-semibold leading-none text-text-inverse drop-shadow-2xl sm:text-7xl md:text-[8rem]">
+                ¡Fuiste seleccionado!
               </h1>
 
-              <p className="mt-8 text-2xl md:text-4xl font-black text-white drop-shadow-xl">
+              <p className="mt-activa-32 text-2xl font-semibold text-text-inverse drop-shadow-xl md:text-4xl">
                 {winnerNotification.mensaje}
               </p>
 
-              <p className="mt-5 text-lg md:text-2xl font-semibold text-white/90">
-                Tu premio te esta esperando
+              <p className="mt-activa-20 text-lg font-semibold text-text-inverse/85 md:text-2xl">
+                Tenés un beneficio disponible
               </p>
 
-              <button
+              <Button
                 onClick={() => {
                   window.location.href = winnerNotification.url || '/dashboard/premios';
                 }}
-                className="mt-12 rounded-2xl bg-yellow-300 px-12 py-6 text-2xl font-black text-black shadow-2xl transition hover:scale-105 hover:bg-yellow-200"
+                size="lg"
+                className="mt-activa-48 h-auto min-h-[52px] px-activa-32 py-activa-16 text-lg shadow-activa-lg sm:text-xl"
+                rightIcon={<ActivaIcon name="arrow-right" size={20} />}
               >
-                Ver mi premio
-              </button>
+                Ver mi beneficio
+              </Button>
             </div>
           </div>,
           document.body,
@@ -177,27 +182,34 @@ const handleNotificationClick = async (notification: any) => {
     <>
       <div className="relative">
         <button
+          type="button"
           onClick={handleBellClick}
-          className="relative p-2 rounded-lg hover:bg-white/10 transition"
+          aria-label="Notificaciones"
+          aria-expanded={open}
+          aria-controls="notifications-panel"
+          className="relative flex size-11 items-center justify-center rounded-activa-sm border border-border-default bg-background-surface text-text-primary transition-colors duration-fast ease-activa hover:bg-background-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
         >
-          <Bell size={22} />
+          <ActivaIcon name="bell" size={22} />
 
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5">
+            <span className="absolute -right-1 -top-1 flex min-h-5 min-w-5 items-center justify-center rounded-activa-full bg-status-error px-1 text-xs font-semibold leading-none text-white">
               {unread}
             </span>
           )}
         </button>
 
         {open && (
-          <div className="absolute right-0 mt-2 w-96 bg-white text-zinc-900 border rounded-xl shadow-xl z-50 overflow-hidden">
-            <div className="p-3 border-b font-semibold">
+          <Card
+            id="notifications-panel"
+            className="absolute right-0 z-50 mt-activa-8 w-[calc(100vw-2rem)] max-w-96 overflow-hidden shadow-activa-lg"
+          >
+            <div className="border-b border-border-default px-activa-16 py-activa-12 font-display font-semibold text-text-primary">
               Notificaciones
             </div>
 
             <div className="max-h-96 overflow-auto">
               {notifications.length === 0 ? (
-                <div className="p-4 text-gray-500 text-sm">
+                <div className="p-activa-16 text-sm text-text-secondary">
                   No hay notificaciones
                 </div>
               ) : (
@@ -206,17 +218,17 @@ const handleNotificationClick = async (notification: any) => {
     key={n.id}
     type="button"
     onClick={() => handleNotificationClick(n)}
-    className={`w-full p-3 text-left border-b transition hover:bg-zinc-100 ${
-      !n.leida ? 'bg-blue-50' : ''
+    className={`w-full border-b border-border-default p-activa-12 text-left transition-colors duration-fast ease-activa last:border-b-0 hover:bg-background-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus ${
+      !n.leida ? 'bg-action-primary/10' : 'bg-background-surface'
     }`}
   >
-    <div className="font-medium">{n.titulo}</div>
-    <div className="text-sm text-gray-600">{n.mensaje}</div>
+    <div className="font-semibold text-text-primary">{n.titulo}</div>
+    <div className="mt-activa-4 text-sm leading-5 text-text-secondary">{n.mensaje}</div>
   </button>
 ))
               )}
             </div>
-          </div>
+          </Card>
         )}
       </div>
 
