@@ -6,27 +6,42 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import { ArrowLeft } from 'lucide-react';
+
+import { ActivaIcon } from '@/components/icons';
+import { PublicFooter, PublicHeader } from '@/components/layout';
+import { MediaImage } from '@/components/media';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Skeleton,
+} from '@/components/ui';
 import { useNumerosSorteo } from '@/hooks/use-sorteo';
 import { pagosApi } from '@/lib/api';
 import { formatMonto, formatFecha } from '@/lib/utils';
 
-function Badge({ children, tone = 'green' }: any) {
-  return <span className={`badge ${tone}`}>{children}</span>;
-}
+const publicNavigation = [
+  { href: '/', label: 'Inicio' },
+  { href: '/ayuda', label: 'Ayuda' },
+  { href: '/contacto', label: 'Contacto' },
+  { href: '/fundadores', label: 'Fundadores' },
+  { href: '/login', label: 'Ingresar' },
+] as const;
 
-function Progress({ value }: { value: number }) {
-  return <div className="progress"><i style={{ width: `${value}%` }} /></div>;
-}
+const estadoLabels: Record<string, string> = {
+  activo: 'Activa',
+  finalizado: 'Finalizada',
+  pausado: 'Pausada',
+  cancelado: 'Cancelada',
+};
 
-function Stat({ label, value, tone, sub }: any) {
-  return (
-    <div className="stat">
-      <span>{label}</span>
-      <strong className={tone}>{value}</strong>
-      {sub && <small>{sub}</small>}
-    </div>
-  );
+function estadoVisible(estado: unknown) {
+  const value = String(estado || '');
+  return estadoLabels[value.toLowerCase()] || value;
 }
 
 function getSorteoFromResponse(res: any) {
@@ -107,24 +122,94 @@ const numeros: any[] = getArrayFromResponse(numerosData);
 
   if (isLoading) {
     return (
-      <main className="phone">
-        <section className="content">
-          <h1>Cargando sorteo...</h1>
-        </section>
-      </main>
+      <div className="min-h-screen bg-background-page text-text-primary">
+        <PublicHeader
+          navigation={publicNavigation}
+          variant="light"
+          logoHref="/"
+          actions={
+            <Link
+              href="/registro"
+              className="inline-flex min-h-11 items-center justify-center rounded-activa-md bg-action-primary px-activa-20 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+            >
+              Crear cuenta
+            </Link>
+          }
+        />
+        <main
+          aria-label="Cargando campaña"
+          className="mx-auto grid max-w-7xl gap-activa-24 px-activa-16 py-activa-40 sm:px-activa-24 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:px-activa-40"
+        >
+          <Card className="overflow-hidden">
+            <Skeleton variant="rectangular" className="h-72 rounded-none" />
+            <CardContent className="space-y-activa-16 pt-activa-24">
+              <Skeleton variant="text" className="w-1/3" />
+              <Skeleton variant="text" className="h-8 w-4/5" />
+              <Skeleton variant="text" />
+              <Skeleton variant="text" className="w-2/3" />
+              <div className="grid grid-cols-2 gap-activa-12">
+                <Skeleton variant="rectangular" className="h-20" />
+                <Skeleton variant="rectangular" className="h-20" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="space-y-activa-16 py-activa-32">
+              <Skeleton variant="text" className="h-8 w-2/3" />
+              <Skeleton variant="text" className="w-4/5" />
+              <Skeleton variant="rectangular" className="h-64" />
+            </CardContent>
+          </Card>
+        </main>
+        <PublicFooter />
+      </div>
     );
   }
 
   if (!sorteo) {
     return (
-      <main className="phone">
-        <section className="content">
-          <button className="back" onClick={() => router.push('/')}>
-            <ArrowLeft size={18} /> Volver
-          </button>
-          <h1>Sorteo no encontrado</h1>
-        </section>
-      </main>
+      <div className="min-h-screen bg-background-page text-text-primary">
+        <PublicHeader
+          navigation={publicNavigation}
+          variant="light"
+          logoHref="/"
+          actions={
+            <Link
+              href="/registro"
+              className="inline-flex min-h-11 items-center justify-center rounded-activa-md bg-action-primary px-activa-20 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+            >
+              Crear cuenta
+            </Link>
+          }
+        />
+        <main className="mx-auto max-w-3xl px-activa-16 py-activa-64 sm:px-activa-24 lg:px-activa-40">
+          <Card variant="muted" className="border-dashed">
+            <CardContent className="py-activa-48 text-center">
+              <span className="mx-auto grid size-12 place-items-center rounded-activa-full bg-action-primary/15 text-text-primary">
+                <ActivaIcon name="search" size={24} />
+              </span>
+              <p className="mt-activa-16 text-xs font-semibold uppercase tracking-widest text-text-link">
+                Campaña no disponible
+              </p>
+              <h1 className="mt-activa-8 font-display text-3xl font-semibold text-text-primary">
+                No encontramos esta campaña
+              </h1>
+              <p className="mx-auto mt-activa-8 max-w-lg text-base text-text-secondary">
+                Es posible que ya no esté publicada o que el enlace no sea válido.
+              </p>
+              <Button
+                type="button"
+                className="mt-activa-24"
+                leftIcon={<ActivaIcon name="arrow-left" size={18} />}
+                onClick={() => router.push('/')}
+              >
+                Volver
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+        <PublicFooter />
+      </div>
     );
   }
 
@@ -198,112 +283,184 @@ const numeros: any[] = getArrayFromResponse(numerosData);
   };
 
   return (
-    <main className="phone">
-      <nav className="topbar">
-        <div className="brand">
-          <span>🎯</span>
-          <b>Sortealo</b>
-        </div>
+    <div className="min-h-screen bg-background-page text-text-primary">
+      <PublicHeader
+        navigation={publicNavigation}
+        variant="light"
+        logoHref="/"
+        actions={
+          <Link
+            href="/registro"
+            className="inline-flex min-h-11 items-center justify-center rounded-activa-md bg-action-primary px-activa-20 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+          >
+            Crear cuenta
+          </Link>
+        }
+      />
 
-        <div className="tabs">
-          <button className="tab active blue">
-            <span>🎯 Detalle Sorteo</span>
-            <em>participante</em>
-          </button>
-        </div>
-      </nav>
+      <main className="mx-auto max-w-7xl px-activa-16 py-activa-32 sm:px-activa-24 lg:px-activa-40">
+        <Button
+          type="button"
+          variant="ghost"
+          className="mb-activa-24"
+          leftIcon={<ActivaIcon name="arrow-left" size={18} />}
+          onClick={() => router.push('/dashboard/explorar')}
+        >
+          Volver a explorar
+        </Button>
 
-      <section className="content">
-        <button className="back" onClick={() => router.push('/dashboard/explorar')}>
-          <ArrowLeft size={18} /> Volver
-        </button>
+        <div className="grid gap-activa-24 lg:grid-cols-[minmax(20rem,0.85fr)_minmax(0,1.15fr)] lg:items-start">
+          <Card className="overflow-hidden lg:sticky lg:top-activa-24">
+            <div className="relative h-72 overflow-hidden bg-background-surface-muted sm:h-96">
+              <MediaImage
+                src={sorteo.imagen_principal_url}
+                alt={sorteo.nombre}
+                placeholderVariant="image"
+                fit="cover"
+                className="h-full w-full"
+              />
+              {sorteo.estado ? (
+                <Badge
+                  variant="neutral"
+                  className="absolute bottom-activa-16 left-activa-16 shadow-activa-sm"
+                >
+                  {estadoVisible(sorteo.estado)}
+                </Badge>
+              ) : null}
+            </div>
 
-        <div className="detail-layout">
-          <aside className="prize-card">
-            <div className="hero">
-              {sorteo.imagen_principal_url ? (
-                <img
-                  src={sorteo.imagen_principal_url}
-                  alt={sorteo.nombre}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+            <CardHeader>
+              <p className="text-xs font-semibold uppercase tracking-widest text-text-link">
+                Campaña
+              </p>
+              <h1 className="font-display text-3xl font-semibold tracking-tight text-text-primary">
+                {sorteo.nombre}
+              </h1>
+              {sorteo.descripcion ? (
+                <p className="mt-activa-8 text-sm leading-6 text-text-secondary">
+                  {sorteo.descripcion}
+                </p>
+              ) : null}
+            </CardHeader>
+
+            <CardContent className="space-y-activa-20">
+              {sorteo.comercio_id ? (
+                <Link
+                  href={`/comercios/${sorteo.comercio_id}`}
+                  className="flex min-h-16 items-center justify-between gap-activa-12 rounded-activa-md border border-border-default bg-background-surface-muted p-activa-12 transition-colors duration-fast ease-activa hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                >
+                  <div className="flex min-w-0 items-center gap-activa-12">
+                    <span className="grid size-11 shrink-0 place-items-center rounded-activa-md bg-action-primary font-display font-semibold text-action-primary-text">
+                      {String(sorteo.comercio_nombre || 'C').slice(0, 1)}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-xs text-text-secondary">
+                        Impulsada por
+                      </span>
+                      <span className="block truncate text-sm font-semibold text-text-primary">
+                        {sorteo.comercio_nombre}
+                      </span>
+                    </span>
+                  </div>
+                  <ActivaIcon
+                    name="arrow-right"
+                    size={18}
+                    className="shrink-0 text-text-secondary"
+                  />
+                </Link>
               ) : (
-                <span style={{ fontSize: 92 }}>🎁</span>
+                <div className="flex items-center gap-activa-12 rounded-activa-md bg-background-surface-muted p-activa-12">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-activa-md bg-action-primary font-display font-semibold text-action-primary-text">
+                    C
+                  </span>
+                  <span>
+                    <span className="block text-xs text-text-secondary">
+                      Comercio impulsor
+                    </span>
+                    <span className="block text-sm font-semibold text-text-primary">
+                      {sorteo.comercio_nombre}
+                    </span>
+                  </span>
+                </div>
               )}
-              <Badge tone="green">● ACTIVO</Badge>
-            </div>
 
-            <p>PREMIO</p>
-            <h1>{sorteo.nombre}</h1>
+              <div className="grid grid-cols-2 gap-activa-12">
+                <Card variant="muted">
+                  <CardContent className="p-activa-12">
+                    <p className="text-xs text-text-secondary">
+                      Valor de participación
+                    </p>
+                    <p className="mt-activa-4 font-display text-lg font-semibold text-text-primary">
+                      {formatMonto(sorteo.valor_numero)}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card variant="muted">
+                  <CardContent className="p-activa-12">
+                    <p className="text-xs text-text-secondary">
+                      Fecha de selección
+                    </p>
+                    <p className="mt-activa-4 text-sm font-semibold text-text-primary">
+                      {formatFecha(sorteo.fecha_sorteo)}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card variant="muted">
+                  <CardContent className="p-activa-12">
+                    <p className="text-xs text-text-secondary">
+                      Participaciones registradas
+                    </p>
+                    <p className="mt-activa-4 font-display text-lg font-semibold text-text-primary">
+                      {vendidos}
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card variant="muted">
+                  <CardContent className="p-activa-12">
+                    <p className="text-xs text-text-secondary">
+                      Total disponible
+                    </p>
+                    <p className="mt-activa-4 font-display text-lg font-semibold text-text-primary">
+                      {sorteo.cant_numeros}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
 
-            {sorteo.comercio_id ? (
-  <Link
-    href={`/comercios/${sorteo.comercio_id}`}
-    className="mt-4 flex items-center justify-between gap-4 rounded-3xl border border-amber-400/40 bg-amber-400/10 p-4 text-left transition hover:border-amber-300 hover:bg-amber-400/20"
-  >
-    <div className="flex min-w-0 items-center gap-3">
-      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-400 text-lg font-black text-black shadow-lg">
-        {String(sorteo.comercio_nombre || 'S').slice(0, 1)}
-      </div>
-
-      <div className="min-w-0">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">
-          Comercio verificado
-        </p>
-
-        <p className="truncate text-base font-black text-white">
-          {sorteo.comercio_nombre}
-        </p>
-
-        <p className="text-xs font-semibold text-zinc-400">
-          Ver perfil, reputación y otros sorteos
-        </p>
-      </div>
-    </div>
-
-    <span className="shrink-0 rounded-2xl bg-amber-400 px-4 py-2 text-xs font-black text-black">
-      Ver local →
-    </span>
-  </Link>
-) : (
-  <div className="shop-dot">
-    T <span>{sorteo.comercio_nombre}</span>
-  </div>
-)}
-
-            {sorteo.descripcion && <p className="desc">{sorteo.descripcion}</p>}
-
-            <div className="sold-box">
               <div>
-                <span>Números vendidos</span>
-                <b>
-                  {vendidos}/{sorteo.cant_numeros}
-                </b>
+                <div className="mb-activa-8 flex justify-between gap-activa-12 text-xs text-text-secondary">
+                  <span>Porcentaje registrado</span>
+                  <span>{pct}%</span>
+                </div>
+                <div
+                  role="progressbar"
+                  aria-label="Participaciones registradas"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={pct}
+                  className="h-2 overflow-hidden rounded-activa-full bg-background-surface-muted"
+                >
+                  <div
+                    className="h-full rounded-activa-full bg-action-primary transition-all duration-fast ease-activa"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <p className="mt-activa-8 text-xs text-text-secondary">
+                  {libres} disponibles, {reservados} reservadas y {vendidos} registradas.
+                </p>
               </div>
+            </CardContent>
+          </Card>
 
-              <Progress value={pct} />
-
-              <div className="mini-stats">
-                <Stat label="VALOR" value={formatMonto(sorteo.valor_numero)} tone="yellow" />
-                <Stat label="DISPONIBLES" value={libres} />
-                <Stat label="RESERVADOS" value={reservados} tone="blue" />
-                <Stat label="VENDIDOS" value={vendidos} tone="green" />
-              </div>
-            </div>
-
-            <div className="countdown">
-              <p>FECHA DEL SORTEO</p>
-              <small>{formatFecha(sorteo.fecha_sorteo)}</small>
-            </div>
-          </aside>
-
-          <section className="chooser">
-            <h1>
-              Elegí tus
-              <br />
-              números
-            </h1>
-            <p>Podés seleccionar varios números libres antes de pagar.</p>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl">Elegí tus participaciones</CardTitle>
+              <CardDescription>
+                Seleccioná una o más opciones disponibles para continuar.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <section className="chooser">
 
                         <section
               className="card"
@@ -543,9 +700,13 @@ const numeros: any[] = getArrayFromResponse(numerosData);
                 );
               })}
             </div>
-          </section>
+              </section>
+            </CardContent>
+          </Card>
         </div>
-      </section>
-    </main>
+      </main>
+
+      <PublicFooter />
+    </div>
   );
 }
