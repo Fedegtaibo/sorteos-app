@@ -2,8 +2,23 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Search, SlidersHorizontal } from 'lucide-react';
-import { formatMonto, formatFecha, estadoColor } from '@/lib/utils';
+
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader } from '@/components/layout';
+import { MediaImage } from '@/components/media';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  Select,
+  Skeleton,
+} from '@/components/ui';
+import { formatFecha, formatMonto } from '@/lib/utils';
 
 function porcentajeVendido(sorteo: any) {
   const vendidos = Number(sorteo.numeros_vendidos || 0);
@@ -33,92 +48,120 @@ function SorteoCard({ sorteo }: { sorteo: any }) {
   return (
     <Link
       href={`/sorteos/${sorteo.id}`}
-      className="group overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-950 shadow-xl transition hover:-translate-y-1 hover:border-amber-400/60 hover:shadow-2xl"
+      className="group block rounded-activa-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
     >
-      <div className="relative flex h-48 items-center justify-center overflow-hidden bg-gradient-to-br from-amber-300 via-orange-500 to-zinc-950">
-        {sorteo.imagen_principal_url ? (
-          <img
+      <Card
+        variant="interactive"
+        className="flex h-full flex-col overflow-hidden group-hover:border-border-strong group-hover:shadow-activa-md"
+      >
+        <div className="relative h-48 overflow-hidden bg-background-surface-muted">
+          <MediaImage
             src={sorteo.imagen_principal_url}
             alt={sorteo.nombre}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            placeholderVariant="image"
+            fit="cover"
+            className="h-full w-full transition-transform duration-fast ease-activa group-hover:scale-105"
           />
-        ) : (
-          <div className="grid h-24 w-24 place-items-center rounded-[2rem] bg-black/30 text-4xl font-black text-white shadow-2xl backdrop-blur">
-            S
-          </div>
-        )}
 
-        <span className="absolute left-4 top-4 rounded-full bg-black/60 px-3 py-1 text-xs font-black uppercase text-white backdrop-blur">
-          Verificado
-        </span>
-
-        <span className="absolute bottom-4 right-4 rounded-full bg-amber-300 px-4 py-2 text-xs font-black text-black shadow-xl">
-          {porcentaje}% vendido
-        </span>
-      </div>
-
-      <div className="p-5">
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="line-clamp-2 text-xl font-black leading-tight text-white transition group-hover:text-amber-300">
-              {sorteo.nombre}
-            </h2>
-
-            <p className="mt-2 truncate text-xs font-semibold text-zinc-500">
-              {sorteo.comercio_nombre || 'Comercio verificado'}
-            </p>
-          </div>
-
-          <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${estadoColor(sorteo.estado)}`}>
-            {sorteo.estado}
-          </span>
+          <Badge
+            variant="brand"
+            className="absolute bottom-activa-16 right-activa-16 shadow-activa-sm"
+          >
+            {porcentaje}% registrado
+          </Badge>
         </div>
 
-        {sorteo.descripcion && (
-          <p className="mb-4 line-clamp-2 text-sm leading-6 text-zinc-400">
-            {sorteo.descripcion}
-          </p>
-        )}
+        <CardHeader>
+          <div className="flex items-start justify-between gap-activa-12">
+            <div className="min-w-0">
+              <CardTitle className="line-clamp-2 text-xl">
+                {sorteo.nombre}
+              </CardTitle>
+              <CardDescription className="truncate">
+                {sorteo.comercio_nombre || 'Comercio'}
+              </CardDescription>
+            </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-zinc-900 p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">
-              Valor número
+            {sorteo.estado ? (
+              <Badge variant="neutral" size="sm" className="shrink-0">
+                {sorteo.estado}
+              </Badge>
+            ) : null}
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex flex-1 flex-col">
+          {sorteo.descripcion ? (
+            <p className="mb-activa-20 line-clamp-2 text-sm leading-6 text-text-secondary">
+              {sorteo.descripcion}
             </p>
-            <p className="mt-1 text-lg font-black text-amber-300">
-              {formatMonto(sorteo.valor_numero)}
-            </p>
+          ) : null}
+
+          <div className="grid grid-cols-2 gap-activa-12">
+            <div className="rounded-activa-md bg-background-surface-muted p-activa-12">
+              <p className="text-xs font-semibold text-text-secondary">
+                Valor de participación
+              </p>
+              <p className="mt-activa-4 font-display text-lg font-semibold text-text-primary">
+                {formatMonto(sorteo.valor_numero)}
+              </p>
+            </div>
+
+            <div className="rounded-activa-md bg-background-surface-muted p-activa-12 text-right">
+              <p className="text-xs font-semibold text-text-secondary">
+                Fecha de selección
+              </p>
+              <p className="mt-activa-4 text-sm font-semibold text-text-primary">
+                {formatFecha(sorteo.fecha_sorteo)}
+              </p>
+            </div>
           </div>
 
-          <div className="rounded-2xl bg-zinc-900 p-3 text-right">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">
-              Sortea
-            </p>
-            <p className="mt-1 text-xs font-black text-zinc-200">
-              {formatFecha(sorteo.fecha_sorteo)}
-            </p>
-          </div>
-        </div>
+          <div className="mt-activa-20">
+            <div className="mb-activa-8 flex justify-between gap-activa-12 text-xs text-text-secondary">
+              <span>{vendidos} participaciones registradas</span>
+              <span>{total} en total</span>
+            </div>
 
-        <div className="mt-4">
-          <div className="mb-2 flex justify-between text-xs font-semibold text-zinc-500">
-            <span>{vendidos} vendidos</span>
-            <span>{total} números</span>
-          </div>
-
-          <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
             <div
-              className="h-full rounded-full bg-amber-400 transition-all"
-              style={{ width: `${porcentaje}%` }}
-            />
+              role="progressbar"
+              aria-label="Participaciones registradas"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={porcentaje}
+              className="h-2 overflow-hidden rounded-activa-full bg-background-surface-muted"
+            >
+              <div
+                className="h-full rounded-activa-full bg-action-primary transition-all duration-fast ease-activa"
+                style={{ width: `${porcentaje}%` }}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="mt-5 rounded-2xl bg-amber-400 px-4 py-3 text-center text-sm font-black text-black transition group-hover:bg-amber-300">
-          Ver números
-        </div>
-      </div>
+          <div className="mt-auto pt-activa-20">
+            <div className="flex min-h-11 items-center justify-center gap-activa-8 rounded-activa-md bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa group-hover:bg-action-primary-hover">
+              Ver campaña
+              <ActivaIcon name="arrow-right" size={18} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </Link>
+  );
+}
+
+function CampaignSkeleton() {
+  return (
+    <Card className="overflow-hidden">
+      <Skeleton variant="rectangular" className="h-48 rounded-none" />
+      <CardContent className="space-y-activa-16 pt-activa-20">
+        <Skeleton variant="text" className="w-3/4" />
+        <Skeleton variant="text" className="w-1/2" />
+        <Skeleton variant="rectangular" className="h-20" />
+        <Skeleton variant="text" />
+        <Skeleton variant="rectangular" className="h-11" />
+      </CardContent>
+    </Card>
   );
 }
 
@@ -232,142 +275,138 @@ export default function ExplorarSorteosPage() {
   );
 
   return (
-    <main className="space-y-8">
-      <section className="overflow-hidden rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-6 shadow-2xl md:p-8">
+    <main className="space-y-activa-32 text-text-primary">
+      <section className="rounded-activa-lg border border-border-default bg-background-surface p-activa-20 shadow-activa-sm md:p-activa-32">
         <Link
           href="/dashboard"
-          className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-zinc-700 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-white/5"
+          className="mb-activa-24 inline-flex min-h-11 items-center gap-activa-8 rounded-activa-sm px-activa-8 text-sm font-semibold text-text-secondary transition-colors duration-fast ease-activa hover:bg-background-surface-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
         >
-          <ArrowLeft size={17} />
+          <ActivaIcon name="arrow-left" size={18} />
           Volver a mi cuenta
         </Link>
 
-        <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
-          Marketplace
-        </p>
+        <PageHeader
+          eyebrow="Explorar"
+          title="Campañas disponibles"
+          description="Descubrí oportunidades activas, compará opciones y elegí cómo participar."
+        />
 
-        <h1 className="text-2xl font-black text-white md:text-3xl">
-          Explorá sorteos activos
-        </h1>
+        <div className="mt-activa-28 grid gap-activa-12 sm:grid-cols-3">
+          <Card variant="muted">
+            <CardContent className="p-activa-16">
+              <p className="font-display text-2xl font-semibold text-text-primary">
+                {sorteos.length}
+              </p>
+              <p className="mt-activa-4 text-xs text-text-secondary">
+                Campañas activas
+              </p>
+            </CardContent>
+          </Card>
 
-        <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
-          Buscá premios, compará comercios y participá en sorteos verificados desde tu cuenta.
-        </p>
+          <Card variant="muted">
+            <CardContent className="p-activa-16">
+              <p className="font-display text-2xl font-semibold text-text-primary">
+                {totalVendidos}
+              </p>
+              <p className="mt-activa-4 text-xs text-text-secondary">
+                Participaciones registradas
+              </p>
+            </CardContent>
+          </Card>
 
-        <div className="mt-8 grid gap-3 md:grid-cols-3">
-          <div className="rounded-3xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-2xl font-black text-amber-300">
-              {sorteos.length}
-            </p>
-            <p className="mt-1 text-xs font-bold text-zinc-500">
-              Sorteos activos
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-2xl font-black text-amber-300">
-              {totalVendidos}
-            </p>
-            <p className="mt-1 text-xs font-bold text-zinc-500">
-              Números vendidos
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-2xl font-black text-amber-300">
-              {sorteosFiltrados.length}
-            </p>
-            <p className="mt-1 text-xs font-bold text-zinc-500">
-              Resultados filtrados
-            </p>
-          </div>
+          <Card variant="muted">
+            <CardContent className="p-activa-16">
+              <p className="font-display text-2xl font-semibold text-text-primary">
+                {sorteosFiltrados.length}
+              </p>
+              <p className="mt-activa-4 text-xs text-text-secondary">
+                Resultados filtrados
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
-      <section className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-4 shadow-2xl md:p-6">
-        <div className="grid gap-4 xl:grid-cols-[1fr_240px]">
-          <div className="relative">
-            <Search
-              size={20}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"
-            />
-
-            <input
+      <Card>
+        <CardHeader>
+          <CardTitle>Filtrar campañas</CardTitle>
+          <CardDescription>
+            Ajustá la búsqueda, la categoría o el orden de los resultados.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-activa-16 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,0.35fr)_minmax(12rem,0.35fr)]">
+            <Input
+              label="Buscar"
               value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              placeholder="Buscar por premio, comercio o descripción"
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-12 py-4 text-sm font-bold text-white outline-none placeholder:text-zinc-600 focus:border-amber-400"
-            />
-          </div>
-
-          <div className="relative">
-            <SlidersHorizontal
-              size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"
+              onChange={(event) => setBusqueda(event.target.value)}
+              placeholder="Buscar por campaña, descripción o comercio"
+              leftIcon={<ActivaIcon name="search" size={18} />}
             />
 
-            <select
+            <Select
+              label="Categoría"
+              value={categoria}
+              onChange={(event) => setCategoria(event.target.value)}
+            >
+              {categorias.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </Select>
+
+            <Select
+              label="Orden"
               value={orden}
-              onChange={(e) => setOrden(e.target.value)}
-              className="w-full appearance-none rounded-2xl border border-zinc-800 bg-black px-12 py-4 text-sm font-bold text-white outline-none focus:border-amber-400"
+              onChange={(event) => setOrden(event.target.value)}
             >
-              <option value="destacados">Destacados</option>
+              <option value="proximos">Próximos</option>
+              <option value="baratos">Más baratos</option>
+              <option value="caros">Más caros</option>
               <option value="mas-vendidos">Más vendidos</option>
-              <option value="proximos">Próximos a finalizar</option>
-              <option value="baratos">Menor precio</option>
-              <option value="caros">Mayor precio</option>
-            </select>
+              <option value="destacados">Destacados</option>
+            </Select>
           </div>
-        </div>
-
-        <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
-          {categorias.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setCategoria(cat)}
-              className={`shrink-0 rounded-full px-4 py-2 text-xs font-black transition ${
-                categoria === cat
-                  ? 'bg-amber-400 text-black'
-                  : 'border border-zinc-800 bg-black text-zinc-400 hover:border-amber-400/50 hover:text-white'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       {loading ? (
-        <section className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-10 text-center">
-          <p className="animate-pulse text-sm font-bold text-zinc-500">
-            Cargando sorteos...
-          </p>
+        <section
+          aria-label="Cargando campañas"
+          className="grid grid-cols-1 gap-activa-20 md:grid-cols-2 xl:grid-cols-3"
+        >
+          <CampaignSkeleton />
+          <CampaignSkeleton />
+          <CampaignSkeleton />
         </section>
       ) : sorteosFiltrados.length === 0 ? (
-        <section className="rounded-[2rem] border border-dashed border-zinc-700 bg-zinc-950 p-12 text-center">
-          <h2 className="text-xl font-black text-white">
-            No encontramos sorteos con esos filtros
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-md text-sm text-zinc-500">
-            Probá cambiando la búsqueda, la categoría o el orden seleccionado.
-          </p>
-
-          <button
-            type="button"
-            onClick={() => {
-              setBusqueda('');
-              setCategoria('Todos');
-              setOrden('destacados');
-            }}
-            className="mt-6 rounded-2xl bg-amber-400 px-5 py-3 text-sm font-black text-black hover:bg-amber-300"
-          >
-            Limpiar filtros
-          </button>
-        </section>
+        <Card variant="muted" className="border-dashed">
+          <CardContent className="py-activa-48 text-center">
+            <span className="mx-auto grid size-12 place-items-center rounded-activa-full bg-action-primary/15 text-text-primary">
+              <ActivaIcon name="search" size={24} />
+            </span>
+            <h2 className="mt-activa-16 font-display text-xl font-semibold text-text-primary">
+              No encontramos campañas
+            </h2>
+            <p className="mx-auto mt-activa-8 max-w-md text-sm text-text-secondary">
+              No hay resultados que coincidan con los filtros seleccionados.
+            </p>
+            <Button
+              type="button"
+              className="mt-activa-20"
+              onClick={() => {
+                setBusqueda('');
+                setCategoria('Todos');
+                setOrden('destacados');
+              }}
+            >
+              Limpiar filtros
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <section className="grid grid-cols-1 gap-activa-20 md:grid-cols-2 xl:grid-cols-3">
           {sorteosFiltrados.map((s: any) => (
             <SorteoCard key={s.id} sorteo={s} />
           ))}
