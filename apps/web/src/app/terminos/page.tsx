@@ -1,63 +1,92 @@
 
 import Link from 'next/link';
 
+import { PageHeader, PublicFooter, PublicHeader } from '@/components/layout';
+import { Badge, Card, CardContent, Divider } from '@/components/ui';
+
+const navigation = [
+  { href: '/', label: 'Inicio' },
+  { href: '/ayuda', label: 'Ayuda' },
+  { href: '/contacto', label: 'Contacto' },
+  { href: '/fundadores', label: 'Fundadores' },
+  { href: '/login', label: 'Ingresar' },
+] as const;
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-zinc-950 p-6 md:p-8">
-      <h2 className="text-2xl font-black text-white">{title}</h2>
-      <div className="mt-4 space-y-4 text-sm leading-7 text-zinc-400">
-        {children}
-      </div>
+    <section>
+      <Card>
+        <CardContent className="p-activa-20 sm:p-activa-24">
+          <h2 className="font-display text-xl font-semibold text-text-primary sm:text-2xl">
+            {title}
+          </h2>
+          <Divider className="my-activa-16" />
+          <div className="space-y-activa-16 text-sm leading-7 text-text-secondary sm:text-base">
+            {children}
+          </div>
+        </CardContent>
+      </Card>
     </section>
   );
 }
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-black px-4 py-10 text-white">
-      <div className="mx-auto max-w-4xl">
-        <Link
-          href="/"
-          className="inline-flex rounded-2xl border border-white/10 px-4 py-2 text-sm font-black text-zinc-300 hover:bg-white/10"
-        >
-          ← Volver a Sortealo
-        </Link>
+    <div className="min-h-screen bg-background-page text-text-primary">
+      <PublicHeader
+        variant="light"
+        logoHref="/"
+        navigation={navigation}
+        actions={
+          <Link
+            href="/registro"
+            className="inline-flex min-h-9 items-center justify-center rounded-activa-sm bg-action-primary px-activa-12 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+          >
+            Crear cuenta
+          </Link>
+        }
+      />
 
-        <div className="mt-8 rounded-[2.5rem] border border-amber-400/20 bg-amber-400/10 p-7 md:p-10">
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
-            Información importante
-          </p>
+      <main className="px-activa-16 py-activa-40 sm:px-activa-24 sm:py-activa-48 lg:px-activa-40 lg:py-activa-64">
+        <article className="mx-auto max-w-4xl">
+          <PageHeader
+            eyebrow="Información importante"
+            title="Términos y condiciones"
+            description="Estos términos establecen las reglas básicas para usar ACTIVA como participante, comercio organizador o usuario de la plataforma."
+            breadcrumbs={[
+              { label: 'Inicio', href: '/' },
+              { label: 'Términos y condiciones' },
+            ]}
+            actions={
+              <Link
+                href="/"
+                className="inline-flex min-h-11 items-center justify-center rounded-activa-sm border border-border-strong bg-background-surface px-activa-16 text-sm font-semibold text-text-primary transition-colors duration-fast ease-activa hover:bg-background-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
+                Volver a ACTIVA
+              </Link>
+            }
+          />
 
-          <h1 className="mt-4 text-3xl font-black leading-tight text-white md:text-4xl">
-            Términos y condiciones
-          </h1>
-
-          <p className="mt-5 text-base leading-8 text-zinc-300">
-            Estos términos establecen las reglas básicas para usar Sortealo como participante,
-            comercio organizador o usuario de la plataforma.
-          </p>
-
-          <p className="mt-5 text-xs font-semibold text-zinc-500">
+          <Badge variant="neutral" className="mt-activa-20">
             Última actualización: julio de 2026
-          </p>
-        </div>
+          </Badge>
 
-        <div className="mt-8 space-y-5">
-          <Section title="1. Qué es Sortealo">
+          <div className="mt-activa-32 space-y-activa-16">
+          <Section title="1. Qué es ACTIVA">
             <p>
-              Sortealo es una plataforma digital que permite a comercios, marcas y emprendimientos
+              ACTIVA es una plataforma digital que permite a comercios, marcas y emprendimientos
               crear sorteos online, publicar premios, vender números y registrar participaciones de
               forma más ordenada, trazable y transparente.
             </p>
 
             <p>
-              Sortealo no es el organizador directo de cada sorteo publicado por terceros. Cada
+              ACTIVA no es el organizador directo de cada sorteo publicado por terceros. Cada
               sorteo es organizado por el comercio, marca o emprendimiento que lo publica dentro de
               la plataforma.
             </p>
 
             <p>
-              La función de Sortealo es brindar la herramienta tecnológica para registrar usuarios,
+              La función de ACTIVA es brindar la herramienta tecnológica para registrar usuarios,
               números, pagos, participaciones, comprobantes, ganadores y estados del sorteo.
             </p>
           </Section>
@@ -65,7 +94,7 @@ export default function Page() {
           <Section title="2. Aceptación de los términos">
             <p>
               Al registrarte, crear un sorteo, comprar números, participar o utilizar cualquier
-              funcionalidad de Sortealo, aceptás estos términos y condiciones.
+              funcionalidad de ACTIVA, aceptás estos términos y condiciones.
             </p>
 
             <p>
@@ -75,7 +104,7 @@ export default function Page() {
 
           <Section title="3. Cuentas de usuario">
             <p>
-              Para utilizar ciertas funciones de Sortealo puede ser necesario crear una cuenta,
+              Para utilizar ciertas funciones de ACTIVA puede ser necesario crear una cuenta,
               informar datos reales y mantener actualizada la información de contacto.
             </p>
 
@@ -85,7 +114,7 @@ export default function Page() {
             </p>
 
             <p>
-              Sortealo podrá solicitar verificación de email u otros controles básicos de seguridad
+              ACTIVA podrá solicitar verificación de email u otros controles básicos de seguridad
               antes de permitir determinadas acciones, como comprar números, crear sorteos o cobrar
               premios.
             </p>
@@ -105,7 +134,7 @@ export default function Page() {
             </p>
 
             <p>
-              Sortealo podrá revisar, pausar, ocultar, suspender o cancelar sorteos cuando detecte
+              ACTIVA podrá revisar, pausar, ocultar, suspender o cancelar sorteos cuando detecte
               información incompleta, actividad sospechosa, reclamos, incumplimientos o cualquier uso
               indebido de la plataforma.
             </p>
@@ -131,7 +160,7 @@ export default function Page() {
 
           <Section title="6. Pagos, comprobantes y estados">
             <p>
-              Los pagos realizados dentro de Sortealo se vinculan con la cuenta del participante, el
+              Los pagos realizados dentro de ACTIVA se vinculan con la cuenta del participante, el
               sorteo elegido y los números seleccionados.
             </p>
 
@@ -159,7 +188,7 @@ export default function Page() {
             </p>
 
             <p>
-              Sortealo podrá registrar el resultado del sorteo, el ganador, el estado de entrega y
+              ACTIVA podrá registrar el resultado del sorteo, el ganador, el estado de entrega y
               eventuales reclamos para mejorar la transparencia del proceso.
             </p>
           </Section>
@@ -168,17 +197,17 @@ export default function Page() {
             <p>
               Los usuarios podrán reportar problemas relacionados con pagos, participaciones,
               sorteos, comercios o entrega de premios mediante los canales de contacto habilitados
-              por Sortealo.
+              por ACTIVA.
             </p>
 
             <p>
-              Ante un reclamo, Sortealo podrá revisar la información disponible dentro de la
+              Ante un reclamo, ACTIVA podrá revisar la información disponible dentro de la
               plataforma, solicitar datos adicionales al participante o al comercio, pausar acciones
               vinculadas al sorteo y tomar medidas razonables según el caso.
             </p>
 
             <p>
-              Sortealo no garantiza la resolución inmediata de todos los reclamos, pero podrá
+              ACTIVA no garantiza la resolución inmediata de todos los reclamos, pero podrá
               intervenir como plataforma para ordenar la información y facilitar una revisión del
               caso.
             </p>
@@ -186,7 +215,7 @@ export default function Page() {
 
           <Section title="9. Uso indebido de la plataforma">
             <p>
-              No está permitido usar Sortealo para publicar sorteos falsos, engañosos, ilegales,
+              No está permitido usar ACTIVA para publicar sorteos falsos, engañosos, ilegales,
               ofensivos, fraudulentos o que puedan perjudicar a participantes, comercios, terceros o
               a la propia plataforma.
             </p>
@@ -197,7 +226,7 @@ export default function Page() {
             </p>
 
             <p>
-              Sortealo podrá suspender cuentas, pausar sorteos, limitar funciones, cancelar
+              ACTIVA podrá suspender cuentas, pausar sorteos, limitar funciones, cancelar
               publicaciones o bloquear usuarios cuando detecte actividad sospechosa o incumplimiento
               de estos términos.
             </p>
@@ -205,7 +234,7 @@ export default function Page() {
 
           <Section title="10. Disponibilidad y cambios del servicio">
             <p>
-              Sortealo es una plataforma en evolución. Algunas funciones pueden modificarse,
+              ACTIVA es una plataforma en evolución. Algunas funciones pueden modificarse,
               pausarse, mejorarse o eliminarse con el tiempo.
             </p>
 
@@ -217,7 +246,7 @@ export default function Page() {
 
           <Section title="11. Cambios en estos términos">
             <p>
-              Sortealo podrá actualizar estos términos y condiciones cuando sea necesario para
+              ACTIVA podrá actualizar estos términos y condiciones cuando sea necesario para
               reflejar cambios en la plataforma, nuevas funcionalidades, mejoras operativas o ajustes
               comerciales.
             </p>
@@ -229,18 +258,21 @@ export default function Page() {
 
           <Section title="12. Contacto">
             <p>
-              Para consultas, reclamos o solicitudes relacionadas con el uso de Sortealo, los
+              Para consultas, reclamos o solicitudes relacionadas con el uso de ACTIVA, los
               usuarios pueden utilizar la página de contacto o los canales informados por la
               plataforma.
             </p>
 
             <p>
-              Durante la etapa inicial, Sortealo podrá brindar acompañamiento directo a determinados
+              Durante la etapa inicial, ACTIVA podrá brindar acompañamiento directo a determinados
               comercios y usuarios para validar el funcionamiento del sistema en casos reales.
             </p>
           </Section>
-        </div>
-      </div>
-    </main>
+          </div>
+        </article>
+      </main>
+
+      <PublicFooter />
+    </div>
   );
 }
