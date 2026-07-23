@@ -1,12 +1,12 @@
 {
-  "name": "Sortealo",
-  "short_name": "Sortealo",
-  "description": "Sorteos verificados y transparentes",
+  "name": "ACTIVA",
+  "short_name": "ACTIVA",
+  "description": "Campañas, participaciones y beneficios en un solo lugar",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#09090b",
-  "theme_color": "#facc15",
+  "background_color": "#1A1D21",
+  "theme_color": "#F5B11A",
   "orientation": "portrait",
   "icons": [
     {

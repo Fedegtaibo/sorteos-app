@@ -8,22 +8,22 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const sora = Sora({ subsets: ['latin'], variable: '--font-sora' });
 
 export const metadata: Metadata = {
-  title: 'Sortealo - Sorteos Verificados',
+  title: 'ACTIVA | Campañas y beneficios',
   description:
-    'Participa en sorteos reales y transparentes. Compra numeros, segui los resultados y gana premios increibles.',
+    'Descubrí campañas de comercios, registrá tus participaciones y accedé a beneficios de forma clara y transparente.',
 
   manifest: '/manifest.json',
-  applicationName: 'Sortealo',
+  applicationName: 'ACTIVA',
   appleWebApp: {
     capable: true,
-    title: 'Sortealo',
+    title: 'ACTIVA',
     statusBarStyle: 'black-translucent',
   },
 
   openGraph: {
-    title: 'Sortealo',
+    title: 'ACTIVA | Campañas y beneficios',
     description:
-      'La plataforma moderna para sorteos verificados y transparentes.',
+      'Campañas de comercios, participaciones registradas y beneficios en una experiencia clara y transparente.',
     type: 'website',
   },
 
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 
 
 export const viewport: Viewport = {
-  themeColor: '#09090b',
+  themeColor: '#1A1D21',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
