@@ -1,17 +1,27 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+
+import { ActivaIcon } from '@/components/icons';
+import { PublicFooter, PublicHeader } from '@/components/layout';
+import { MediaImage } from '@/components/media';
 import {
-  ArrowLeft,
-  BadgeCheck,
-  CalendarDays,
-  Phone,
-  MessageCircle,
-  AtSign,
-  MapPin,
-  ShieldCheck,
-  Star,
-} from 'lucide-react';
-import { formatMonto, formatFecha, estadoColor } from '@/lib/utils';
+  Badge,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Divider,
+} from '@/components/ui';
+import { formatFecha, formatMonto } from '@/lib/utils';
+
+const publicNavigation = [
+  { href: '/', label: 'Inicio' },
+  { href: '/ayuda', label: 'Ayuda' },
+  { href: '/contacto', label: 'Contacto' },
+  { href: '/fundadores', label: 'Fundadores' },
+  { href: '/login', label: 'Ingresar' },
+] as const;
 
 async function getPerfilComercio(id: string) {
   try {
@@ -50,91 +60,90 @@ function SorteoCard({ sorteo }: { sorteo: any }) {
   return (
     <Link
       href={`/sorteos/${sorteo.id}`}
-      className="group overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-950 shadow-xl transition hover:-translate-y-1 hover:border-amber-400/60"
+      className="group block rounded-activa-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
     >
-      <div className="relative flex h-48 items-center justify-center overflow-hidden bg-gradient-to-br from-amber-300 via-orange-500 to-zinc-950">
-        {sorteo.imagen_principal_url ? (
-          <img
+      <Card
+        variant="interactive"
+        className="h-full overflow-hidden group-hover:border-border-strong group-hover:shadow-activa-md"
+      >
+        <div className="relative flex h-48 items-center justify-center overflow-hidden bg-background-surface-muted">
+          <MediaImage
             src={sorteo.imagen_principal_url}
             alt={sorteo.nombre}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            placeholderVariant="image"
+            fit="cover"
+            className="h-full w-full transition-transform duration-fast ease-activa group-hover:scale-105"
           />
-        ) : (
-          <div className="grid h-24 w-24 place-items-center rounded-[2rem] bg-black/30 text-5xl font-black text-white shadow-2xl backdrop-blur">
-            S
-          </div>
-        )}
 
-        <span className="absolute bottom-4 right-4 rounded-full bg-amber-300 px-4 py-2 text-xs font-black text-black shadow-xl">
-          {porcentaje}% vendido
-        </span>
-      </div>
-
-      <div className="p-5">
-        <div className="mb-3 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="line-clamp-2 text-xl font-black leading-tight text-white transition group-hover:text-amber-300">
-              {sorteo.nombre}
-            </h2>
-
-            <p className="mt-2 text-xs font-semibold text-zinc-500">
-              {sorteo.comercio_nombre || 'Comercio verificado'}
-            </p>
-          </div>
-
-          <span
-            className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold ${estadoColor(
-              sorteo.estado,
-            )}`}
-          >
-            {sorteo.estado}
-          </span>
+          <Badge variant="brand" className="absolute bottom-activa-16 right-activa-16 shadow-activa-sm">
+            {porcentaje}% registrado
+          </Badge>
         </div>
 
-        {sorteo.descripcion && (
-          <p className="mb-4 line-clamp-2 text-sm leading-6 text-zinc-400">
-            {sorteo.descripcion}
-          </p>
-        )}
+        <CardHeader>
+          <div className="flex items-start justify-between gap-activa-12">
+            <div className="min-w-0">
+              <CardTitle className="line-clamp-2 text-xl">{sorteo.nombre}</CardTitle>
+              <CardDescription>
+                {sorteo.comercio_nombre || 'Comercio impulsor'}
+              </CardDescription>
+            </div>
+            {sorteo.estado ? (
+              <Badge variant="neutral" size="sm" className="shrink-0">
+                {sorteo.estado}
+              </Badge>
+            ) : null}
+          </div>
+        </CardHeader>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-zinc-900 p-3">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">
-              Valor número
+        <CardContent>
+          {sorteo.descripcion ? (
+            <p className="mb-activa-20 line-clamp-2 text-sm leading-6 text-text-secondary">
+              {sorteo.descripcion}
             </p>
-            <p className="mt-1 text-lg font-black text-amber-300">
-              {formatMonto(sorteo.valor_numero)}
-            </p>
+          ) : null}
+
+          <div className="grid grid-cols-2 gap-activa-12">
+            <div className="rounded-activa-md bg-background-surface-muted p-activa-12">
+              <p className="text-xs font-semibold text-text-secondary">Valor por participación</p>
+              <p className="mt-activa-4 font-display text-lg font-semibold text-text-primary">
+                {formatMonto(sorteo.valor_numero)}
+              </p>
+            </div>
+            <div className="rounded-activa-md bg-background-surface-muted p-activa-12 text-right">
+              <p className="text-xs font-semibold text-text-secondary">Fecha de selección</p>
+              <p className="mt-activa-4 text-sm font-semibold text-text-primary">
+                {formatFecha(sorteo.fecha_sorteo)}
+              </p>
+            </div>
           </div>
 
-          <div className="rounded-2xl bg-zinc-900 p-3 text-right">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">
-              Sortea
-            </p>
-            <p className="mt-1 text-xs font-black text-zinc-200">
-              {formatFecha(sorteo.fecha_sorteo)}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4">
-          <div className="mb-2 flex justify-between text-xs font-semibold text-zinc-500">
-            <span>{vendidos} vendidos</span>
-            <span>{total} números</span>
-          </div>
-
-          <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+          <div className="mt-activa-20">
+            <div className="mb-activa-8 flex justify-between gap-activa-12 text-xs text-text-secondary">
+              <span>{vendidos} participaciones registradas</span>
+              <span>{total} disponibles en total</span>
+            </div>
             <div
-              className="h-full rounded-full bg-amber-400 transition-all"
-              style={{ width: `${porcentaje}%` }}
-            />
+              role="progressbar"
+              aria-label="Participaciones registradas"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={porcentaje}
+              className="h-2 overflow-hidden rounded-activa-full bg-background-surface-muted"
+            >
+              <div
+                className="h-full rounded-activa-full bg-action-primary transition-all duration-fast ease-activa"
+                style={{ width: `${porcentaje}%` }}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="mt-5 rounded-2xl bg-amber-400 px-4 py-3 text-center text-sm font-black text-black transition group-hover:bg-amber-300">
-          Participar
-        </div>
-      </div>
+          <div className="mt-activa-20 flex min-h-11 items-center justify-center gap-activa-8 rounded-activa-md bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text">
+            Conocer campaña
+            <ActivaIcon name="arrow-right" size={18} />
+          </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 }
@@ -168,283 +177,298 @@ export default async function ComercioPublicoPage({
     : null;
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <section className="relative overflow-hidden border-b border-white/10">
-        {comercio.portada_url && (
-          <img
+    <div className="min-h-screen bg-background-page text-text-primary">
+      <PublicHeader
+        navigation={publicNavigation}
+        variant="light"
+        logoHref="/"
+        actions={
+          <Link
+            href="/registro"
+            className="inline-flex min-h-11 items-center justify-center rounded-activa-md bg-action-primary px-activa-20 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+          >
+            Crear cuenta
+          </Link>
+        }
+      />
+
+      <main>
+        <section className="relative overflow-hidden border-b border-border-default bg-background-inverse text-text-inverse">
+          <MediaImage
             src={comercio.portada_url}
             alt={`Portada de ${comercio.razon_social}`}
-            className="absolute inset-0 h-full w-full object-cover opacity-25"
+            placeholderVariant="cover"
+            fit="cover"
+            className="absolute inset-0 h-full w-full"
+            imageClassName="opacity-25"
           />
-        )}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.24),transparent_35%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.16),transparent_30%)]" />
-        <div className="absolute inset-0 bg-black/70" />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-10 md:py-16">
-          
-        <Link
-  href="/"
-  className="mb-8 inline-flex items-center gap-2 rounded-2xl border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-white/10"
->
-  <ArrowLeft size={17} />
-  Volver al inicio
-</Link>
-
-
-
-          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
-            <div>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
-                <BadgeCheck size={16} />
-                Comercio verificado
-              </div>
-
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-[2rem] bg-amber-400 text-4xl font-black text-black shadow-2xl">
-                  {comercio.logo_url ? (
-                    <img
-                      src={comercio.logo_url}
-                      alt={`Logo de ${comercio.razon_social}`}
-                      className="h-full w-full object-contain p-2"
-                    />
-                  ) : (
-                    String(comercio.razon_social || 'S').slice(0, 1)
-                  )}
-                </div>
-
-                <div>
-                  <h1 className="text-4xl font-black leading-tight text-white md:text-6xl">
-                    {comercio.razon_social}
-                  </h1>
-
-                  <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 md:text-base">
-                    Perfil público del comercio dentro de Sortealo. Acá podés ver sus sorteos activos, historial básico y señales de confianza.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
-                Contacto
-              </p>
-
-              <div className="mt-5 space-y-4">
-                <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
-                  <Phone size={18} className="text-amber-300" />
-                  <div>
-                    <p className="text-xs text-zinc-500">Teléfono</p>
-                    <p className="text-sm font-bold text-white">
-                      {comercio.telefono || 'No informado'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
-                  <MessageCircle size={18} className="text-emerald-300" />
-                  <div>
-                    <p className="text-xs text-zinc-500">WhatsApp</p>
-                    {whatsappHref ? (
-                      <a
-                        href={whatsappHref}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sm font-bold text-emerald-300 hover:text-emerald-200"
-                      >
-                        {comercio.whatsapp}
-                      </a>
-                    ) : (
-                      <p className="text-sm font-bold text-white">No informado</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
-                  <AtSign size={18} className="text-pink-300" />
-                  <div>
-                    <p className="text-xs text-zinc-500">Instagram</p>
-                    {instagramHref ? (
-                      <a
-                        href={instagramHref}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-sm font-bold text-pink-300 hover:text-pink-200"
-                      >
-                        {comercio.instagram}
-                      </a>
-                    ) : (
-                      <p className="text-sm font-bold text-white">No informado</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
-                  <MapPin size={18} className="text-amber-300" />
-                  <div>
-                    <p className="text-xs text-zinc-500">Dirección</p>
-                    <p className="text-sm font-bold text-white">
-                      {comercio.direccion || 'No informada'}
-                    </p>
-                  </div>
-                </div>
-
-
-                <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
-                  <CalendarDays size={18} className="text-amber-300" />
-                  <div>
-                    <p className="text-xs text-zinc-500">En Sortealo desde</p>
-                    <p className="text-sm font-bold text-white">
-                      {formatFecha(comercio.created_at)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 rounded-2xl bg-black p-4">
-                  <ShieldCheck size={18} className="text-emerald-300" />
-                  <div>
-                    <p className="text-xs text-zinc-500">Estado</p>
-                    <p className="text-sm font-bold text-emerald-300">
-                      {reputacion.verificado ? 'Verificado' : 'No verificado'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10 rounded-[2rem] border border-amber-400/30 bg-zinc-950 p-6 shadow-2xl">
-  <div className="grid gap-6 lg:grid-cols-[220px_1fr] lg:items-center">
-    <div className="text-center lg:text-left">
-      <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
-        Nivel de confianza
-      </p>
-
-      <div className="mt-4 inline-flex h-36 w-36 items-center justify-center rounded-full border-8 border-amber-400 bg-black shadow-2xl">
-        <div>
-          <p className="text-4xl font-black text-white">
-            {scoreConfianza?.puntaje ?? 0}
-          </p>
-          <p className="text-xs font-black text-zinc-500">/100</p>
-        </div>
-      </div>
-
-      <p className="mt-4 text-xl font-black text-amber-300">
-        {scoreConfianza?.nivel || 'Inicial'}
-      </p>
-    </div>
-
-    <div>
-      <h2 className="text-2xl font-black text-white">
-        Señales de confianza del comercio
-      </h2>
-
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-        Este puntaje se calcula con datos internos de Sortealo: verificación del comercio,
-        sorteos realizados, entregas confirmadas, antigüedad y reclamos registrados.
-      </p>
-
-      <div className="mt-5 grid gap-3 md:grid-cols-2">
-        {(scoreConfianza?.motivos || []).map((motivo: string) => (
-          <div
-            key={motivo}
-            className="rounded-2xl border border-zinc-800 bg-black p-4 text-sm font-bold text-zinc-300"
-          >
-            {motivo}
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-</div> 
-
-         
-
-          <div className="mt-10 grid gap-4 md:grid-cols-4">
-            <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
-              <p className="text-3xl font-black text-amber-300">
-                {reputacion.totalSorteos}
-              </p>
-              <p className="mt-1 text-xs font-bold text-zinc-500">
-                Sorteos creados
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
-              <p className="text-3xl font-black text-amber-300">
-                {reputacion.sorteosFinalizados}
-              </p>
-              <p className="mt-1 text-xs font-bold text-zinc-500">
-                Sorteos finalizados
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
-              <p className="text-3xl font-black text-emerald-300">
-                {reputacion.entregasConfirmadas}
-              </p>
-              <p className="mt-1 text-xs font-bold text-zinc-500">
-                Entregas confirmadas
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
-              <p className="text-3xl font-black text-red-300">
-                {reputacion.reclamos}
-              </p>
-              <p className="mt-1 text-xs font-bold text-zinc-500">
-                Reclamos registrados
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <div className="mb-7 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
-              Sorteos del comercio
-            </p>
-
-            <h2 className="mt-2 text-3xl font-black text-white md:text-4xl">
-              Sorteos activos
-            </h2>
-
-            <p className="mt-2 text-sm text-zinc-500">
-              Participá en sorteos publicados por {comercio.razon_social}.
-            </p>
-          </div>
-
-          <div className="inline-flex items-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-black text-zinc-300">
-            <Star size={17} className="text-amber-300" />
-            Nivel de confianza inicial
-          </div>
-        </div>
-
-        {sorteos.length === 0 ? (
-          <div className="rounded-[2rem] border border-dashed border-zinc-700 bg-zinc-950 p-12 text-center">
-            <p className="text-xl font-black text-white">
-              Este comercio no tiene sorteos activos ahora.
-            </p>
-
-            <p className="mt-2 text-sm text-zinc-500">
-              Podés volver más tarde o explorar otros comercios.
-            </p>
-
+          <div className="relative mx-auto max-w-7xl px-activa-16 py-activa-40 sm:px-activa-24 md:py-activa-64 lg:px-activa-40">
             <Link
               href="/"
-              className="mt-6 inline-flex rounded-2xl bg-amber-400 px-5 py-3 text-sm font-black text-black hover:bg-amber-300"
+              className="mb-activa-32 inline-flex min-h-11 items-center gap-activa-8 rounded-activa-sm px-activa-8 text-sm font-semibold text-text-inverse/80 transition-colors duration-fast ease-activa hover:bg-background-surface/10 hover:text-text-inverse focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
             >
-              Explorar marketplace
+              <ActivaIcon name="arrow-left" size={18} />
+              Volver al inicio
             </Link>
+
+            <div className="grid gap-activa-32 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
+              <div>
+                {reputacion.verificado ? (
+                  <Badge
+                    variant="success"
+                    icon={<ActivaIcon name="shield-check" size={16} />}
+                    className="mb-activa-20"
+                  >
+                    Perfil verificado
+                  </Badge>
+                ) : null}
+
+                <div className="flex flex-col gap-activa-20 sm:flex-row sm:items-center">
+                  <div className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-activa-lg bg-action-primary font-display text-4xl font-semibold text-action-primary-text shadow-activa-md">
+                    <MediaImage
+                      src={comercio.logo_url}
+                      alt={`Logo de ${comercio.razon_social}`}
+                      placeholderVariant="logo"
+                      fit="contain"
+                      className="h-full w-full"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="mb-activa-8 text-xs font-semibold uppercase tracking-widest text-action-primary">
+                      Comercio en ACTIVA
+                    </p>
+                    <h1 className="font-display text-4xl font-semibold tracking-tight text-text-inverse md:text-6xl">
+                      {comercio.razon_social}
+                    </h1>
+                    {comercio.descripcion ? (
+                      <p className="mt-activa-12 max-w-2xl text-base leading-7 text-text-inverse/75">
+                        {comercio.descripcion}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+
+              <Card variant="inverse" className="border-text-inverse/15">
+                <CardHeader>
+                  <CardTitle>Información del comercio</CardTitle>
+                  <CardDescription>Datos de contacto disponibles.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-activa-16">
+                  <div className="flex items-start gap-activa-12">
+                    <ActivaIcon name="headset" size={20} className="mt-0.5 text-action-primary" />
+                    <div>
+                      <p className="text-xs text-text-inverse/65">Teléfono</p>
+                      <p className="text-sm font-semibold text-text-inverse">
+                        {comercio.telefono || 'No informado'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Divider color="inverse" />
+
+                  <div className="flex items-start gap-activa-12">
+                    <ActivaIcon name="chat" size={20} className="mt-0.5 text-action-primary" />
+                    <div>
+                      <p className="text-xs text-text-inverse/65">WhatsApp</p>
+                      {whatsappHref ? (
+                        <a
+                          href={whatsappHref}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-activa-xs text-sm font-semibold text-text-inverse underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                        >
+                          {comercio.whatsapp}
+                        </a>
+                      ) : (
+                        <p className="text-sm font-semibold text-text-inverse">No informado</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <Divider color="inverse" />
+
+                  <div className="flex items-start gap-activa-12">
+                    <ActivaIcon name="profile" size={20} className="mt-0.5 text-action-primary" />
+                    <div>
+                      <p className="text-xs text-text-inverse/65">Instagram</p>
+                      {instagramHref ? (
+                        <a
+                          href={instagramHref}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-activa-xs text-sm font-semibold text-text-inverse underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                        >
+                          {comercio.instagram}
+                        </a>
+                      ) : (
+                        <p className="text-sm font-semibold text-text-inverse">No informado</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <Divider color="inverse" />
+
+                  <div className="flex items-start gap-activa-12">
+                    <ActivaIcon name="location" size={20} className="mt-0.5 text-action-primary" />
+                    <div>
+                      <p className="text-xs text-text-inverse/65">Dirección</p>
+                      <p className="text-sm font-semibold text-text-inverse">
+                        {comercio.direccion || 'No informada'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Divider color="inverse" />
+
+                  <div className="flex items-start gap-activa-12">
+                    <ActivaIcon name="calendar" size={20} className="mt-0.5 text-action-primary" />
+                    <div>
+                      <p className="text-xs text-text-inverse/65">En ACTIVA desde</p>
+                      <p className="text-sm font-semibold text-text-inverse">
+                        {formatFecha(comercio.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {sorteos.map((s: any) => (
-              <SorteoCard key={s.id} sorteo={s} />
-            ))}
+        </section>
+
+        <section className="mx-auto max-w-7xl px-activa-16 py-activa-48 sm:px-activa-24 lg:px-activa-40">
+          <div className="grid gap-activa-24 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">
+            <Card variant="highlight">
+              <CardHeader>
+                <div className="flex items-center gap-activa-12">
+                  <span className="grid size-10 place-items-center rounded-activa-full bg-action-primary text-action-primary-text">
+                    <ActivaIcon name="shield-check" size={22} />
+                  </span>
+                  <div>
+                    <CardTitle>Indicador de confianza</CardTitle>
+                    <CardDescription>
+                      Información construida a partir de la actividad registrada.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-activa-24 sm:grid-cols-[10rem_1fr] sm:items-center">
+                  <div className="rounded-activa-lg bg-background-surface p-activa-20 text-center shadow-activa-sm">
+                    {scoreConfianza?.puntaje !== undefined &&
+                    scoreConfianza?.puntaje !== null ? (
+                      <>
+                        <p className="font-display text-4xl font-semibold text-text-primary">
+                          {scoreConfianza.puntaje}
+                        </p>
+                        <p className="text-xs text-text-secondary">sobre 100</p>
+                      </>
+                    ) : null}
+                    {scoreConfianza?.nivel ? (
+                      <Badge variant="brand" className="mt-activa-12">
+                        {scoreConfianza.nivel}
+                      </Badge>
+                    ) : null}
+                  </div>
+
+                  {scoreConfianza?.motivos?.length ? (
+                    <ul className="space-y-activa-8">
+                      {scoreConfianza.motivos.map((motivo: string) => (
+                        <li
+                          key={motivo}
+                          className="flex items-start gap-activa-8 text-sm leading-6 text-text-secondary"
+                        >
+                          <ActivaIcon
+                            name="check-circle"
+                            size={18}
+                            className="mt-0.5 text-status-success"
+                          />
+                          <span>{motivo}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Actividad registrada</CardTitle>
+                <CardDescription>Indicadores disponibles del comercio.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-activa-12">
+                {[
+                  ['Campañas', reputacion.totalSorteos],
+                  ['Campañas finalizadas', reputacion.sorteosFinalizados],
+                  ['Entregas confirmadas', reputacion.entregasConfirmadas],
+                  ['Reclamos', reputacion.reclamos],
+                ].map(([label, value]) => (
+                  <div
+                    key={String(label)}
+                    className="rounded-activa-md bg-background-surface-muted p-activa-16"
+                  >
+                    <p className="font-display text-2xl font-semibold text-text-primary">
+                      {value}
+                    </p>
+                    <p className="mt-activa-4 text-xs leading-5 text-text-secondary">
+                      {label}
+                    </p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
-        )}
-      </section>
-    </main>
+        </section>
+
+        <section className="border-t border-border-default bg-background-surface">
+          <div className="mx-auto max-w-7xl px-activa-16 py-activa-48 sm:px-activa-24 lg:px-activa-40">
+            <div className="mb-activa-28">
+              <p className="text-xs font-semibold uppercase tracking-widest text-text-link">
+                Oportunidades del comercio
+              </p>
+              <h2 className="mt-activa-8 font-display text-3xl font-semibold tracking-tight text-text-primary md:text-4xl">
+                Campañas activas
+              </h2>
+              <p className="mt-activa-8 text-base text-text-secondary">
+                Conocé las oportunidades disponibles de este comercio.
+              </p>
+            </div>
+
+            {sorteos.length === 0 ? (
+              <Card variant="muted" className="border-dashed">
+                <CardContent className="py-activa-48 text-center">
+                  <span className="mx-auto grid size-12 place-items-center rounded-activa-full bg-action-primary/15 text-text-primary">
+                    <ActivaIcon name="campaign" size={24} />
+                  </span>
+                  <h2 className="mt-activa-16 font-display text-xl font-semibold text-text-primary">
+                    Este comercio todavía no tiene campañas activas
+                  </h2>
+                  <p className="mt-activa-8 text-sm text-text-secondary">
+                    Podés volver más adelante para conocer nuevas oportunidades.
+                  </p>
+                  <Link
+                    href="/"
+                    className="mt-activa-20 inline-flex min-h-11 items-center justify-center rounded-activa-md bg-action-primary px-activa-20 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+                  >
+                    Volver al inicio
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 gap-activa-20 md:grid-cols-2 xl:grid-cols-3">
+                {sorteos.map((s: any) => (
+                  <SorteoCard key={s.id} sorteo={s} />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+
+      <PublicFooter />
+    </div>
   );
 }
