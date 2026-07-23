@@ -7,20 +7,46 @@ import Link from 'next/link';
 import { authApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
-const roles = [
+import { ActivaIcon, type ActivaIconName } from '@/components/icons';
+import { PublicFooter, PublicHeader } from '@/components/layout';
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  Checkbox,
+  Input,
+} from '@/components/ui';
+
+const navigation = [
+  { href: '/', label: 'Inicio' },
+  { href: '/ayuda', label: 'Ayuda' },
+  { href: '/contacto', label: 'Contacto' },
+  { href: '/fundadores', label: 'Fundadores' },
+  { href: '/login', label: 'Ingresar' },
+] as const;
+
+const roles: readonly {
+  value: 'participante' | 'comercio';
+  title: string;
+  description: string;
+  icon: ActivaIconName;
+}[] = [
   {
     value: 'participante',
-    label: 'Participante',
-    icon: '\u{1F64B}',
-    desc: 'Quiero comprar n\u00fameros',
+    title: 'Quiero participar',
+    description:
+      'Accedé a campañas, elegí participaciones y consultá tus comprobantes y resultados.',
+    icon: 'participation',
   },
   {
     value: 'comercio',
-    label: 'Comercio',
-    icon: '\u{1F3EA}',
-    desc: 'Quiero crear sorteos',
+    title: 'Quiero impulsar campañas',
+    description:
+      'Organizá oportunidades, administrá participaciones y seguí cada etapa desde tu cuenta.',
+    icon: 'campaign',
   },
-] as const;
+];
 
 function obtenerFechaMaxima(): string {
   const fecha = new Date();
@@ -57,12 +83,6 @@ export default function RegistroPage() {
 
   const telefonoLocal = form.telefono.replace(/^\+54\s?/, '');
   const fechaMaxima = obtenerFechaMaxima();
-
-  const inputClass =
-    'w-full rounded-2xl border border-zinc-800 bg-black px-5 py-4 text-base font-bold text-white outline-none placeholder:text-zinc-600 focus:border-amber-400';
-
-  const labelClass =
-    'mb-2 block text-xs font-black uppercase tracking-[0.2em] text-zinc-500';
 
   const handleTelefonoChange = (value: string) => {
     const limpio = value.replace(/^\+54\s*/, '').trimStart();
@@ -115,13 +135,13 @@ export default function RegistroPage() {
 
       if (result?.error) {
         toast.success(
-          'Cuenta creada. Ya pod\u00e9s ingresar con tu email y contrase\u00f1a.',
+          'Cuenta creada. Ya podés ingresar con tu email y contraseña.',
         );
         router.push('/login');
         return;
       }
 
-      toast.success('\u00a1Cuenta creada exitosamente!');
+      toast.success('¡Cuenta creada exitosamente!');
       router.push('/dashboard');
     } catch (error: any) {
       toast.error(error.message || 'No se pudo crear la cuenta');
@@ -131,133 +151,118 @@ export default function RegistroPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <section className="mx-auto grid min-h-screen max-w-7xl gap-8 px-4 py-10 lg:grid-cols-[1fr_680px] lg:items-start">
-        <div className="hidden lg:sticky lg:top-10 lg:block">
+    <div className="min-h-screen bg-background-page text-text-primary">
+      <PublicHeader
+        variant="light"
+        logoHref="/"
+        navigation={navigation}
+        actions={
           <Link
-            href="/"
-            className="mb-8 inline-flex rounded-2xl border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-white/10"
+            href="/registro"
+            aria-current="page"
+            className="inline-flex min-h-9 items-center justify-center rounded-activa-sm bg-action-primary px-activa-12 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
           >
-            &larr; Volver al inicio
+            Crear cuenta
           </Link>
+        }
+      />
 
-          <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-amber-300">
-            Sortealo
-          </p>
-
-          <h1 className="max-w-xl text-5xl font-black leading-tight">
-            Cre&aacute; tu cuenta y empez&aacute; a participar.
-          </h1>
-
-          <p className="mt-6 max-w-lg text-lg leading-8 text-zinc-400">
-            Compr&aacute; n&uacute;meros, segu&iacute; tus participaciones,
-            recib&iacute; comprobantes y acced&eacute; a sorteos verificados desde
-            tu panel.
-          </p>
-
-          <div className="mt-8 max-w-lg rounded-3xl border border-amber-400/20 bg-amber-400/10 p-6">
-            <p className="font-black text-amber-200">
-              Registro responsable y entrega ordenada
-            </p>
-            <p className="mt-2 text-sm leading-6 text-zinc-300">
-              Los participantes deben ser mayores de 18 a&ntilde;os. El
-              domicilio registrado se utilizar&aacute; como referencia para
-              coordinar la entrega de un premio y podr&aacute; confirmarse antes
-              del env&iacute;o.
+      <main className="px-activa-16 py-activa-40 sm:px-activa-24 sm:py-activa-48 lg:px-activa-40 lg:py-activa-64">
+        <div className="mx-auto max-w-4xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <Badge variant="brand">Registro en ACTIVA</Badge>
+            <h1 className="mt-activa-16 font-display text-3xl font-semibold leading-tight text-text-primary sm:text-4xl">
+              Creá tu cuenta
+            </h1>
+            <p className="mt-activa-12 text-base leading-7 text-text-secondary sm:text-lg">
+              Elegí cómo vas a usar ACTIVA y completá la información necesaria
+              para comenzar.
             </p>
           </div>
-        </div>
 
-        <div>
-          <div className="mb-5 flex justify-center lg:hidden">
-            <Link
-              href="/"
-              className="inline-flex rounded-2xl border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 hover:bg-white/10"
-            >
-              &larr; Volver al inicio
-            </Link>
-          </div>
+          <Card className="mt-activa-32 sm:mt-activa-40">
+            <CardContent className="p-activa-20 sm:p-activa-32">
+              <form onSubmit={handleSubmit} className="space-y-activa-32">
+                <fieldset>
+                  <legend className="font-display text-lg font-semibold text-text-primary">
+                    ¿Cómo querés usar ACTIVA?
+                  </legend>
+                  <p className="mt-activa-4 text-sm leading-6 text-text-secondary">
+                    Podés elegir una cuenta personal o una cuenta para tu
+                    comercio.
+                  </p>
 
-          <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 shadow-2xl shadow-black/40 sm:p-8 md:p-10">
-            <div className="mb-8 text-center">
-              <div className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-amber-400 text-3xl shadow-xl">
-                {'\u{1F3AF}'}
-              </div>
+                  <div className="mt-activa-16 grid gap-activa-12 sm:grid-cols-2">
+                    {roles.map((role) => {
+                      const selected = form.role === role.value;
 
-              <p className="mt-5 text-xs font-black uppercase tracking-[0.3em] text-amber-300">
-                Crear cuenta
-              </p>
-
-              <h2 className="mt-3 text-3xl font-black text-white">
-                Sumate a Sortealo
-              </h2>
-
-              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-500">
-                Eleg&iacute; el tipo de cuenta y complet&aacute; los datos
-                solicitados.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="mb-3 block text-xs font-black uppercase tracking-[0.2em] text-zinc-500">
-                  Tipo de cuenta
-                </label>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {roles.map((role) => (
-                    <button
-                      key={role.value}
-                      type="button"
-                      onClick={() =>
-                        setForm((actual) => ({
-                          ...actual,
-                          role: role.value,
-                        }))
-                      }
-                      className={`rounded-2xl border p-4 text-left transition ${
-                        form.role === role.value
-                          ? 'border-amber-400 bg-amber-400 text-black'
-                          : 'border-zinc-800 bg-black text-white hover:border-amber-400/60'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 text-base font-black">
-                        <span>{role.icon}</span>
-                        <span>{role.label}</span>
-                      </div>
-
-                      <div
-                        className={`mt-1 text-xs font-semibold ${
-                          form.role === role.value
-                            ? 'text-black/60'
-                            : 'text-zinc-500'
-                        }`}
-                      >
-                        {role.desc}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {form.role === 'participante' ? (
-                <>
-                  <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
-                    <p className="text-sm font-black text-white">
-                      Datos de identidad
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-zinc-500">
-                      Se utilizan para verificar la participaci&oacute;n y
-                      coordinar una eventual entrega. No se muestran
-                      p&uacute;blicamente.
-                    </p>
+                      return (
+                        <button
+                          key={role.value}
+                          type="button"
+                          aria-pressed={selected}
+                          onClick={() =>
+                            setForm((actual) => ({
+                              ...actual,
+                              role: role.value,
+                            }))
+                          }
+                          className={`min-h-32 rounded-activa-md border p-activa-20 text-left transition-[background-color,border-color,box-shadow] duration-fast ease-activa focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 ${
+                            selected
+                              ? 'border-action-secondary bg-activa-teal-soft shadow-activa-sm'
+                              : 'border-border-default bg-background-surface hover:border-border-strong hover:bg-background-surface-muted'
+                          }`}
+                        >
+                          <span className="flex items-center gap-activa-12">
+                            <span
+                              aria-hidden="true"
+                              className={`flex size-10 shrink-0 items-center justify-center rounded-activa-full ${
+                                selected
+                                  ? 'bg-action-secondary text-action-secondary-text'
+                                  : 'bg-background-surface-muted text-action-secondary'
+                              }`}
+                            >
+                              <ActivaIcon name={role.icon} size={20} />
+                            </span>
+                            <span className="font-display text-base font-semibold text-text-primary">
+                              {role.title}
+                            </span>
+                          </span>
+                          <span className="mt-activa-12 block text-sm leading-6 text-text-secondary">
+                            {role.description}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
+                </fieldset>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div>
-                      <label className={labelClass}>Nombre</label>
-                      <input
-                        className={inputClass}
+                {form.role === 'participante' ? (
+                  <section aria-labelledby="identity-title">
+                    <div className="flex items-start gap-activa-12">
+                      <span
+                        aria-hidden="true"
+                        className="flex size-10 shrink-0 items-center justify-center rounded-activa-full bg-action-primary/15 text-action-primary-text"
+                      >
+                        <ActivaIcon name="id-card" size={20} />
+                      </span>
+                      <div>
+                        <h2
+                          id="identity-title"
+                          className="font-display text-lg font-semibold text-text-primary"
+                        >
+                          Datos de identidad
+                        </h2>
+                        <p className="mt-activa-4 text-sm leading-6 text-text-secondary">
+                          Esta información permite identificar tu cuenta y
+                          coordinar las etapas que lo requieran.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-activa-20 grid gap-activa-20 sm:grid-cols-2">
+                      <Input
+                        label="Nombre"
                         placeholder="Juan"
                         required
                         autoComplete="given-name"
@@ -270,13 +275,9 @@ export default function RegistroPage() {
                           }))
                         }
                       />
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>Apellido</label>
-                      <input
-                        className={inputClass}
-                        placeholder={'P\u00e9rez'}
+                      <Input
+                        label="Apellido"
+                        placeholder="Pérez"
                         required
                         autoComplete="family-name"
                         maxLength={120}
@@ -288,20 +289,13 @@ export default function RegistroPage() {
                           }))
                         }
                       />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div>
-                      <label className={labelClass}>
-                        Fecha de nacimiento
-                      </label>
-                      <input
+                      <Input
+                        label="Fecha de nacimiento"
                         type="date"
-                        className={inputClass}
                         required
                         min="1900-01-01"
                         max={fechaMaxima}
+                        helperText="Debés tener 18 años o más."
                         value={form.fechaNacimiento}
                         onChange={(event) =>
                           setForm((actual) => ({
@@ -310,15 +304,8 @@ export default function RegistroPage() {
                           }))
                         }
                       />
-                      <p className="mt-2 text-xs font-semibold text-zinc-500">
-                        Deb&eacute;s tener 18 a&ntilde;os o m&aacute;s.
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>DNI</label>
-                      <input
-                        className={inputClass}
+                      <Input
+                        label="DNI"
                         placeholder="30123456"
                         required
                         inputMode="numeric"
@@ -336,44 +323,93 @@ export default function RegistroPage() {
                           }))
                         }
                       />
+                      <div className="sm:col-span-2">
+                        <Input
+                          label="Nacionalidad"
+                          placeholder="Argentina"
+                          required
+                          autoComplete="country-name"
+                          maxLength={80}
+                          value={form.nacionalidad}
+                          onChange={(event) =>
+                            setForm((actual) => ({
+                              ...actual,
+                              nacionalidad: event.target.value,
+                            }))
+                          }
+                        />
+                      </div>
                     </div>
-                  </div>
+                  </section>
+                ) : (
+                  <section aria-labelledby="commerce-title">
+                    <div className="flex items-start gap-activa-12">
+                      <span
+                        aria-hidden="true"
+                        className="flex size-10 shrink-0 items-center justify-center rounded-activa-full bg-action-primary/15 text-action-primary-text"
+                      >
+                        <ActivaIcon name="store" size={20} />
+                      </span>
+                      <div>
+                        <h2
+                          id="commerce-title"
+                          className="font-display text-lg font-semibold text-text-primary"
+                        >
+                          Datos del comercio
+                        </h2>
+                        <p className="mt-activa-4 text-sm leading-6 text-text-secondary">
+                          Ingresá la información principal con la que vas a
+                          operar en ACTIVA.
+                        </p>
+                      </div>
+                    </div>
 
-                  <div>
-                    <label className={labelClass}>Nacionalidad</label>
-                    <input
-                      className={inputClass}
-                      placeholder="Argentina"
-                      required
-                      autoComplete="country-name"
-                      maxLength={80}
-                      value={form.nacionalidad}
-                      onChange={(event) =>
-                        setForm((actual) => ({
-                          ...actual,
-                          nacionalidad: event.target.value,
-                        }))
-                      }
-                    />
-                  </div>
+                    <div className="mt-activa-20">
+                      <Input
+                        label="Razón social"
+                        placeholder="Mi Comercio SRL"
+                        required
+                        autoComplete="organization"
+                        maxLength={120}
+                        value={form.nombre}
+                        onChange={(event) =>
+                          setForm((actual) => ({
+                            ...actual,
+                            nombre: event.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                  </section>
+                )}
 
-                  <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
-                    <p className="text-sm font-black text-white">
-                      Domicilio para coordinar entregas
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-zinc-500">
-                      Guardaremos este domicilio como referencia. Si
-                      result&aacute;s ganador, se confirmar&aacute; antes de
-                      realizar cualquier env&iacute;o.
-                    </p>
-                  </div>
+                {form.role === 'participante' ? (
+                  <section aria-labelledby="address-title">
+                    <div className="flex items-start gap-activa-12">
+                      <span
+                        aria-hidden="true"
+                        className="flex size-10 shrink-0 items-center justify-center rounded-activa-full bg-action-primary/15 text-action-primary-text"
+                      >
+                        <ActivaIcon name="location" size={20} />
+                      </span>
+                      <div>
+                        <h2
+                          id="address-title"
+                          className="font-display text-lg font-semibold text-text-primary"
+                        >
+                          Domicilio
+                        </h2>
+                        <p className="mt-activa-4 text-sm leading-6 text-text-secondary">
+                          Se guarda como referencia para coordinar entregas y
+                          puede confirmarse antes de cualquier envío.
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div>
-                      <label className={labelClass}>Provincia</label>
-                      <input
-                        className={inputClass}
-                        placeholder={'Entre R\u00edos'}
+                    <div className="mt-activa-20 grid gap-activa-20 sm:grid-cols-2">
+                      <Input
+                        label="Provincia"
+                        placeholder="Entre Ríos"
                         required
                         autoComplete="address-level1"
                         maxLength={120}
@@ -385,13 +421,9 @@ export default function RegistroPage() {
                           }))
                         }
                       />
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>Ciudad</label>
-                      <input
-                        className={inputClass}
-                        placeholder={'Paran\u00e1'}
+                      <Input
+                        label="Ciudad"
+                        placeholder="Paraná"
                         required
                         autoComplete="address-level2"
                         maxLength={120}
@@ -403,14 +435,8 @@ export default function RegistroPage() {
                           }))
                         }
                       />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-5 sm:grid-cols-[1fr_180px]">
-                    <div>
-                      <label className={labelClass}>Direcci&oacute;n</label>
-                      <input
-                        className={inputClass}
+                      <Input
+                        label="Dirección"
                         placeholder="Urquiza 1234, piso 2, departamento A"
                         required
                         autoComplete="street-address"
@@ -423,12 +449,8 @@ export default function RegistroPage() {
                           }))
                         }
                       />
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>C&oacute;digo postal</label>
-                      <input
-                        className={inputClass}
+                      <Input
+                        label="Código postal"
                         placeholder="3100"
                         required
                         autoComplete="postal-code"
@@ -442,180 +464,187 @@ export default function RegistroPage() {
                         }
                       />
                     </div>
-                  </div>
-                </>
-              ) : (
-                <div>
-                  <label className={labelClass}>Raz&oacute;n social</label>
-                  <input
-                    className={inputClass}
-                    placeholder="Mi Comercio SRL"
-                    required
-                    autoComplete="organization"
-                    maxLength={120}
-                    value={form.nombre}
-                    onChange={(event) =>
-                      setForm((actual) => ({
-                        ...actual,
-                        nombre: event.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              )}
+                  </section>
+                ) : null}
 
-              <div>
-                <label className={labelClass}>Email</label>
-                <input
-                  type="email"
-                  className={inputClass}
-                  placeholder="tu@email.com"
-                  required
-                  autoComplete="email"
-                  value={form.email}
-                  onChange={(event) =>
-                    setForm((actual) => ({
-                      ...actual,
-                      email: event.target.value,
-                    }))
-                  }
-                />
-              </div>
-
-              <div>
-                <label className={labelClass}>Celular</label>
-
-                <div className="flex overflow-hidden rounded-2xl border border-zinc-800 bg-black focus-within:border-amber-400">
-                  <div className="flex items-center border-r border-zinc-800 bg-amber-400 px-4 text-base font-black text-black">
-                    +54
+                <section aria-labelledby="access-title">
+                  <div className="flex items-start gap-activa-12">
+                    <span
+                      aria-hidden="true"
+                      className="flex size-10 shrink-0 items-center justify-center rounded-activa-full bg-action-primary/15 text-action-primary-text"
+                    >
+                      <ActivaIcon name="lock" size={20} />
+                    </span>
+                    <div>
+                      <h2
+                        id="access-title"
+                        className="font-display text-lg font-semibold text-text-primary"
+                      >
+                        Contacto y acceso
+                      </h2>
+                      <p className="mt-activa-4 text-sm leading-6 text-text-secondary">
+                        Usaremos estos datos para identificar tu acceso y
+                        mantenerte al tanto de tu actividad.
+                      </p>
+                    </div>
                   </div>
 
-                  <input
-                    type="tel"
-                    className="w-full bg-black px-5 py-4 text-base font-bold text-white outline-none placeholder:text-zinc-600"
-                    placeholder="9 341 1234567"
-                    required
-                    autoComplete="tel"
-                    maxLength={25}
-                    value={telefonoLocal}
-                    onChange={(event) =>
-                      handleTelefonoChange(event.target.value)
-                    }
-                  />
-                </div>
-
-                <p className="mt-2 text-xs font-semibold leading-5 text-zinc-500">
-                  Ingres&aacute; 9 + caracter&iacute;stica + n&uacute;mero.
-                  Ejemplo: 9 341 1234567.
-                </p>
-              </div>
-
-              <div>
-                <label className={labelClass}>Contrase&ntilde;a</label>
-
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    className={`${inputClass} pr-28`}
-                    placeholder={'M\u00ednimo 8 caracteres'}
-                    required
-                    minLength={8}
-                    maxLength={72}
-                    autoComplete="new-password"
-                    value={form.password}
-                    onChange={(event) =>
-                      setForm((actual) => ({
-                        ...actual,
-                        password: event.target.value,
-                      }))
-                    }
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((visible) => !visible)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-black text-amber-300"
-                  >
-                    {showPassword ? 'Ocultar' : 'Mostrar'}
-                  </button>
-                </div>
-              </div>
-
-              {form.role === 'participante' && (
-                <div className="space-y-4 rounded-3xl border border-zinc-800 bg-black p-5">
-                  <label className="flex cursor-pointer items-start gap-3">
-                    <input
-                      type="checkbox"
+                  <div className="mt-activa-20 grid gap-activa-20 sm:grid-cols-2">
+                    <Input
+                      label="Email"
+                      type="email"
+                      placeholder="tu@email.com"
                       required
-                      checked={form.mayor18Declarado}
+                      autoComplete="email"
+                      leftIcon={<ActivaIcon name="mail" size={20} />}
+                      value={form.email}
                       onChange={(event) =>
                         setForm((actual) => ({
                           ...actual,
-                          mayor18Declarado: event.target.checked,
+                          email: event.target.value,
                         }))
                       }
-                      className="mt-1 h-5 w-5 accent-amber-400"
                     />
-                    <span className="text-sm font-semibold leading-6 text-zinc-300">
-                      Declaro que tengo 18 a&ntilde;os o m&aacute;s y que los
-                      datos ingresados son verdaderos.
-                    </span>
-                  </label>
-
-                  <label className="flex cursor-pointer items-start gap-3">
-                    <input
-                      type="checkbox"
+                    <Input
+                      label="Celular"
+                      type="tel"
+                      className="pl-16"
+                      placeholder="9 341 1234567"
                       required
-                      checked={form.terminosAceptados}
-                      onChange={(event) =>
-                        setForm((actual) => ({
-                          ...actual,
-                          terminosAceptados: event.target.checked,
-                        }))
+                      autoComplete="tel"
+                      maxLength={25}
+                      leftIcon={
+                        <span className="font-semibold text-text-primary">
+                          +54
+                        </span>
                       }
-                      className="mt-1 h-5 w-5 accent-amber-400"
+                      helperText="Ingresá 9 + característica + número. Ejemplo: 9 341 1234567."
+                      value={telefonoLocal}
+                      onChange={(event) =>
+                        handleTelefonoChange(event.target.value)
+                      }
                     />
-                    <span className="text-sm font-semibold leading-6 text-zinc-300">
-                      Acepto los{' '}
-                      <Link
-                        href="/terminos"
-                        target="_blank"
-                        className="font-black text-amber-300 hover:underline"
+                    <div className="relative sm:col-span-2">
+                      <Input
+                        label="Contraseña"
+                        type={showPassword ? 'text' : 'password'}
+                        className="pr-14"
+                        placeholder="Mínimo 8 caracteres"
+                        required
+                        minLength={8}
+                        maxLength={72}
+                        autoComplete="new-password"
+                        helperText="Usá entre 8 y 72 caracteres."
+                        leftIcon={<ActivaIcon name="lock" size={20} />}
+                        value={form.password}
+                        onChange={(event) =>
+                          setForm((actual) => ({
+                            ...actual,
+                            password: event.target.value,
+                          }))
+                        }
+                      />
+                      <button
+                        type="button"
+                        aria-label={
+                          showPassword
+                            ? 'Ocultar contraseña'
+                            : 'Mostrar contraseña'
+                        }
+                        aria-pressed={showPassword}
+                        onClick={() =>
+                          setShowPassword((visible) => !visible)
+                        }
+                        className="absolute right-1 top-7 flex size-10 items-center justify-center rounded-activa-sm text-text-secondary transition-colors duration-fast ease-activa hover:bg-background-surface-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
                       >
-                        T&eacute;rminos y condiciones
-                      </Link>{' '}
-                      y la{' '}
-                      <Link
-                        href="/privacidad"
-                        target="_blank"
-                        className="font-black text-amber-300 hover:underline"
-                      >
-                        Pol&iacute;tica de privacidad
-                      </Link>
-                      .
-                    </span>
-                  </label>
-                </div>
-              )}
+                        <ActivaIcon
+                          name={showPassword ? 'eye-off' : 'eye'}
+                          size={20}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </section>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-2xl bg-amber-400 px-6 py-4 text-base font-black text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {loading ? 'Creando cuenta...' : 'Crear cuenta \u2192'}
-              </button>
-            </form>
+                {form.role === 'participante' ? (
+                  <Card variant="muted">
+                    <CardContent className="space-y-activa-16 p-activa-20">
+                      <Checkbox
+                        required
+                        checked={form.mayor18Declarado}
+                        onChange={(event) =>
+                          setForm((actual) => ({
+                            ...actual,
+                            mayor18Declarado: event.target.checked,
+                          }))
+                        }
+                        label="Declaro que tengo 18 años o más y que los datos ingresados son verdaderos."
+                      />
 
-            <p className="mt-7 text-center text-sm font-semibold text-zinc-500">
-              &iquest;Ya ten&eacute;s cuenta?{' '}
-              <Link href="/login" className="font-black text-amber-300">
-                Ingres&aacute;
-              </Link>
-            </p>
-          </div>
+                      <label className="flex min-h-10 cursor-pointer items-start gap-activa-12">
+                        <input
+                          type="checkbox"
+                          required
+                          checked={form.terminosAceptados}
+                          onChange={(event) =>
+                            setForm((actual) => ({
+                              ...actual,
+                              terminosAceptados: event.target.checked,
+                            }))
+                          }
+                          className="mt-0.5 size-5 shrink-0 rounded-activa-xs border-border-strong text-action-secondary accent-action-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+                        />
+                        <span className="text-sm font-semibold leading-6 text-text-primary">
+                          Acepto los{' '}
+                          <Link
+                            href="/terminos"
+                            target="_blank"
+                            className="rounded-activa-xs text-text-link underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                          >
+                            Términos y condiciones
+                          </Link>{' '}
+                          y la{' '}
+                          <Link
+                            href="/privacidad"
+                            target="_blank"
+                            className="rounded-activa-xs text-text-link underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                          >
+                            Política de privacidad
+                          </Link>
+                          .
+                        </span>
+                      </label>
+                    </CardContent>
+                  </Card>
+                ) : null}
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  isLoading={loading}
+                  loadingText="Creando cuenta"
+                  className="w-full"
+                  rightIcon={<ActivaIcon name="arrow-right" size={20} />}
+                >
+                  Crear cuenta
+                </Button>
+              </form>
+
+              <p className="mt-activa-24 text-center text-sm text-text-secondary">
+                ¿Ya tenés cuenta?{' '}
+                <Link
+                  href="/login"
+                  className="rounded-activa-xs font-semibold text-text-link underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                >
+                  Ingresá
+                </Link>
+              </p>
+            </CardContent>
+          </Card>
         </div>
-      </section>
-    </main>
+      </main>
+
+      <PublicFooter />
+    </div>
   );
 }
