@@ -14,3 +14,4 @@ export { PageHeader } from './PageHeader';
 export type { PageHeaderBreadcrumb, PageHeaderProps } from './PageHeader';
 export { PublicHeader } from './PublicHeader';
 export type { PublicHeaderItem, PublicHeaderProps, PublicHeaderVariant } from './PublicHeader';
+export { PublicFooter } from './PublicFooter';

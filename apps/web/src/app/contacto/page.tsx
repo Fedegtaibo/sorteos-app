@@ -1,149 +1,117 @@
 import Link from 'next/link';
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-[2rem] border border-white/10 bg-zinc-950 p-6 md:p-8">
-      <h2 className="text-2xl font-black text-white">{title}</h2>
-      <div className="mt-4 space-y-4 text-sm leading-7 text-zinc-400">
-        {children}
-      </div>
-    </section>
-  );
-}
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader, PublicFooter, PublicHeader } from '@/components/layout';
+import { Alert, Card, CardContent } from '@/components/ui';
+
+const publicNavigation = [
+  { href: '/', label: 'Inicio' },
+  { href: '/ayuda', label: 'Ayuda' },
+  { href: '/contacto', label: 'Contacto', active: true },
+  { href: '/fundadores', label: 'Fundadores' },
+  { href: '/login', label: 'Ingresar' },
+] as const;
+
+const usefulLinks = [
+  {
+    href: '/ayuda',
+    label: 'Consultar Ayuda',
+    description: 'Revisá información sobre cuentas, campañas, participaciones, pagos y entregas.',
+    icon: 'help' as const,
+  },
+  {
+    href: '/login',
+    label: 'Ingresar a ACTIVA',
+    description: 'Consultá desde tu cuenta las participaciones, comprobantes y estados disponibles.',
+    icon: 'profile' as const,
+  },
+  {
+    href: '/registro',
+    label: 'Crear cuenta',
+    description: 'Registrate para participar o comenzar la experiencia de tu comercio.',
+    icon: 'plus' as const,
+  },
+] as const;
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-black px-4 py-10 text-white">
-      <div className="mx-auto max-w-4xl">
-        <Link
-          href="/"
-          className="inline-flex rounded-2xl border border-white/10 px-4 py-2 text-sm font-black text-zinc-300 hover:bg-white/10"
+    <div className="min-h-screen bg-background-page text-text-primary">
+      <PublicHeader
+        navigation={publicNavigation}
+        variant="light"
+        logoHref="/"
+        actions={(
+          <Link
+            href="/registro"
+            className="inline-flex h-11 items-center justify-center rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+          >
+            Crear cuenta
+          </Link>
+        )}
+      />
+
+      <main className="mx-auto max-w-7xl px-activa-16 py-activa-48 sm:px-activa-24 lg:px-activa-40 lg:py-activa-64">
+        <PageHeader
+          eyebrow="Contacto"
+          title="Estamos para ayudarte"
+          description="Consultas sobre el uso de ACTIVA, cuentas, campañas y experiencia comercial."
+        />
+
+        <Alert
+          variant="brand"
+          title="Canal de contacto durante la etapa inicial"
+          icon={<ActivaIcon name="mail" size={18} />}
+          className="mt-activa-40"
         >
-          ← Volver a Sortealo
-        </Link>
+          Si recibiste una invitación para usar ACTIVA, podés responder por el mismo canal por el
+          que fuiste contactado. Todavía no hay un email, teléfono o formulario público confirmado.
+        </Alert>
 
-        <div className="mt-8 rounded-[2.5rem] border border-amber-400/20 bg-amber-400/10 p-7 md:p-10">
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-300">
-            Soporte y consultas
-          </p>
+        <section aria-labelledby="before-contact-title" className="mt-activa-32">
+          <Card variant="surface">
+            <CardContent className="p-activa-24 sm:p-activa-32">
+              <span className="flex size-12 items-center justify-center rounded-activa-md bg-activa-teal-soft text-action-secondary">
+                <ActivaIcon name="file" size={24} />
+              </span>
+              <h2 id="before-contact-title" className="mt-activa-20 font-display text-xl font-semibold">
+                Información útil para revisar una consulta
+              </h2>
+              <p className="mt-activa-12 max-w-3xl text-sm leading-7 text-text-secondary">
+                Cuando utilices un canal habilitado, incluí el email de tu cuenta, la campaña y el
+                comercio relacionados, la fecha aproximada, cualquier comprobante disponible y una
+                descripción clara de lo ocurrido. No compartas contraseñas ni datos innecesarios.
+              </p>
+            </CardContent>
+          </Card>
+        </section>
 
-          <h1 className="mt-4 text-3xl font-black leading-tight text-white md:text-4xl">
-            Contacto
-          </h1>
+        <section aria-labelledby="useful-links-title" className="mt-activa-40">
+          <h2 id="useful-links-title" className="font-display text-2xl font-semibold">
+            Enlaces útiles
+          </h2>
+          <div className="mt-activa-20 grid gap-activa-20 md:grid-cols-3">
+            {usefulLinks.map((item) => (
+              <Card key={item.href} variant="surface" className="h-full">
+                <CardContent className="flex h-full flex-col p-activa-24">
+                  <ActivaIcon name={item.icon} size={24} className="text-action-secondary" />
+                  <h3 className="mt-activa-16 font-display text-lg font-semibold">{item.label}</h3>
+                  <p className="mt-activa-8 flex-1 text-sm leading-6 text-text-secondary">
+                    {item.description}
+                  </p>
+                  <Link
+                    href={item.href}
+                    className="mt-activa-20 inline-flex min-h-11 items-center font-semibold text-text-link underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                  >
+                    {item.label}
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      </main>
 
-          <p className="mt-5 text-base leading-8 text-zinc-300">
-            Usá esta página para saber qué información enviar cuando necesites ayuda con tu cuenta,
-            una participación, un pago, un sorteo, un comercio o la entrega de un premio.
-          </p>
-
-          <p className="mt-5 text-xs font-semibold text-zinc-500">
-            Última actualización: julio de 2026
-          </p>
-        </div>
-
-        <div className="mt-8 space-y-5">
-          <Section title="1. Soporte para participantes">
-            <p>
-              Si tenés una consulta sobre tu cuenta, una participación, un número comprado o un
-              comprobante, incluí siempre la mayor cantidad de información posible para poder revisar
-              el caso.
-            </p>
-
-            <p>
-              Es recomendable indicar el email con el que te registraste, el nombre del sorteo, el
-              comercio organizador, los números comprados, la fecha aproximada del pago y una
-              descripción clara de lo ocurrido.
-            </p>
-          </Section>
-
-          <Section title="2. Problemas con pagos">
-            <p>
-              Si tu pago figura pendiente, rechazado, cancelado o no aparece reflejado en tu cuenta,
-              primero revisá la sección de participaciones dentro de tu dashboard.
-            </p>
-
-            <p>
-              Si el problema continúa, enviá el detalle de la operación, el sorteo relacionado, el
-              medio de pago utilizado y cualquier comprobante disponible para facilitar la revisión.
-            </p>
-          </Section>
-
-          <Section title="3. Reclamos sobre sorteos o premios">
-            <p>
-              Si querés reportar un problema con un sorteo, con el resultado, con un comercio o con
-              la entrega de un premio, describí el caso con claridad e incluí toda la información que
-              tengas disponible.
-            </p>
-
-            <p>
-              Sortealo podrá revisar los datos registrados dentro de la plataforma, solicitar
-              información adicional al participante o al comercio y tomar medidas razonables según el
-              caso.
-            </p>
-          </Section>
-
-          <Section title="4. Consultas de comercios">
-            <p>
-              Si representás un comercio, marca o emprendimiento y querés usar Sortealo para publicar
-              sorteos online, podés contactarnos para recibir acompañamiento inicial.
-            </p>
-
-            <p>
-              Para avanzar más rápido, indicá el nombre del comercio, rubro, ciudad, redes sociales,
-              tipo de premio que querés sortear y una estimación del valor de cada número.
-            </p>
-          </Section>
-
-          <Section title="5. Información útil para enviar">
-            <p>
-              Para ayudarnos a responder mejor, cuando hagas una consulta intentá incluir:
-            </p>
-
-            <ul className="list-disc space-y-2 pl-5">
-              <li>Email de tu cuenta.</li>
-              <li>Nombre del sorteo.</li>
-              <li>Comercio organizador.</li>
-              <li>Números seleccionados o comprados.</li>
-              <li>Fecha aproximada de la operación.</li>
-              <li>Comprobante o captura si corresponde.</li>
-              <li>Descripción clara del problema.</li>
-            </ul>
-          </Section>
-
-          <Section title="6. Canal de contacto">
-            <p>
-              Durante la etapa inicial, Sortealo podrá informar el canal de contacto de forma directa
-              a los usuarios y comercios que estén utilizando la plataforma.
-            </p>
-
-            <p>
-              Si recibiste una invitación para usar Sortealo, podés responder por el mismo canal por
-              el que fuiste contactado.
-            </p>
-
-            <p>
-              Más adelante esta página podrá incluir un formulario de soporte, email público o
-              WhatsApp oficial de atención.
-            </p>
-          </Section>
-
-          <Section title="7. Antes de escribirnos">
-            <p>
-              También podés revisar la página de ayuda, donde respondemos las dudas más comunes sobre
-              participación, pagos, números reservados, comercios, premios y reclamos.
-            </p>
-
-            <div className="pt-2">
-              <Link
-                href="/ayuda"
-                className="inline-flex rounded-2xl bg-amber-300 px-5 py-3 text-sm font-black text-black hover:bg-amber-200"
-              >
-                Ir a ayuda
-              </Link>
-            </div>
-          </Section>
-        </div>
-      </div>
-    </main>
+      <PublicFooter />
+    </div>
   );
 }
