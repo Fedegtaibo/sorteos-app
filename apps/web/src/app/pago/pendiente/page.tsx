@@ -1,67 +1,141 @@
 import Link from 'next/link';
 
+import { ActivaIcon } from '@/components/icons';
+import { PublicFooter, PublicHeader } from '@/components/layout';
+import {
+  Alert,
+  Badge,
+  Card,
+  CardContent,
+  Divider,
+  Spinner,
+} from '@/components/ui';
+
+const navigation = [
+  { href: '/', label: 'Inicio' },
+  { href: '/ayuda', label: 'Ayuda' },
+  { href: '/contacto', label: 'Contacto' },
+  { href: '/fundadores', label: 'Fundadores' },
+  { href: '/login', label: 'Ingresar' },
+] as const;
+
+const primaryLinkClass =
+  'inline-flex min-h-11 items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2';
+
+const secondaryLinkClass =
+  'inline-flex min-h-11 items-center justify-center rounded-activa-sm border border-border-strong bg-background-surface px-activa-16 text-sm font-semibold text-text-primary transition-colors duration-fast ease-activa hover:bg-background-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2';
+
 export default function PagoPendientePage() {
   return (
-    <main className="min-h-screen bg-black px-4 py-10 text-white">
-      <div className="mx-auto flex min-h-[80vh] max-w-3xl items-center justify-center">
-        <section className="w-full rounded-[2.5rem] border border-amber-400/20 bg-zinc-950 p-7 text-center md:p-10">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-400/10 text-4xl">
-            ⏳
-          </div>
+    <div className="min-h-screen bg-background-page text-text-primary">
+      <PublicHeader
+        variant="light"
+        logoHref="/"
+        navigation={navigation}
+        actions={
+          <Link href="/registro" className={primaryLinkClass}>
+            Crear cuenta
+          </Link>
+        }
+      />
 
-          <p className="mt-6 text-xs font-black uppercase tracking-[0.25em] text-amber-300">
-            Pago pendiente
-          </p>
+      <main className="px-activa-16 py-activa-48 sm:px-activa-24 sm:py-activa-64 lg:px-activa-40">
+        <section className="mx-auto max-w-2xl">
+          <Card>
+            <CardContent className="flex flex-col items-center p-activa-24 text-center sm:p-activa-40">
+              <Badge variant="warning">Pago pendiente</Badge>
 
-          <h1 className="mt-4 text-3xl font-black leading-tight md:text-5xl">
-            Tu pago todavía se está procesando.
-          </h1>
+              <span className="mt-activa-24 flex size-16 items-center justify-center rounded-activa-full bg-status-warning/15 text-action-secondary">
+                <Spinner
+                  size="lg"
+                  variant="brand"
+                  decorative
+                />
+              </span>
 
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-zinc-300">
-            MercadoPago aún no confirmó la operación. Cuando el pago sea aprobado, Sortealo
-            registrará automáticamente tu participación y asociará los números a tu cuenta.
-          </p>
+              <h1 className="mt-activa-20 font-display text-3xl font-semibold leading-tight text-text-primary sm:text-4xl">
+                Tu pago todavía se está procesando
+              </h1>
 
-          <div className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.03] p-5 text-left">
-            <h2 className="text-lg font-black text-white">Qué hacer ahora</h2>
+              <Alert
+                variant="information"
+                className="mt-activa-20 w-full text-left"
+                icon={<ActivaIcon name="pending" size={16} />}
+              >
+                <p className="leading-6">
+                  Mercado Pago aún no confirmó el resultado definitivo de la
+                  operación.
+                </p>
+                <p className="mt-activa-8 font-semibold">
+                  Esta pantalla no se actualiza automáticamente.
+                </p>
+              </Alert>
 
-            <ul className="mt-4 space-y-3 text-sm leading-7 text-zinc-400">
-              <li>• Revisá Mis participaciones para ver si el pago ya impactó.</li>
-              <li>• Si todavía no aparece, esperá unos minutos y actualizá la página.</li>
-              <li>• No vuelvas a pagar el mismo sorteo sin revisar primero tu cuenta.</li>
-              <li>• Si el estado no cambia después de un tiempo, contactá soporte.</li>
-            </ul>
-          </div>
+              <div className="mt-activa-24 w-full rounded-activa-md border border-border-default bg-background-surface-muted p-activa-20 text-left">
+                <h2 className="font-display text-lg font-semibold text-text-primary">
+                  Qué hacer ahora
+                </h2>
+                <ul className="mt-activa-12 space-y-activa-12 text-sm leading-6 text-text-secondary">
+                  <li className="flex gap-activa-8">
+                    <ActivaIcon
+                      name="pending"
+                      size={16}
+                      className="mt-1 text-status-warning"
+                    />
+                    <span>
+                      La confirmación puede demorar según el medio de pago.
+                    </span>
+                  </li>
+                  <li className="flex gap-activa-8">
+                    <ActivaIcon
+                      name="pending"
+                      size={16}
+                      className="mt-1 text-status-warning"
+                    />
+                    <span>
+                      Revisá Mis participaciones más adelante para comprobar si
+                      la operación quedó registrada.
+                    </span>
+                  </li>
+                  <li className="flex gap-activa-8">
+                    <ActivaIcon
+                      name="pending"
+                      size={16}
+                      className="mt-1 text-status-warning"
+                    />
+                    <span>
+                      Contactá soporte si la demora es prolongada.
+                    </span>
+                  </li>
+                </ul>
+              </div>
 
-          <div className="mt-8 grid gap-3 md:grid-cols-3">
-            <Link
-              href="/dashboard/participaciones"
-              className="rounded-2xl bg-amber-300 px-5 py-3 text-sm font-black text-black hover:bg-amber-200"
-            >
-              Ver mis participaciones
-            </Link>
+              <Divider className="my-activa-24" />
 
-            <Link
-              href="/contacto"
-              className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-black text-zinc-200 hover:bg-white/10"
-            >
-              Contactar soporte
-            </Link>
+              <div className="grid w-full gap-activa-8 sm:grid-cols-3">
+                <Link
+                  href="/dashboard/participaciones"
+                  className={primaryLinkClass}
+                >
+                  Ver mis participaciones
+                </Link>
+                <Link href="/contacto" className={secondaryLinkClass}>
+                  Contactar soporte
+                </Link>
+                <Link href="/" className={secondaryLinkClass}>
+                  Volver al inicio
+                </Link>
+              </div>
 
-            <Link
-              href="/"
-              className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-black text-zinc-200 hover:bg-white/10"
-            >
-              Volver al inicio
-            </Link>
-          </div>
-
-          <p className="mt-6 text-xs leading-6 text-zinc-500">
-            Algunos medios de pago pueden demorar más en confirmarse. La participación queda activa
-            recién cuando el pago figure aprobado.
-          </p>
+              <p className="mt-activa-20 text-sm font-semibold leading-6 text-text-secondary">
+                No vuelvas a pagar mientras el resultado siga pendiente.
+              </p>
+            </CardContent>
+          </Card>
         </section>
-      </div>
-    </main>
+      </main>
+
+      <PublicFooter />
+    </div>
   );
 }
