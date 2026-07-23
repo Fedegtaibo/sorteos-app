@@ -1,11 +1,22 @@
 'use client';
 
-import '../redesign/styles.css';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+
+import { ActivaIcon } from '@/components/icons';
+import { PublicFooter, PublicHeader } from '@/components/layout';
+import { Button, Card, CardContent, Divider, Input } from '@/components/ui';
+
+const publicNavigation = [
+  { href: '/', label: 'Inicio' },
+  { href: '/ayuda', label: 'Ayuda' },
+  { href: '/contacto', label: 'Contacto' },
+  { href: '/fundadores', label: 'Fundadores' },
+  { href: '/login', label: 'Ingresar', active: true },
+] as const;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,129 +47,115 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="phone">
-      <section className="content" style={{ minWidth: 'auto', paddingTop: 24, paddingBottom: 48 }}>
-        <div style={{ maxWidth: 560, margin: '0 auto' }}>
+    <div className="min-h-screen bg-background-page text-text-primary">
+      <PublicHeader
+        navigation={publicNavigation}
+        variant="light"
+        logoHref="/"
+        actions={(
           <Link
-            href="/"
-            className="back"
-            style={{
-              display: 'inline-flex',
-              marginBottom: 10,
-              textDecoration: 'none',
-              padding: '10px 16px',
-              fontSize: 15,
-            }}
+            href="/registro"
+            className="inline-flex h-11 items-center justify-center rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
           >
-            ← Volver al inicio
+            Crear cuenta
           </Link>
-        </div>
+        )}
+      />
 
-        <div className="card form" style={{ maxWidth: 560, margin: '12px auto 40px', padding: 30 }}>
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 34, marginBottom: 12 }}>🎯</div>
-            <p>SORTEALO</p>
-            <h1 style={{ fontSize: 36, margin: '8px 0 14px' }}>Iniciá sesión</h1>
-            <p>Accedé a tu cuenta para administrar o participar en sorteos verificados.</p>
-          </div>
+      <main className="mx-auto flex w-full max-w-7xl items-center justify-center px-activa-16 py-activa-48 sm:px-activa-24 lg:min-h-[calc(100vh-4rem)] lg:px-activa-40 lg:py-activa-64">
+        <Card variant="surface" className="w-full max-w-lg shadow-activa-md">
+          <CardContent className="p-activa-24 sm:p-activa-32">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-text-link">
+                Acceso a ACTIVA
+              </p>
+              <h1 className="mt-activa-8 font-display text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
+                Ingresá a tu cuenta
+              </h1>
+              <p className="mt-activa-12 text-sm leading-7 text-text-secondary sm:text-base">
+                Consultá tus campañas, participaciones, comprobantes y estados desde un mismo lugar.
+              </p>
+            </div>
 
-          {googleEnabled && (
-            <>
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                style={{
-                  width: '100%',
-                  marginBottom: 18,
-                  border: '1px solid rgba(255,255,255,0.14)',
-                  background: 'rgba(255,255,255,0.04)',
-                  color: '#fff',
-                  borderRadius: 18,
-                  padding: '14px 18px',
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                }}
-              >
-                Continuar con Google
-              </button>
+            {googleEnabled && (
+              <div className="mt-activa-24 space-y-activa-20">
+                <Button
+                  type="button"
+                  variant="tertiary"
+                  size="lg"
+                  onClick={handleGoogleSignIn}
+                  className="w-full"
+                >
+                  Continuar con Google
+                </Button>
 
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr auto 1fr',
-                  gap: 12,
-                  alignItems: 'center',
-                  marginBottom: 18,
-                  color: '#71717a',
-                  fontSize: 12,
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.16em',
-                }}
-              >
-                <span style={{ height: 1, background: 'rgba(255,255,255,0.1)' }} />
-                <span>o ingresá con email</span>
-                <span style={{ height: 1, background: 'rgba(255,255,255,0.1)' }} />
+                <Divider label="o ingresá con email" />
               </div>
-            </>
-          )}
+            )}
 
-          <form onSubmit={handleSubmit}>
-            <label style={{ marginTop: 18, fontSize: 15 }}>
-              EMAIL
-              <input
+            <form onSubmit={handleSubmit} className="mt-activa-24 space-y-activa-20">
+              <Input
+                id="login-email"
+                label="Email"
                 type="email"
                 placeholder="tu@email.com"
                 required
+                autoComplete="email"
                 value={form.email}
                 onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-                style={{ padding: '16px 18px', marginTop: 10, fontSize: 16 }}
+                leftIcon={<ActivaIcon name="mail" size={18} />}
               />
-            </label>
 
-            <label style={{ marginTop: 18, fontSize: 15 }}>
-              CONTRASEÑA
-              <div style={{ position: 'relative' }}>
-                <input
+              <div className="relative">
+                <Input
+                  id="login-password"
+                  label="Contraseña"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   required
+                  autoComplete="current-password"
                   value={form.password}
                   onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-                  style={{ padding: '16px 105px 16px 18px', marginTop: 10, fontSize: 16 }}
+                  leftIcon={<ActivaIcon name="lock" size={18} />}
+                  className="pr-12"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  style={{
-                    position: 'absolute',
-                    right: 12,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    border: 0,
-                    background: 'transparent',
-                    color: '#facc15',
-                    fontWeight: 900,
-                    cursor: 'pointer',
-                    fontSize: 13,
-                  }}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-pressed={showPassword}
+                  className="absolute bottom-0 right-0 flex size-11 items-center justify-center rounded-activa-sm text-text-secondary transition-colors duration-fast ease-activa hover:bg-background-surface-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
                 >
-                  {showPassword ? 'Ocultar' : 'Mostrar'}
+                  <ActivaIcon name={showPassword ? 'eye-off' : 'eye'} size={20} />
                 </button>
               </div>
-            </label>
 
-            <button className="pay" style={{ width: '100%', marginTop: 22, padding: '16px 20px', fontSize: 16 }} disabled={loading}>
-              {loading ? 'Ingresando...' : 'Ingresar →'}
-            </button>
-          </form>
+              <Button
+                type="submit"
+                size="lg"
+                isLoading={loading}
+                loadingText="Ingresando..."
+                className="w-full"
+              >
+                Ingresar
+              </Button>
+            </form>
 
-          <p style={{ marginTop: 28 }}>
-            ¿No tenés cuenta? <Link href="/registro" className="yellow">Registrate</Link>
-          </p>
-        </div>
-      </section>
-    </main>
+            <p className="mt-activa-24 text-center text-sm text-text-secondary">
+              ¿Todavía no tenés cuenta?{' '}
+              <Link
+                href="/registro"
+                className="rounded-activa-xs font-semibold text-text-link underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+              >
+                Crear cuenta
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      </main>
+
+      <PublicFooter />
+    </div>
   );
 }
