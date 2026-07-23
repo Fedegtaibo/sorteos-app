@@ -13,6 +13,22 @@ export const metadata: Metadata = {
     'Descubrí campañas de comercios, registrá tus participaciones y accedé a beneficios de forma clara y transparente.',
 
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.png',
+        sizes: '48x48',
+        type: 'image/png',
+      },
+    ],
+    apple: [
+      {
+        url: '/apple-touch-icon.png',
+        sizes: '180x180',
+        type: 'image/png',
+      },
+    ],
+  },
   applicationName: 'ACTIVA',
   appleWebApp: {
     capable: true,

@@ -1,5 +1,5 @@
 const serviceWorker = `
-const CACHE_NAME = 'sortealo-pwa-v1';
+const CACHE_NAME = 'activa-pwa-v2';
 
 const APP_SHELL = [
   '/manifest.json',
