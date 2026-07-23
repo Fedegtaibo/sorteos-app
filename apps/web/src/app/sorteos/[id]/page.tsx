@@ -1,6 +1,5 @@
 'use client';
 
-import '../../redesign/styles.css';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -12,17 +11,19 @@ import { PublicFooter, PublicHeader } from '@/components/layout';
 import { MediaImage } from '@/components/media';
 import {
   Badge,
+  Alert,
   Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  Divider,
   Skeleton,
 } from '@/components/ui';
 import { useNumerosSorteo } from '@/hooks/use-sorteo';
 import { pagosApi } from '@/lib/api';
-import { formatMonto, formatFecha } from '@/lib/utils';
+import { cn, formatMonto, formatFecha } from '@/lib/utils';
 
 const publicNavigation = [
   { href: '/', label: 'Inicio' },
@@ -459,247 +460,305 @@ const numeros: any[] = getArrayFromResponse(numerosData);
                 Seleccioná una o más opciones disponibles para continuar.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <section className="chooser">
+            <CardContent className="space-y-activa-24">
+              <Alert variant="brand" title="Antes de participar">
+                <ol className="mt-activa-8 space-y-activa-8">
+                  {[
+                    'Elegís una o más participaciones disponibles.',
+                    'La selección queda reservada por unos minutos mientras pagás.',
+                    'El pago se realiza por Mercado Pago.',
+                    'Si el pago se aprueba, la participación queda registrada.',
+                    'Tu comprobante queda guardado en Mis participaciones.',
+                  ].map((texto, index) => (
+                    <li key={texto} className="flex items-start gap-activa-8 leading-6">
+                      <span className="font-semibold text-text-primary">
+                        {index + 1}.
+                      </span>
+                      <span>{texto}</span>
+                    </li>
+                  ))}
+                </ol>
+              </Alert>
 
-                        <section
-              className="card"
-              style={{
-                marginBottom: 28,
-                border: '1px solid rgba(245, 158, 11, 0.28)',
-                background: 'rgba(245, 158, 11, 0.08)',
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 12,
-                  fontWeight: 900,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: '#fbbf24',
-                }}
-              >
-                Antes de participar
-              </p>
-
-              <div style={{ marginTop: 14, display: 'grid', gap: 10 }}>
-                {[
-                  'Elegís uno o más números disponibles.',
-                  'La selección queda reservada por unos minutos mientras pagás.',
-                  'El pago se realiza por MercadoPago.',
-                  'Si el pago se aprueba, el número pasa a vendido.',
-                  'Tu comprobante queda guardado en Mis participaciones.',
-                ].map((texto, index) => (
-                  <div
-                    key={texto}
-                    style={{
-                      display: 'flex',
-                      gap: 10,
-                      alignItems: 'flex-start',
-                      fontSize: 13,
-                      lineHeight: 1.6,
-                      color: '#d4d4d8',
-                    }}
-                  >
-                    <b style={{ color: '#fbbf24' }}>{index + 1}.</b>
-                    <span>{texto}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-
-            <section
-              className="card"
-              style={{
-                marginBottom: 28,
-                border: '1px solid rgba(251, 191, 36, 0.22)',
-                background:
-                  'linear-gradient(135deg, rgba(251,191,36,0.10), rgba(24,24,27,0.92))',
-              }}
-            >
-              <p
-                style={{
-                  color: '#fbbf24',
-                  fontSize: 12,
-                  fontWeight: 900,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  margin: 0,
-                }}
-              >
-                Gestionado con Sortealo
-              </p>
-
-              <h2 style={{ marginTop: 10, marginBottom: 10 }}>
-                Participás con registro, pago y comprobante.
-              </h2>
-
-              <p style={{ color: '#a1a1aa', fontSize: 14, lineHeight: 1.7, margin: 0 }}>
-                Sortealo ordena el proceso para que cada número, pago y participación quede
-                registrado. Así el comercio puede administrar el sorteo con más transparencia y vos
-                podés seguir tu compra desde tu panel.
-              </p>
-
-              <div
-                style={{
-                  display: 'grid',
-                  gap: 10,
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                  marginTop: 18,
-                }}
-              >
-                {[
-                  {
-                    icon: '🔒',
-                    title: 'Pago registrado',
-                    text: 'La operación queda asociada a tu cuenta.',
-                  },
-                  {
-                    icon: '\u{1F39F}\uFE0F',
-                    title: 'Número asignado',
-                    text: 'Si el pago se aprueba, el número queda vendido.',
-                  },
-                  {
-                    icon: '🧾',
-                    title: 'Comprobante',
-                    text: 'Podés verlo luego en Mis participaciones.',
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.title}
-                    style={{
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: 18,
-                      padding: 14,
-                      background: 'rgba(0,0,0,0.22)',
-                    }}
-                  >
-                    <div style={{ fontSize: 22, marginBottom: 8 }}>{item.icon}</div>
-                    <b style={{ display: 'block', color: '#fff', marginBottom: 4 }}>
-                      {item.title}
-                    </b>
-                    <span style={{ color: '#a1a1aa', fontSize: 13, lineHeight: 1.5 }}>
-                      {item.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-            <div className="legend">
-              <span>□ Libre</span>
-              <span className="yellow">□ Seleccionado</span>
-              <span className="green">□ Vendido</span>
-              <span className="blue">□ Reservado</span>
-            </div>
-
-            {selectedIds.length > 0 && (
-              <>
-                <section className="card checkout" style={{ marginBottom: 32 }}>
-                  <h2>Resumen de compra</h2>
-
-                  {seleccionados.map((n) => (
-                    <div className="buy-row" key={n.id}>
-                      <b>{n.numero_visible}</b>
-                      <div>
-                        Número {n.numero_visible}
-                        <small>{sorteo.nombre}</small>
-                      </div>
-                      <strong>{formatMonto(sorteo.valor_numero)}</strong>
+              <Card variant="highlight">
+                <CardHeader>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-text-link">
+                    Gestionado con ACTIVA
+                  </p>
+                  <CardTitle>Participás con registro, pago y comprobante.</CardTitle>
+                  <CardDescription>
+                    ACTIVA organiza el proceso para vincular cada participación, pago y
+                    comprobante. Podés seguir la operación desde tu panel.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-activa-12 sm:grid-cols-3">
+                  {[
+                    {
+                      icon: 'lock' as const,
+                      title: 'Pago registrado',
+                      text: 'La operación queda asociada a tu cuenta.',
+                    },
+                    {
+                      icon: 'participation' as const,
+                      title: 'Participación asignada',
+                      text: 'Si el pago se aprueba, queda registrada.',
+                    },
+                    {
+                      icon: 'receipt' as const,
+                      title: 'Comprobante',
+                      text: 'Podés verlo luego en Mis participaciones.',
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-activa-md border border-border-default bg-background-surface p-activa-12"
+                    >
+                      <ActivaIcon name={item.icon} size={20} className="text-text-link" />
+                      <p className="mt-activa-8 text-sm font-semibold text-text-primary">
+                        {item.title}
+                      </p>
+                      <p className="mt-activa-4 text-xs leading-5 text-text-secondary">
+                        {item.text}
+                      </p>
                     </div>
                   ))}
+                </CardContent>
+              </Card>
 
-                  <div className="total">
-                    <b>Total</b>
-                    <strong>{formatMonto(totalSeleccion)}</strong>
-                  </div>
-                    <div style={{ display: 'flex', gap: 16, marginTop: 24, flexWrap: 'wrap' }}>
-  <button className="back" onClick={() => setSelectedIds([])}>
-    Limpiar
-  </button>
-
-  <button className="pay" onClick={reservarSeleccion} disabled={procesando}>
-    {procesando ? 'Preparando pago...' : 'Reservar y pagar →'}
-  </button>
-
-  {puedeSimularPago && (
-  <button
-    className="pay"
-    style={{ background: '#16a34a' }}
-    disabled={procesando}
-    onClick={async () => {
-      try {
-        setProcesando(true);
-
-        if (selectedIds.length === 0) {
-          toast.error('Seleccioná al menos un número');
-          return;
-        }
-
-        for (const numeroId of selectedIds) {
-          await pagosApi.reservar(id, numeroId);
-          await pagosApi.simularPago(id, numeroId);
-        }
-
-        toast.success('Pago simulado correctamente');
-        setSelectedIds([]);
-        await refetch();
-        router.push('/dashboard/participaciones');
-      } catch (err: any) {
-        toast.error(
-          esErrorEmailNoVerificado(err)
-            ? mensajeEmailNoVerificadoCompra
-            : err.message || 'Error simulando pago',
-        );
-        await refetch();
-      } finally {
-        setProcesando(false);
-      }
-    }}
-   >
-    Simular pago 🧪
-  </button>
-)}
-</div>
-                </section>
-
-                <div className="mobile-buy-bar">
+              <div>
+                <div className="flex flex-col gap-activa-8 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <b>
-                      {selectedIds.length} número{selectedIds.length > 1 ? 's' : ''}
-                    </b>
-                    <span>{formatMonto(totalSeleccion)}</span>
+                    <h2 className="font-display text-lg font-semibold text-text-primary">
+                      Opciones disponibles
+                    </h2>
+                    <p className="mt-activa-4 text-sm text-text-secondary">
+                      Las disponibilidades se actualizan periódicamente.
+                    </p>
                   </div>
-
-                  <button onClick={reservarSeleccion} disabled={procesando}>
-                    {procesando ? 'Preparando...' : 'Reservar y pagar'}
-                  </button>
-                </div>
-              </>
-            )}
-
-            <div className="number-grid">
-              {numeros.map((n: any) => {
-                const isSelected = selectedIds.includes(n.id);
-
-                let cls = 'free';
-                if (n.estado === 'vendido') cls = 'sold';
-                if (n.estado === 'reservado') cls = 'reserved';
-                if (isSelected) cls = 'selected';
-
-                return (
-                  <button
-                    key={n.id}
-                    onClick={() => toggleNumero(n)}
-                    disabled={procesando || n.estado !== 'libre'}
-                    className={`num ${cls}`}
+                  <div
+                    aria-label="Leyenda de estados"
+                    className="flex flex-wrap gap-activa-8 text-xs"
                   >
-                    {n.numero_visible}
-                  </button>
-                );
-              })}
-            </div>
+                    <span className="inline-flex items-center gap-activa-4 rounded-activa-full border border-border-strong bg-background-surface px-activa-8 py-activa-4 text-text-primary">
+                      <span aria-hidden="true" className="size-2 rounded-activa-full border border-border-strong" />
+                      Disponible
+                    </span>
+                    <span className="inline-flex items-center gap-activa-4 rounded-activa-full border border-action-primary bg-action-primary/15 px-activa-8 py-activa-4 text-text-primary">
+                      <ActivaIcon name="check" size={12} />
+                      Seleccionada
+                    </span>
+                    <span className="inline-flex items-center gap-activa-4 rounded-activa-full border border-status-information bg-status-information/10 px-activa-8 py-activa-4 text-text-primary">
+                      <ActivaIcon name="pending" size={12} />
+                      Reservada
+                    </span>
+                    <span className="inline-flex items-center gap-activa-4 rounded-activa-full border border-border-default bg-background-surface-muted px-activa-8 py-activa-4 text-text-secondary">
+                      <ActivaIcon name="close" size={12} />
+                      No disponible
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-activa-16 grid grid-cols-[repeat(auto-fill,minmax(3.25rem,1fr))] gap-activa-8">
+                  {numeros.map((n: any) => {
+                    const isSelected = selectedIds.includes(n.id);
+
+                    let visualState = 'disponible';
+                    let stateClasses =
+                      'border-border-strong bg-background-surface text-text-primary hover:border-action-primary hover:bg-action-primary/10';
+                    let stateIcon = null;
+
+                    if (n.estado === 'vendido') {
+                      visualState = 'no disponible';
+                      stateClasses =
+                        'cursor-not-allowed border-border-default bg-background-surface-muted text-text-disabled line-through';
+                      stateIcon = <ActivaIcon name="close" size={12} />;
+                    }
+
+                    if (n.estado === 'reservado') {
+                      visualState = 'reservada';
+                      stateClasses =
+                        'cursor-not-allowed border-status-information bg-status-information/10 text-text-secondary';
+                      stateIcon = <ActivaIcon name="pending" size={12} />;
+                    }
+
+                    if (isSelected) {
+                      visualState = 'seleccionada';
+                      stateClasses =
+                        'border-action-primary bg-action-primary text-action-primary-text shadow-activa-xs';
+                      stateIcon = <ActivaIcon name="check" size={12} />;
+                    }
+
+                    return (
+                      <button
+                        key={n.id}
+                        onClick={() => toggleNumero(n)}
+                        disabled={procesando || n.estado !== 'libre'}
+                        aria-label={`Participación ${n.numero_visible}, ${visualState}`}
+                        aria-pressed={isSelected}
+                        className={cn(
+                          'flex min-h-12 min-w-12 flex-col items-center justify-center gap-0.5 rounded-activa-sm border px-activa-4 py-activa-8 text-sm font-semibold transition-colors duration-fast ease-activa focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 disabled:opacity-70',
+                          stateClasses,
+                        )}
+                      >
+                        <span>{n.numero_visible}</span>
+                        <span aria-hidden="true" className="flex min-h-3 items-center">
+                          {stateIcon}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <Divider />
+
+              <section aria-labelledby="selection-summary-title">
+                <div className="flex flex-wrap items-center justify-between gap-activa-12">
+                  <div>
+                    <h2
+                      id="selection-summary-title"
+                      className="font-display text-xl font-semibold text-text-primary"
+                    >
+                      Participaciones seleccionadas
+                    </h2>
+                    <p className="mt-activa-4 text-sm text-text-secondary">
+                      Revisá tu elección antes de continuar.
+                    </p>
+                  </div>
+                  <Badge variant={selectedIds.length > 0 ? 'brand' : 'neutral'}>
+                    {selectedIds.length} seleccionada{selectedIds.length === 1 ? '' : 's'}
+                  </Badge>
+                </div>
+
+                {selectedIds.length > 0 ? (
+                  <>
+                    <div className="mt-activa-16 space-y-activa-8">
+                      {seleccionados.map((n) => (
+                        <div
+                          key={n.id}
+                          className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-activa-12 rounded-activa-md bg-background-surface-muted p-activa-12"
+                        >
+                          <span className="grid size-10 place-items-center rounded-activa-sm bg-action-primary font-semibold text-action-primary-text">
+                            {n.numero_visible}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-text-primary">
+                              Participación {n.numero_visible}
+                            </p>
+                            <p className="truncate text-xs text-text-secondary">
+                              {sorteo.nombre}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-text-secondary">
+                              Valor por participación
+                            </p>
+                            <p className="text-sm font-semibold text-text-primary">
+                              {formatMonto(sorteo.valor_numero)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-activa-16 flex items-center justify-between rounded-activa-md border border-border-default p-activa-16">
+                      <span className="font-semibold text-text-primary">Total</span>
+                      <strong className="font-display text-xl text-text-primary">
+                        {formatMonto(totalSeleccion)}
+                      </strong>
+                    </div>
+
+                    <div className="mt-activa-20 flex flex-wrap gap-activa-12">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setSelectedIds([])}
+                      >
+                        Limpiar
+                      </Button>
+
+                      <Button
+                        type="button"
+                        onClick={reservarSeleccion}
+                        disabled={procesando}
+                        isLoading={procesando}
+                        loadingText="Preparando pago"
+                        rightIcon={<ActivaIcon name="arrow-right" size={18} />}
+                      >
+                        Continuar al pago
+                      </Button>
+
+                      {puedeSimularPago && (
+                        <Button
+                          type="button"
+                          variant="tertiary"
+                          disabled={procesando}
+                          onClick={async () => {
+                            try {
+                              setProcesando(true);
+
+                              if (selectedIds.length === 0) {
+                                toast.error('Seleccioná al menos un número');
+                                return;
+                              }
+
+                              for (const numeroId of selectedIds) {
+                                await pagosApi.reservar(id, numeroId);
+                                await pagosApi.simularPago(id, numeroId);
+                              }
+
+                              toast.success('Pago simulado correctamente');
+                              setSelectedIds([]);
+                              await refetch();
+                              router.push('/dashboard/participaciones');
+                            } catch (err: any) {
+                              toast.error(
+                                esErrorEmailNoVerificado(err)
+                                  ? mensajeEmailNoVerificadoCompra
+                                  : err.message || 'Error simulando pago',
+                              );
+                              await refetch();
+                            } finally {
+                              setProcesando(false);
+                            }
+                          }}
+                        >
+                          Simular pago (desarrollo)
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="fixed inset-x-0 bottom-0 z-sticky border-t border-border-default bg-background-surface px-activa-16 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] pt-activa-12 shadow-activa-lg md:hidden">
+                      <div className="mx-auto flex max-w-lg items-center justify-between gap-activa-12">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-text-primary">
+                            {selectedIds.length} participación{selectedIds.length > 1 ? 'es' : ''}
+                          </p>
+                          <p className="text-sm text-text-secondary">
+                            {formatMonto(totalSeleccion)}
+                          </p>
+                        </div>
+
+                        <Button
+                          type="button"
+                          onClick={reservarSeleccion}
+                          disabled={procesando}
+                          isLoading={procesando}
+                          loadingText="Preparando"
+                          className="shrink-0"
+                        >
+                          Continuar al pago
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div aria-hidden="true" className="h-24 md:hidden" />
+                  </>
+                ) : (
+                  <p className="mt-activa-16 rounded-activa-md bg-background-surface-muted p-activa-16 text-sm text-text-secondary">
+                    Todavía no seleccionaste participaciones.
+                  </p>
+                )}
               </section>
             </CardContent>
           </Card>
