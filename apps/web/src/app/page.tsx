@@ -265,37 +265,37 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-20">
-        <div className="rounded-[2rem] bg-amber-400 p-8 text-black md:p-10">
-          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+      <section className="bg-background-inverse px-activa-16 pb-activa-80 sm:px-activa-24 lg:px-activa-40">
+        <div className="mx-auto max-w-7xl rounded-activa-xl bg-action-primary p-activa-24 text-action-primary-text shadow-activa-lg sm:p-activa-32 lg:p-activa-40">
+          <div className="grid gap-activa-32 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-black/60">
-                Sortealo
+              <p className="text-sm font-semibold uppercase tracking-wider text-action-primary-text/70">
+                Activá la oportunidad
               </p>
 
-              <h2 className="mt-3 text-3xl font-black leading-tight md:text-4xl">
-                Un lugar para participar, vender y confiar.
+              <h2 className="mt-activa-12 max-w-3xl font-display text-3xl font-semibold leading-tight sm:text-4xl">
+                Empezá a construir una experiencia más clara
               </h2>
 
-              <p className="mt-4 max-w-2xl font-semibold leading-7 text-black/70">
-                La exploración de sorteos vive dentro de la cuenta.
-                La home solo tiene que explicar el producto y abrir la puerta.
+              <p className="mt-activa-16 max-w-2xl text-base leading-7 text-action-primary-text/75">
+                Creá tu cuenta para participar en campañas o impulsar oportunidades desde tu
+                comercio, con información organizada y seguimiento de principio a fin.
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col gap-activa-12 sm:flex-row">
               <Link
                 href="/registro"
-                className="rounded-2xl bg-black px-7 py-4 text-center text-base font-black text-white hover:bg-zinc-900"
+                className="inline-flex h-[52px] items-center justify-center rounded-activa-sm bg-action-secondary px-activa-20 text-center text-base font-semibold text-action-secondary-text transition-colors duration-fast ease-activa hover:bg-action-secondary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-action-primary"
               >
                 Crear cuenta
               </Link>
 
               <Link
                 href="/login"
-                className="rounded-2xl border border-black/20 px-7 py-4 text-center text-base font-black text-black hover:bg-black/10"
+                className="inline-flex h-[52px] items-center justify-center rounded-activa-sm border border-action-secondary bg-background-surface px-activa-20 text-center text-base font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 focus-visible:ring-offset-action-primary"
               >
-                Ingresar
+                Ingresar a ACTIVA
               </Link>
             </div>
           </div>
