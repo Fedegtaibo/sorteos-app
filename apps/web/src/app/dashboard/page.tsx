@@ -607,21 +607,33 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
             </Card>
           </div>
 
-          <div className="card p-8">
-            <div className="flex items-center justify-between mb-6">
+          <Card>
+            <CardHeader className="flex flex-col gap-activa-16 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h2 className="text-2xl font-black">Mis sorteos</h2>
-                <p className="text-zinc-500 mt-2">Administrá tus sorteos activos, borradores y finalizados.</p>
+                <CardTitle>Mis campañas</CardTitle>
+                <CardDescription>
+                  Administrá tus campañas activas, borradores y finalizadas.
+                </CardDescription>
               </div>
-              <Link href="/dashboard/sorteos" className="text-amber-300 font-bold">
-                Ver todos →
+              <Link
+                href="/dashboard/sorteos"
+                className="inline-flex shrink-0 items-center gap-activa-4 rounded-activa-xs text-sm font-semibold text-text-link transition-colors duration-fast ease-activa hover:text-action-secondary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+              >
+                Ver todos
+                <ActivaIcon name="arrow-right" size={16} />
               </Link>
-            </div>
+            </CardHeader>
 
-            <Link href="/dashboard/sorteos" className="btn-ghost inline-block">
-              Ir al listado
-            </Link>
-          </div>
+            <CardContent>
+              <Link
+                href="/dashboard/sorteos"
+                className="inline-flex h-11 items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
+                <ActivaIcon name="campaign" size={18} />
+                Ir al listado
+              </Link>
+            </CardContent>
+          </Card>
         </section>
       </main>
     );
