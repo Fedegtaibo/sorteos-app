@@ -399,11 +399,11 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
             }
           />
             
-          <div className="mb-8">
+          <div className="mb-activa-32">
   <VentasChart data={ventasUltimos30Dias} />
 </div>
 
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+<div className="mb-activa-32 grid gap-activa-24 lg:grid-cols-2">
 
   <EntregasChart entregas={entregas} />
 
