@@ -9,7 +9,13 @@ import Link from 'next/link';
 import VentasChart from '@/components/VentasChart';
 import EntregasChart from '@/components/EntregasChart';
 import InstallAppButton from '@/components/InstallAppButton';
-import { Card, CardContent } from '@/components/ui';
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  Skeleton,
+} from '@/components/ui';
 
 type MetricCardVariant =
   | 'brand'
@@ -69,13 +75,21 @@ export default function DashboardPage() {
   const role = (session?.user as any)?.role;
   const email = session?.user?.email;
 
-  const { data: statsData } = useQuery({
+  const {
+    data: statsData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['estadisticas', role],
     queryFn: () => (role === 'admin' ? adminApi.estadisticas() : comercioApi.estadisticas()),
     enabled: !!role && role !== 'participante',
   });
 
   const stats = (statsData as any)?.data?.data || (statsData as any)?.data;
+  const requiereEstadisticas = role === 'comercio' || role === 'admin';
+  const falloCargaEstadisticas = isError || error != null;
 
   if (role === 'participante') {
     return (
@@ -123,6 +137,50 @@ export default function DashboardPage() {
           </div>
         </section>
       </main>
+    );
+  }
+
+  if (requiereEstadisticas && isLoading) {
+    return (
+      <div
+        aria-label="Cargando información del dashboard"
+        className="space-y-activa-24"
+      >
+        <div className="space-y-activa-8">
+          <Skeleton variant="text" className="h-8 max-w-sm" />
+          <Skeleton variant="text" className="max-w-xl" />
+        </div>
+
+        <div className="grid gap-activa-16 sm:grid-cols-2 lg:grid-cols-4">
+          <Skeleton variant="rectangular" className="h-28" />
+          <Skeleton variant="rectangular" className="h-28" />
+          <Skeleton variant="rectangular" className="h-28" />
+          <Skeleton variant="rectangular" className="h-28" />
+        </div>
+
+        <Skeleton variant="rectangular" className="h-72" />
+      </div>
+    );
+  }
+
+  if (requiereEstadisticas && falloCargaEstadisticas) {
+    return (
+      <Alert
+        variant="error"
+        title="No pudimos cargar la información del dashboard."
+        action={
+          <Button
+            type="button"
+            variant="tertiary"
+            size="sm"
+            onClick={() => void refetch()}
+          >
+            Reintentar
+          </Button>
+        }
+      >
+        Intentá nuevamente en unos instantes.
+      </Alert>
     );
   }
 
