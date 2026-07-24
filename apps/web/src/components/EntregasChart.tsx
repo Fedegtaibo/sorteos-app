@@ -7,13 +7,20 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui';
 
 const COLORS = [
-  '#f59e0b',
-  '#8b5cf6',
-  '#22c55e',
-  '#10b981',
-  '#ef4444',
+  'rgb(var(--color-action-primary))',
+  'rgb(var(--color-status-information))',
+  'rgb(var(--color-action-secondary))',
+  'rgb(var(--color-status-success))',
+  'rgb(var(--color-status-error))',
 ];
 
 export default function EntregasChart({
@@ -36,36 +43,56 @@ export default function EntregasChart({
   ];
 
   return (
-    <div className="card p-6">
-      <h2 className="text-xl font-black text-white">
-        Distribución de entregas
-      </h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>Distribución de entregas</CardTitle>
+        <CardDescription>Estado actual de las entregas.</CardDescription>
+      </CardHeader>
 
-      <p className="mt-2 text-sm text-zinc-500">
-        Estado actual de los premios.
-      </p>
+      <CardContent>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                innerRadius={60}
+                outerRadius={90}
+                dataKey="value"
+              >
+                {data.map((_, index) => (
+                  <Cell
+                    key={index}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
 
-      <div className="mt-6 h-72">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              innerRadius={60}
-              outerRadius={90}
-              dataKey="value"
-            >
-              {data.map((_, index) => (
-                <Cell
-                  key={index}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor:
+                    'rgb(var(--color-background-surface))',
+                  border:
+                    '1px solid rgb(var(--color-border-default))',
+                  borderRadius: 'var(--radius-sm)',
+                  boxShadow: 'var(--shadow-md)',
+                  color: 'rgb(var(--color-text-primary))',
+                  fontFamily: 'inherit',
+                  fontSize: '0.875rem',
+                }}
+                labelStyle={{
+                  color: 'rgb(var(--color-text-primary))',
+                  fontWeight: 600,
+                  marginBottom: 'var(--spacing-4)',
+                }}
+                itemStyle={{
+                  fontFamily: 'inherit',
+                  fontWeight: 600,
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

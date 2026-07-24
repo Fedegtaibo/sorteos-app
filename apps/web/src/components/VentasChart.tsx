@@ -50,7 +50,28 @@ export default function VentasChart({
                 }}
               />
 
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor:
+                    'rgb(var(--color-background-surface))',
+                  border:
+                    '1px solid rgb(var(--color-border-default))',
+                  borderRadius: 'var(--radius-sm)',
+                  boxShadow: 'var(--shadow-md)',
+                  color: 'rgb(var(--color-text-primary))',
+                  fontFamily: 'inherit',
+                  fontSize: '0.875rem',
+                }}
+                labelStyle={{
+                  color: 'rgb(var(--color-text-primary))',
+                  fontWeight: 600,
+                  marginBottom: 'var(--spacing-4)',
+                }}
+                itemStyle={{
+                  fontFamily: 'inherit',
+                  fontWeight: 600,
+                }}
+              />
 
               <Line
                 type="monotone"
