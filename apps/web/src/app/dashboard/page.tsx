@@ -680,8 +680,11 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center">
-      <div className="animate-pulse text-zinc-500">Cargando...</div>
+    <main className="flex min-h-screen items-center justify-center bg-background-page text-text-primary">
+      <div className="flex w-full max-w-xs flex-col items-center gap-activa-12 px-activa-24 text-center">
+        <Skeleton variant="text" className="w-24" />
+        <p className="text-sm font-semibold text-text-secondary">Cargando...</p>
+      </div>
     </main>
   );
 }
