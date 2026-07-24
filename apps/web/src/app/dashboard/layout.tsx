@@ -210,7 +210,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <NotificationBell />
         </header>
 
-        <section className="p-4 md:p-8">
+        <section className="p-activa-16 md:p-activa-32">
           {mostrarAvisoEmail && (
             <Alert
               variant="warning"
