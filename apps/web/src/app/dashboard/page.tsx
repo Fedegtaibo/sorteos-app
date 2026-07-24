@@ -410,43 +410,41 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
 
   <EntregasChart entregas={entregas} />
 
-  <section className="card p-8">
-    <h2 className="text-2xl font-black">Resumen de logística</h2>
+  <Card>
+    <CardHeader>
+      <CardTitle>Resumen de logística</CardTitle>
+      <CardDescription>Estado actual de todos los beneficios.</CardDescription>
+    </CardHeader>
 
-    <p className="text-zinc-500 mt-2 mb-6">
-      Estado actual de todos los premios.
-    </p>
+    <CardContent>
+      <div className="space-y-activa-12">
+        <div className="flex items-center justify-between gap-activa-16 rounded-activa-sm bg-background-surface-muted px-activa-16 py-activa-12">
+          <span className="text-sm text-text-secondary">Pendientes</span>
+          <Badge variant="warning">{entregas.pendientes}</Badge>
+        </div>
 
-    <div className="space-y-3">
+        <div className="flex items-center justify-between gap-activa-16 rounded-activa-sm bg-background-surface-muted px-activa-16 py-activa-12">
+          <span className="text-sm text-text-secondary">Enviados</span>
+          <Badge variant="information">{entregas.enviados}</Badge>
+        </div>
 
-      <div className="flex justify-between">
-        <span className="text-zinc-400">Pendientes</span>
-        <span className="font-bold text-amber-300">{entregas.pendientes}</span>
+        <div className="flex items-center justify-between gap-activa-16 rounded-activa-sm bg-background-surface-muted px-activa-16 py-activa-12">
+          <span className="text-sm text-text-secondary">Entregados</span>
+          <Badge variant="success">{entregas.entregados}</Badge>
+        </div>
+
+        <div className="flex items-center justify-between gap-activa-16 rounded-activa-sm bg-background-surface-muted px-activa-16 py-activa-12">
+          <span className="text-sm text-text-secondary">Confirmados</span>
+          <Badge variant="active">{entregas.confirmados}</Badge>
+        </div>
+
+        <div className="flex items-center justify-between gap-activa-16 rounded-activa-sm bg-background-surface-muted px-activa-16 py-activa-12">
+          <span className="text-sm text-text-secondary">Reclamos</span>
+          <Badge variant="error">{entregas.reclamados}</Badge>
+        </div>
       </div>
-
-      <div className="flex justify-between">
-        <span className="text-zinc-400">Enviados</span>
-        <span className="font-bold text-purple-300">{entregas.enviados}</span>
-      </div>
-
-      <div className="flex justify-between">
-        <span className="text-zinc-400">Entregados</span>
-        <span className="font-bold text-green-300">{entregas.entregados}</span>
-      </div>
-
-      <div className="flex justify-between">
-        <span className="text-zinc-400">Confirmados</span>
-        <span className="font-bold text-emerald-300">{entregas.confirmados}</span>
-      </div>
-
-      <div className="flex justify-between">
-        <span className="text-zinc-400">Reclamos</span>
-        <span className="font-bold text-red-300">{entregas.reclamados}</span>
-      </div>
-
-    </div>
-
-  </section>
+    </CardContent>
+  </Card>
 
 </div>
 
