@@ -381,8 +381,7 @@ const porcentajePromedio =
 const mejorSorteo = topSorteos[0]?.nombre || '-';
 
     return (
-      <main className="min-h-screen bg-zinc-950 text-zinc-100">
-        <section className="mx-auto max-w-7xl px-6 py-10">
+      <div className="mx-auto max-w-7xl">
           <PageHeader
             eyebrow="Panel de comercio"
             title="Dashboard"
@@ -634,8 +633,7 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
               </Link>
             </CardContent>
           </Card>
-        </section>
-      </main>
+      </div>
     );
   }
 
