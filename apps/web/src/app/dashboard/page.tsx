@@ -448,7 +448,7 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
 </div>
 
 
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+<div className="mb-activa-32 grid gap-activa-16 md:grid-cols-2 lg:grid-cols-4">
 
   <MetricCard
     label="Ticket promedio"
@@ -469,7 +469,7 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
   />
 
   <MetricCard
-    label="Mejor sorteo"
+    label="Mejor campaña"
     value={mejorSorteo}
     variant="brand"
   />
@@ -478,11 +478,11 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
 
 
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-5 mb-8">
+          <div className="mb-activa-32 grid gap-activa-16 md:grid-cols-3 lg:grid-cols-6">
             <MetricCard label="Recaudación bruta" value={formatMonto(recaudacion.bruta)} variant="warning" />
             <MetricCard label="Comisión" value={formatMonto(recaudacion.comision)} variant="error" />
             <MetricCard label="Ganancia neta" value={formatMonto(recaudacion.neta)} variant="success" />
-            <MetricCard label="Sorteos activos" value={sorteos.activos} variant="information" />
+            <MetricCard label="Campañas activas" value={sorteos.activos} variant="information" />
             <MetricCard label="Participantes" value={participantes.unicos} variant="brand" />
             <MetricCard label="Reclamos" value={entregas.reclamados} variant="error" />
           </div>
