@@ -612,36 +612,39 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
     const { usuarios, comercios, sorteos, finanzas } = stats;
 
     return (
-      <main className="min-h-screen bg-zinc-950 text-zinc-100">
-        <section className="mx-auto max-w-7xl px-6 py-10">
-          <div className="mb-10">
-            <p className="text-xs text-red-300 uppercase tracking-[0.25em]">PANEL DE ADMINISTRACIÓN</p>
-            <h1 className="mt-2 text-3xl font-black">Dashboard</h1>
-            <p className="text-zinc-500 mt-3">Control general de comercios, usuarios, sorteos y comisiones.</p>
-          </div>
+      <div className="mx-auto max-w-7xl space-y-activa-24">
+        <PageHeader
+          eyebrow="Panel de administración"
+          title="Dashboard"
+          description="Control general de comercios, usuarios, campañas y comisiones."
+        />
 
-          {comercios.pendientes > 0 && (
-            <div className="mb-8 rounded-2xl border border-amber-700 bg-amber-950/40 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <p className="text-amber-300 font-black">
-                  ⚠ {comercios.pendientes} comercio(s) pendiente(s) de aprobación
-                </p>
-                <p className="text-zinc-500 text-sm mt-1">Revisá las solicitudes para habilitar nuevos sorteos.</p>
-              </div>
-              <Link href="/dashboard/admin/comercios" className="btn-primary">
+        {comercios.pendientes > 0 && (
+          <Alert
+            variant="warning"
+            title={`${comercios.pendientes} comercio(s) pendiente(s) de aprobación`}
+            icon={<ActivaIcon name="pending" size={16} />}
+            action={
+              <Link
+                href="/dashboard/admin/comercios"
+                className="inline-flex h-9 items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-12 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
                 Revisar ahora
+                <ActivaIcon name="arrow-right" size={16} />
               </Link>
-            </div>
-          )}
+            }
+          >
+            Revisá las solicitudes para habilitar nuevas campañas.
+          </Alert>
+        )}
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-            <MetricCard label="Volumen operado" value={formatMonto(finanzas.volumenTotal)} variant="warning" />
-            <MetricCard label="Comercios activos" value={comercios.aprobados} variant="success" />
-            <MetricCard label="Sorteos activos" value={sorteos.activos} variant="information" />
-            <MetricCard label="Participantes" value={usuarios.participantes} variant="brand" />
-          </div>
-        </section>
-      </main>
+        <div className="grid gap-activa-16 sm:grid-cols-2 xl:grid-cols-4">
+          <MetricCard label="Volumen operado" value={formatMonto(finanzas.volumenTotal)} variant="warning" />
+          <MetricCard label="Comercios activos" value={comercios.aprobados} variant="success" />
+          <MetricCard label="Campañas activas" value={sorteos.activos} variant="information" />
+          <MetricCard label="Participantes" value={usuarios.participantes} variant="brand" />
+        </div>
+      </div>
     );
   }
 
