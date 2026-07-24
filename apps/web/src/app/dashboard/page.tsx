@@ -13,6 +13,7 @@ import { ActivaIcon } from '@/components/icons';
 import { PageHeader } from '@/components/layout';
 import {
   Alert,
+  Badge,
   Button,
   Card,
   CardContent,
@@ -221,54 +222,131 @@ export default function DashboardPage() {
   if (role === 'comercio' && stats) {
     if (stats.comercioEstado === 'sin_perfil') {
       return (
-        <main className="min-h-screen bg-zinc-950 text-zinc-100">
-          <section className="mx-auto max-w-4xl px-6 py-16">
-            <div className="card p-10">
-              <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">
-                COMERCIO
-              </p>
-              <h1 className="mt-3 text-3xl font-black">
-                Completa tu perfil de comercio
-              </h1>
-              <p className="mt-4 text-zinc-400">
-                Para empezar a usar Sortealo como comercio necesitamos tus datos principales:
-                razon social, CUIT y telefono. Luego el administrador revisara la solicitud.
-              </p>
-              <Link href="/dashboard/perfil" className="btn-primary mt-8 inline-block">
+        <div className="mx-auto max-w-4xl space-y-activa-24">
+          <PageHeader
+            eyebrow="Comercio"
+            title="Completá tu perfil de comercio"
+            description="Necesitamos tus datos principales para habilitar las herramientas de ACTIVA."
+          />
+
+          <Card>
+            <CardContent className="space-y-activa-24 p-activa-24 sm:p-activa-32">
+              <div className="flex flex-col gap-activa-16 sm:flex-row sm:items-center sm:justify-between">
+                <span className="flex size-12 items-center justify-center rounded-activa-md bg-action-primary/20 text-action-secondary">
+                  <ActivaIcon name="profile" size={24} />
+                </span>
+                <Badge variant="information" icon={<ActivaIcon name="info" size={14} />}>
+                  Perfil incompleto
+                </Badge>
+              </div>
+
+              <Alert
+                variant="information"
+                title="Completá los datos de tu comercio"
+                icon={<ActivaIcon name="id-card" size={16} />}
+              >
+                Ingresá la razón social, el CUIT y el teléfono. Luego, el administrador
+                revisará la solicitud.
+              </Alert>
+
+              <Link
+                href="/dashboard/perfil"
+                className="inline-flex h-11 w-fit items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
                 Completar mi perfil
+                <ActivaIcon name="arrow-right" size={18} />
               </Link>
-            </div>
-          </section>
-        </main>
+            </CardContent>
+          </Card>
+        </div>
       );
     }
 
     if (stats.comercioEstado && stats.comercioEstado !== 'aprobado') {
+      const comercioRechazado = stats.comercioEstado === 'rechazado';
+      const comercioSuspendido = stats.comercioEstado === 'suspendido';
+      const estadoTitulo = comercioRechazado
+        ? 'Tu comercio no fue aprobado'
+        : comercioSuspendido
+          ? 'Tu comercio está suspendido'
+          : 'Tu comercio está pendiente de aprobación';
+      const estadoDescripcion = comercioRechazado
+        ? 'La solicitud no fue aprobada. Revisá tu perfil para comprobar que la información esté completa.'
+        : comercioSuspendido
+          ? 'El acceso a las herramientas del comercio está temporalmente suspendido.'
+          : 'Recibimos tus datos y la solicitud está siendo revisada por un administrador.';
+      const estadoBadge = comercioRechazado
+        ? 'Solicitud no aprobada'
+        : comercioSuspendido
+          ? 'Comercio suspendido'
+          : 'Revisión pendiente';
+
       return (
-        <main className="min-h-screen bg-zinc-950 text-zinc-100">
-          <section className="mx-auto max-w-4xl px-6 py-16">
-            <div className="card p-10">
-              <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">
-                COMERCIO EN REVISION
-              </p>
-              <h1 className="mt-3 text-3xl font-black">
-                Tu comercio esta pendiente de aprobacion
-              </h1>
-              <p className="mt-4 text-zinc-400">
-                Ya recibimos tus datos. Un administrador debe aprobar el comercio
-                antes de que puedas publicar sorteos y ver estadisticas completas.
-              </p>
-              <div className="mt-8 flex flex-col gap-3 md:flex-row">
-                <Link href="/dashboard/perfil" className="btn-ghost inline-block">
+        <div className="mx-auto max-w-4xl space-y-activa-24">
+          <PageHeader
+            eyebrow="Estado del comercio"
+            title={estadoTitulo}
+            description={estadoDescripcion}
+          />
+
+          <Card>
+            <CardContent className="space-y-activa-24 p-activa-24 sm:p-activa-32">
+              <div className="flex flex-col gap-activa-16 sm:flex-row sm:items-center sm:justify-between">
+                <span className="flex size-12 items-center justify-center rounded-activa-md bg-background-surface-muted text-text-secondary">
+                  <ActivaIcon
+                    name={comercioRechazado ? 'error' : comercioSuspendido ? 'warning' : 'pending'}
+                    size={24}
+                  />
+                </span>
+                <Badge
+                  variant={comercioRechazado ? 'error' : 'warning'}
+                  icon={
+                    <ActivaIcon
+                      name={comercioRechazado ? 'error' : comercioSuspendido ? 'warning' : 'pending'}
+                      size={14}
+                    />
+                  }
+                >
+                  {estadoBadge}
+                </Badge>
+              </div>
+
+              <Alert
+                variant={comercioRechazado ? 'error' : 'warning'}
+                title={estadoTitulo}
+                icon={
+                  <ActivaIcon
+                    name={comercioRechazado ? 'error' : comercioSuspendido ? 'warning' : 'pending'}
+                    size={16}
+                  />
+                }
+              >
+                {comercioSuspendido
+                  ? 'No podés publicar campañas ni consultar estadísticas completas mientras el acceso esté suspendido.'
+                  : comercioRechazado
+                    ? 'Podés revisar los datos registrados desde tu perfil.'
+                    : 'Cuando finalice la revisión podrás publicar campañas y consultar estadísticas completas.'}
+              </Alert>
+
+              <div className="flex flex-col gap-activa-12 sm:flex-row">
+                <Link
+                  href="/dashboard/perfil"
+                  className="inline-flex h-11 items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+                >
+                  <ActivaIcon name="profile" size={18} />
                   Ver mi perfil
                 </Link>
-                <Link href="/" className="btn-primary inline-block">
-                  Ir al inicio publico
+                <Link
+                  href="/"
+                  className="inline-flex h-11 items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+                >
+                  Ir al inicio público
+                  <ActivaIcon name="arrow-right" size={18} />
                 </Link>
               </div>
-            </div>
-          </section>
-        </main>
+            </CardContent>
+          </Card>
+        </div>
       );
     }
 
