@@ -117,7 +117,7 @@ export default function DashboardPage() {
                 Mis participaciones
               </h2>
               <p className="mt-activa-8 flex-1 text-sm leading-7 text-text-secondary">
-                Revisá las campañas en las que participaste, tus números y comprobantes.
+                Revisá las campañas en las que participaste, tus participaciones y comprobantes.
               </p>
 
               <Link
@@ -140,7 +140,7 @@ export default function DashboardPage() {
                 Explorar campañas
               </h2>
               <p className="mt-activa-8 flex-1 text-sm leading-7 text-text-secondary">
-                Buscá campañas activas y reservá tus próximos números.
+                Buscá campañas activas y reservá tus próximas participaciones.
               </p>
 
               <Link
