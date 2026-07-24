@@ -97,7 +97,7 @@ export const adminApi = {
   estadisticas: () => api.get("/admin/estadisticas"),
   auditoria: (params?: any) => api.get("/admin/auditoria", { params }),
 
-  sorteos: () => api.get("/admin/sorteos"),
+  sorteos: (page = 1) => api.get("/admin/sorteos", { params: { page } }),
 
   usuarios: (page = 1) => api.get("/admin/usuarios", { params: { page } }),
 

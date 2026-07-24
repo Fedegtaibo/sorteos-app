@@ -1,82 +1,189 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { adminApi } from '@/lib/api';
-import { formatFecha } from '@/lib/utils';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { EstadoSorteo } from "@sorteos/types";
+import { PageHeader } from "@/components/layout";
+import {
+  Badge,
+  type BadgeVariant,
+  Button,
+  Card,
+  CardContent,
+  Skeleton,
+} from "@/components/ui";
+import { adminApi } from "@/lib/api";
+import { formatFecha } from "@/lib/utils";
+
+interface SorteoAdmin {
+  id: string;
+  nombre: string;
+  comercio: string;
+  estado: EstadoSorteo;
+  created_at: string;
+}
+
+interface SorteosMeta {
+  page?: number;
+  limit?: number;
+  total?: number;
+}
+
+interface SorteosPayload {
+  data?: SorteoAdmin[] | { data?: SorteoAdmin[]; meta?: SorteosMeta };
+  meta?: SorteosMeta;
+}
+
+const estadoVariant: Record<EstadoSorteo, BadgeVariant> = {
+  borrador: "neutral",
+  activo: "active",
+  finalizado: "success",
+  cancelado: "error",
+};
+
+function obtenerSorteos(payload: unknown): SorteoAdmin[] {
+  if (Array.isArray(payload)) return payload;
+
+  const response = payload as SorteosPayload | undefined;
+  if (Array.isArray(response?.data)) return response.data;
+  if (response?.data && Array.isArray(response.data.data)) {
+    return response.data.data;
+  }
+
+  return [];
+}
+
+function obtenerMeta(payload: unknown): SorteosMeta {
+  const response = payload as SorteosPayload | undefined;
+  if (response?.data && !Array.isArray(response.data)) {
+    return response.data.meta ?? {};
+  }
+
+  return response?.meta ?? {};
+}
 
 export default function AdminSorteosPage() {
+  const [page, setPage] = useState(1);
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-sorteos'],
-    queryFn: () => adminApi.sorteos() as any,
+    queryKey: ["admin-sorteos", page],
+    queryFn: () => adminApi.sorteos(page),
   });
 
-  const sorteos: any[] = Array.isArray(data)
-    ? data
-    : Array.isArray((data as any)?.data)
-      ? (data as any).data
-      : Array.isArray((data as any)?.data?.data)
-        ? (data as any).data.data
-        : [];
+  const sorteos = obtenerSorteos(data);
+  const meta = obtenerMeta(data);
+  const total = Number(meta.total ?? sorteos.length);
+  const limit = Number(meta.limit ?? 30);
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
   if (isLoading) {
-    return <div className="text-zinc-400">Cargando sorteos...</div>;
+    return (
+      <div aria-label="Cargando campañas" className="space-y-activa-24">
+        <div className="space-y-activa-8">
+          <Skeleton variant="text" className="h-8 max-w-xs" />
+          <Skeleton variant="text" className="max-w-lg" />
+        </div>
+        <Skeleton variant="rectangular" className="h-80" />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8">
-        <h1 className="text-3xl font-black text-white">
-          Todos los sorteos
-        </h1>
+    <div className="space-y-activa-24 text-text-primary">
+      <PageHeader
+        eyebrow="Administración"
+        title="Todas las campañas"
+        description="Vista global de todas las campañas de la plataforma."
+      />
 
-        <p className="mt-2 text-sm text-zinc-400">
-          Vista global de todos los sorteos de la plataforma.
-        </p>
-      </section>
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[42rem] text-left text-sm">
+              <thead className="border-b border-border-default bg-background-surface-muted text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                <tr>
+                  <th scope="col" className="px-activa-16 py-activa-12">
+                    Nombre
+                  </th>
+                  <th scope="col" className="px-activa-16 py-activa-12">
+                    Comercio
+                  </th>
+                  <th scope="col" className="px-activa-16 py-activa-12">
+                    Estado
+                  </th>
+                  <th scope="col" className="px-activa-16 py-activa-12">
+                    Fecha
+                  </th>
+                </tr>
+              </thead>
 
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="text-zinc-500 uppercase text-xs">
-            <tr>
-              <th className="p-3 text-left">Nombre</th>
-              <th className="p-3 text-left">Comercio</th>
-              <th className="p-3 text-left">Estado</th>
-              <th className="p-3 text-left">Fecha</th>
-            </tr>
-          </thead>
+              <tbody>
+                {sorteos.map((sorteo) => (
+                  <tr
+                    key={sorteo.id}
+                    className="border-b border-border-default text-text-secondary transition-colors duration-fast ease-activa last:border-b-0 hover:bg-background-surface-muted"
+                  >
+                    <td className="px-activa-16 py-activa-12 font-semibold text-text-primary">
+                      {sorteo.nombre}
+                    </td>
+                    <td className="px-activa-16 py-activa-12">
+                      {sorteo.comercio}
+                    </td>
+                    <td className="px-activa-16 py-activa-12">
+                      <Badge
+                        variant={estadoVariant[sorteo.estado] ?? "neutral"}
+                        size="sm"
+                        className="capitalize"
+                      >
+                        {sorteo.estado}
+                      </Badge>
+                    </td>
+                    <td className="px-activa-16 py-activa-12">
+                      {formatFecha(sorteo.created_at)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-          <tbody>
-            {sorteos.map((s) => (
-              <tr
-                key={s.id}
-                className="border-t border-zinc-800 text-zinc-300"
-              >
-                <td className="p-3 font-semibold text-white">
-                  {s.nombre}
-                </td>
-
-                <td className="p-3">
-                  {s.comercio}
-                </td>
-
-                <td className="p-3">
-                  {s.estado}
-                </td>
-
-                <td className="p-3">
-                  {formatFecha(s.created_at)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {sorteos.length === 0 && (
-          <div className="text-center p-10 text-zinc-500">
-            No hay sorteos.
+            {sorteos.length === 0 && (
+              <div className="p-activa-32 text-center text-sm text-text-secondary">
+                No hay campañas.
+              </div>
+            )}
           </div>
-        )}
-      </section>
+
+          <div className="flex flex-col items-center justify-between gap-activa-12 border-t border-border-default p-activa-16 sm:flex-row">
+            <Button
+              type="button"
+              variant="tertiary"
+              size="sm"
+              onClick={() => setPage((actual) => Math.max(1, actual - 1))}
+              disabled={page <= 1}
+              className="w-full sm:w-auto"
+            >
+              Anterior
+            </Button>
+
+            <span className="text-center text-sm font-semibold text-text-secondary">
+              Página {page} de {totalPages} · {total}{" "}
+              {total === 1 ? "campaña" : "campañas"}
+            </span>
+
+            <Button
+              type="button"
+              variant="tertiary"
+              size="sm"
+              onClick={() =>
+                setPage((actual) => Math.min(totalPages, actual + 1))
+              }
+              disabled={page >= totalPages}
+              className="w-full sm:w-auto"
+            >
+              Siguiente
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
