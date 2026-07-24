@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import NotificationBell from '@/components/NotificationBell';
 import { ActivaIcon, type ActivaIconName } from '@/components/icons';
 import { BrandLogo, NavigationItem } from '@/components/layout';
-import { Badge, Button, Divider } from '@/components/ui';
+import { Alert, Badge, Button, Divider } from '@/components/ui';
 import { authApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -213,28 +213,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <section className="p-4 md:p-8">
           {mostrarAvisoEmail && (
-            <div className="mb-6 rounded-2xl border border-amber-700 bg-amber-950/40 p-5 shadow-lg shadow-amber-950/10">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="text-sm font-black text-amber-300">
-                    Tu email todavía no está verificado
-                  </p>
-                  <p className="mt-1 text-sm text-zinc-400">
-                    Verificá tu casilla para poder comprar números o publicar sorteos.
-                    Si no encontrás el correo, podés pedir uno nuevo.
-                  </p>
-                </div>
-
-                <button
+            <Alert
+              variant="warning"
+              title="Verificá tu email"
+              icon={<ActivaIcon name="mail" size={16} />}
+              className="mb-activa-24"
+              action={
+                <Button
                   type="button"
+                  variant="primary"
+                  size="sm"
                   onClick={reenviarEmailVerificacion}
                   disabled={reenviandoEmail}
-                  className="btn-primary whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60"
+                  isLoading={reenviandoEmail}
+                  loadingText="Enviando..."
+                  className="whitespace-nowrap"
                 >
-                  {reenviandoEmail ? 'Enviando...' : 'Reenviar email'}
-                </button>
-              </div>
-            </div>
+                  Reenviar email
+                </Button>
+              }
+            >
+              Revisá tu casilla para comprar participaciones o publicar campañas. Si no encontrás
+              el correo, podés solicitar uno nuevo.
+            </Alert>
           )}
 
           {children}
