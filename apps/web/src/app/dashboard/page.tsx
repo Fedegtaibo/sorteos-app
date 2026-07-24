@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
 import { comercioApi, adminApi } from '@/lib/api';
@@ -8,30 +9,58 @@ import Link from 'next/link';
 import VentasChart from '@/components/VentasChart';
 import EntregasChart from '@/components/EntregasChart';
 import InstallAppButton from '@/components/InstallAppButton';
+import { Card, CardContent } from '@/components/ui';
+
+type MetricCardVariant =
+  | 'brand'
+  | 'information'
+  | 'success'
+  | 'warning'
+  | 'error';
+
+interface MetricCardProps {
+  label: string;
+  value: ReactNode;
+  variant?: MetricCardVariant;
+  sub?: ReactNode;
+  compact?: boolean;
+}
+
+const metricValueClasses: Record<MetricCardVariant, string> = {
+  brand: 'text-action-secondary',
+  information: 'text-status-information',
+  success: 'text-status-success',
+  warning: 'text-status-warning',
+  error: 'text-status-error',
+};
 
 function MetricCard({
   label,
   value,
-  tone = 'text-amber-300',
+  variant = 'warning',
   sub,
   compact = false,
-}: any) {
+}: MetricCardProps) {
   return (
-    <div className={`card ${compact ? 'p-4' : 'p-5'}`}>
-      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-500">
-        {label}
-      </p>
-
-      <div className={`${compact ? 'text-xl' : 'text-2xl'} font-black ${tone}`}>
-        {value}
-      </div>
-
-      {sub && (
-        <p className="mt-1 text-xs text-zinc-500">
-          {sub}
+    <Card>
+      <CardContent className={compact ? 'p-activa-16' : 'p-activa-20'}>
+        <p className="mb-activa-8 text-xs font-semibold uppercase tracking-wide text-text-secondary">
+          {label}
         </p>
-      )}
-    </div>
+
+        <div
+          className={`${compact ? 'text-xl' : 'text-2xl'} font-display font-semibold ${metricValueClasses[variant]}`}
+        >
+          {value}
+        </div>
+
+        {sub && (
+          <p className="mt-activa-4 text-xs text-text-secondary">
+            {sub}
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -252,25 +281,25 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
   <MetricCard
     label="Ticket promedio"
     value={formatMonto(ticketPromedio)}
-    tone="text-amber-300"
+    variant="warning"
   />
 
   <MetricCard
     label="Ventas totales"
     value={participantes.ventasTotales}
-    tone="text-sky-400"
+    variant="information"
   />
 
   <MetricCard
     label="% promedio vendido"
     value={`${porcentajePromedio}%`}
-    tone="text-emerald-400"
+    variant="success"
   />
 
   <MetricCard
     label="Mejor sorteo"
     value={mejorSorteo}
-    tone="text-purple-300"
+    variant="brand"
   />
 
 </div>
@@ -278,12 +307,12 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
 
 
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-5 mb-8">
-            <MetricCard label="Recaudación bruta" value={formatMonto(recaudacion.bruta)} tone="text-amber-300" />
-            <MetricCard label="Comisión" value={formatMonto(recaudacion.comision)} tone="text-red-400" />
-            <MetricCard label="Ganancia neta" value={formatMonto(recaudacion.neta)} tone="text-emerald-400" />
-            <MetricCard label="Sorteos activos" value={sorteos.activos} tone="text-sky-400" />
-            <MetricCard label="Participantes" value={participantes.unicos} tone="text-purple-400" />
-            <MetricCard label="Reclamos" value={entregas.reclamados} tone="text-red-300" />
+            <MetricCard label="Recaudación bruta" value={formatMonto(recaudacion.bruta)} variant="warning" />
+            <MetricCard label="Comisión" value={formatMonto(recaudacion.comision)} variant="error" />
+            <MetricCard label="Ganancia neta" value={formatMonto(recaudacion.neta)} variant="success" />
+            <MetricCard label="Sorteos activos" value={sorteos.activos} variant="information" />
+            <MetricCard label="Participantes" value={participantes.unicos} variant="brand" />
+            <MetricCard label="Reclamos" value={entregas.reclamados} variant="error" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -377,10 +406,10 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
               <p className="text-zinc-500 mt-2 mb-6">Estado general de entregas y premios.</p>
 
               <div className="grid grid-cols-2 gap-4">
-                <MetricCard label="Pendientes" value={entregas.pendientes} tone="text-amber-300" compact />
-<MetricCard label="Enviados" value={entregas.enviados} tone="text-purple-300" compact />
-<MetricCard label="Entregados" value={entregas.entregados} tone="text-green-300" compact />
-<MetricCard label="Confirmados" value={entregas.confirmados} tone="text-emerald-300" compact />
+                <MetricCard label="Pendientes" value={entregas.pendientes} variant="warning" compact />
+<MetricCard label="Enviados" value={entregas.enviados} variant="brand" compact />
+<MetricCard label="Entregados" value={entregas.entregados} variant="success" compact />
+<MetricCard label="Confirmados" value={entregas.confirmados} variant="success" compact />
               </div>
 
               <Link href="/dashboard/entregas" className="btn-ghost mt-6 inline-block">
@@ -436,10 +465,10 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-            <MetricCard label="Volumen operado" value={formatMonto(finanzas.volumenTotal)} tone="text-amber-300" />
-            <MetricCard label="Comercios activos" value={comercios.aprobados} tone="text-emerald-400" />
-            <MetricCard label="Sorteos activos" value={sorteos.activos} tone="text-sky-400" />
-            <MetricCard label="Participantes" value={usuarios.participantes} tone="text-purple-400" />
+            <MetricCard label="Volumen operado" value={formatMonto(finanzas.volumenTotal)} variant="warning" />
+            <MetricCard label="Comercios activos" value={comercios.aprobados} variant="success" />
+            <MetricCard label="Sorteos activos" value={sorteos.activos} variant="information" />
+            <MetricCard label="Participantes" value={usuarios.participantes} variant="brand" />
           </div>
         </section>
       </main>
