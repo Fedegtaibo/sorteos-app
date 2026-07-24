@@ -17,6 +17,9 @@ import {
   Button,
   Card,
   CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   Skeleton,
 } from '@/components/ui';
 
@@ -487,38 +490,48 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
             <MetricCard label="Reclamos" value={entregas.reclamados} variant="error" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <section className="card p-8">
-              <div className="flex items-center justify-between mb-6">
+          <div className="mb-activa-32 grid gap-activa-24 lg:grid-cols-2">
+            <Card>
+              <CardHeader className="flex flex-row items-start justify-between gap-activa-16">
                 <div>
-                  <h2 className="text-2xl font-black">Top sorteos</h2>
-                  <p className="text-zinc-500 mt-2">Los sorteos con mayor recaudación.</p>
+                  <CardTitle>Campañas destacadas</CardTitle>
+                  <CardDescription>Las campañas con mayor recaudación.</CardDescription>
                 </div>
-                <Link href="/dashboard/sorteos" className="text-amber-300 font-bold">
-                  Ver todos →
+                <Link
+                  href="/dashboard/sorteos"
+                  className="inline-flex shrink-0 items-center gap-activa-4 rounded-activa-xs text-sm font-semibold text-text-link transition-colors duration-fast ease-activa hover:text-action-secondary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus"
+                >
+                  Ver todas
+                  <ActivaIcon name="arrow-right" size={16} />
                 </Link>
-              </div>
+              </CardHeader>
 
+              <CardContent>
               {topSorteos.length === 0 ? (
-                <p className="text-zinc-500">Todavía no hay ventas registradas.</p>
+                <Alert variant="information" icon={<ActivaIcon name="chart" size={16} />}>
+                  Todavía no hay ventas registradas.
+                </Alert>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-activa-12">
                   {topSorteos.map((s: any) => (
-                    <div key={s.id} className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <p className="font-black text-white">{s.nombre}</p>
-                          <p className="mt-1 text-xs text-zinc-500">
+                    <div
+                      key={s.id}
+                      className="rounded-activa-md border border-border-default bg-background-surface-muted p-activa-16"
+                    >
+                      <div className="flex items-center justify-between gap-activa-16">
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-text-primary">{s.nombre}</p>
+                          <p className="mt-activa-4 text-xs text-text-secondary">
                             {s.vendidos}/{s.totalNumeros} vendidos · {s.porcentajeVendido}%
                           </p>
                         </div>
-                        <p className="font-black text-emerald-400">
+                        <p className="shrink-0 font-display font-semibold text-status-success">
                           {formatMonto(s.recaudacion)}
                         </p>
                       </div>
-                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-800">
+                      <div className="mt-activa-12 h-2 overflow-hidden rounded-activa-full bg-border-default">
                         <div
-                          className="h-full rounded-full bg-amber-400"
+                          className="h-full rounded-activa-full bg-action-primary"
                           style={{ width: `${Math.min(s.porcentajeVendido, 100)}%` }}
                         />
                       </div>
@@ -526,68 +539,74 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
                   ))}
                 </div>
               )}
-            </section>
+              </CardContent>
+            </Card>
 
-<section className="card p-8">
-  <h2 className="text-2xl font-black">
-    Top compradores
-  </h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Participantes destacados</CardTitle>
+                <CardDescription>Participantes con más compras.</CardDescription>
+              </CardHeader>
 
-  <p className="mt-2 mb-6 text-zinc-500">
-    Participantes con más compras.
-  </p>
+              <CardContent>
+                {topCompradores.length === 0 ? (
+                  <Alert variant="information" icon={<ActivaIcon name="user" size={16} />}>
+                    Todavía no hay datos suficientes.
+                  </Alert>
+                ) : (
+                  <div className="space-y-activa-12">
+                    {topCompradores.map((u: any, index: number) => (
+                      <div
+                        key={u.email}
+                        className="flex items-center justify-between gap-activa-16 rounded-activa-md border border-border-default bg-background-surface-muted p-activa-16"
+                      >
+                        <div className="min-w-0">
+                          <Badge variant="brand" size="sm">
+                            #{index + 1}
+                          </Badge>
+                          <p className="mt-activa-4 truncate text-sm text-text-secondary">
+                            {u.email}
+                          </p>
+                        </div>
 
-  {topCompradores.length === 0 ? (
-    <p className="text-zinc-500">
-      Todavía no hay datos suficientes.
-    </p>
-  ) : (
-    <div className="space-y-4">
-      {topCompradores.map((u: any, index: number) => (
-        <div
-          key={u.email}
-          className="flex items-center justify-between rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
-        >
-          <div>
-            <p className="font-black text-white">
-              #{index + 1}
-            </p>
+                        <div className="shrink-0 text-right">
+                          <p className="font-display text-xl font-semibold text-action-secondary">
+                            {u.total}
+                          </p>
+                          <p className="text-xs text-text-secondary">
+                            compras
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-            <p className="mt-1 text-sm text-zinc-400">
-              {u.email}
-            </p>
-          </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Logística</CardTitle>
+                <CardDescription>Estado general de entregas y beneficios.</CardDescription>
+              </CardHeader>
 
-          <div className="text-right">
-            <p className="text-xl font-black text-amber-300">
-              {u.total}
-            </p>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-activa-12">
+                  <MetricCard label="Pendientes" value={entregas.pendientes} variant="warning" compact />
+                  <MetricCard label="Enviados" value={entregas.enviados} variant="brand" compact />
+                  <MetricCard label="Entregados" value={entregas.entregados} variant="success" compact />
+                  <MetricCard label="Confirmados" value={entregas.confirmados} variant="success" compact />
+                </div>
 
-            <p className="text-xs text-zinc-500">
-              compras
-            </p>
-          </div>
-        </div>
-      ))}
-    </div>
-  )}
-</section>
-
-            <section className="card p-8">
-              <h2 className="text-2xl font-black">Logística</h2>
-              <p className="text-zinc-500 mt-2 mb-6">Estado general de entregas y premios.</p>
-
-              <div className="grid grid-cols-2 gap-4">
-                <MetricCard label="Pendientes" value={entregas.pendientes} variant="warning" compact />
-<MetricCard label="Enviados" value={entregas.enviados} variant="brand" compact />
-<MetricCard label="Entregados" value={entregas.entregados} variant="success" compact />
-<MetricCard label="Confirmados" value={entregas.confirmados} variant="success" compact />
-              </div>
-
-              <Link href="/dashboard/entregas" className="btn-ghost mt-6 inline-block">
-                Gestionar entregas
-              </Link>
-            </section>
+                <Link
+                  href="/dashboard/entregas"
+                  className="mt-activa-20 inline-flex h-11 items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+                >
+                  <ActivaIcon name="delivery" size={18} />
+                  Gestionar entregas
+                </Link>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="card p-8">
