@@ -9,6 +9,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui';
 
 export default function VentasChart({
   data,
@@ -16,41 +23,46 @@ export default function VentasChart({
   data: { fecha: string; total: number }[];
 }) {
   return (
-    <div className="card p-6">
-      <h2 className="text-xl font-black text-white">
-        Ventas últimos 30 días
-      </h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>Ventas últimos 30 días</CardTitle>
+        <CardDescription>Evolución diaria de ingresos.</CardDescription>
+      </CardHeader>
 
-      <p className="mt-2 text-sm text-zinc-500">
-        Evolución diaria de ingresos.
-      </p>
+      <CardContent>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid stroke="rgb(var(--color-border-default))" />
 
-      <div className="mt-6 h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
-            <CartesianGrid stroke="#27272a" />
+              <XAxis
+                dataKey="fecha"
+                tick={{
+                  fill: 'rgb(var(--color-text-secondary))',
+                  fontSize: 11,
+                }}
+              />
 
-            <XAxis
-              dataKey="fecha"
-              tick={{ fill: '#71717a', fontSize: 11 }}
-            />
+              <YAxis
+                tick={{
+                  fill: 'rgb(var(--color-text-secondary))',
+                  fontSize: 11,
+                }}
+              />
 
-            <YAxis
-              tick={{ fill: '#71717a', fontSize: 11 }}
-            />
+              <Tooltip />
 
-            <Tooltip />
-
-            <Line
-              type="monotone"
-              dataKey="total"
-              stroke="#fbbf24"
-              strokeWidth={3}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+              <Line
+                type="monotone"
+                dataKey="total"
+                stroke="rgb(var(--color-action-secondary))"
+                strokeWidth={3}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
