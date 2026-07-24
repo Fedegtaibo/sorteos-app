@@ -380,22 +380,24 @@ const mejorSorteo = topSorteos[0]?.nombre || '-';
     return (
       <main className="min-h-screen bg-zinc-950 text-zinc-100">
         <section className="mx-auto max-w-7xl px-6 py-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
-            <div>
-              <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">PANEL DE COMERCIO</p>
-              <h1 className="text-3xl font-black mt-3">Dashboard</h1>
-              <p className="text-zinc-500 mt-3">Resumen avanzado de ventas, comisiones y logística.</p>
-            </div>
-            
-		<div className="flex flex-col gap-3 sm:flex-row">
-  <InstallAppButton compact className="btn-ghost" />
-
-  <Link href="/dashboard/sorteos/nuevo" className="btn-primary">
-    + Nuevo sorteo
-  </Link>
-</div>
-
-          </div>
+          <PageHeader
+            eyebrow="Panel de comercio"
+            title="Dashboard"
+            description="Resumen avanzado de ventas, comisiones y logística."
+            className="mb-activa-32"
+            actions={
+              <>
+                <InstallAppButton compact className="w-full sm:w-auto" />
+                <Link
+                  href="/dashboard/sorteos/nuevo"
+                  className="inline-flex h-9 w-full items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-12 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto"
+                >
+                  <ActivaIcon name="plus" size={16} />
+                  Nueva campaña
+                </Link>
+              </>
+            }
+          />
             
           <div className="mb-8">
   <VentasChart data={ventasUltimos30Dias} />
