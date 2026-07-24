@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import NotificationBell from '@/components/NotificationBell';
 import { ActivaIcon, type ActivaIconName } from '@/components/icons';
 import { BrandLogo, NavigationItem } from '@/components/layout';
-import { Alert, Badge, Button, Divider } from '@/components/ui';
+import { Alert, Badge, Button, Divider, Spinner } from '@/components/ui';
 import { authApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -78,12 +78,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (status === 'loading') {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-activa-12 bg-background-page text-text-primary">
-        <span className="animate-pulse">
-          <BrandLogo variant="symbol" size="lg" alt="ACTIVA" />
-        </span>
-        <p className="text-sm font-semibold text-text-secondary">
-          Cargando tu cuenta…
-        </p>
+        <BrandLogo variant="symbol" size="lg" alt="ACTIVA" />
+        <div className="flex items-center gap-activa-8 text-sm font-semibold text-text-secondary">
+          <Spinner decorative size="sm" variant="brand" />
+          <span>Cargando tu cuenta…</span>
+        </div>
       </div>
     );
   }
