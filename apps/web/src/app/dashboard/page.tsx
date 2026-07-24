@@ -9,6 +9,8 @@ import Link from 'next/link';
 import VentasChart from '@/components/VentasChart';
 import EntregasChart from '@/components/EntregasChart';
 import InstallAppButton from '@/components/InstallAppButton';
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader } from '@/components/layout';
 import {
   Alert,
   Button,
@@ -93,50 +95,82 @@ export default function DashboardPage() {
 
   if (role === 'participante') {
     return (
-      <main className="min-h-screen bg-zinc-950 text-zinc-100">
-        <section className="mx-auto max-w-6xl px-6 py-10">
-          <div className="mb-10">
-            <p className="text-xs text-amber-300 uppercase tracking-[0.25em]">PARTICIPANTE</p>
-            <h1 className="text-3xl font-black mt-3">Mi cuenta</h1>
-            <p className="text-zinc-500 mt-3">{email}</p>
-          </div>
+      <div className="mx-auto max-w-6xl space-y-activa-24">
+        <PageHeader
+          eyebrow="Participante"
+          title="Mi cuenta"
+          description={email || undefined}
+        />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="card p-8">
-              <div className="text-4xl mb-5">🎟️</div>
-              <h2 className="text-2xl font-black mb-3">Mis participaciones</h2>
-              <p className="text-zinc-500 mb-8">
-                Revisá los sorteos en los que participaste, tus números y comprobantes.
+        <div className="grid gap-activa-16 md:grid-cols-2">
+          <Card className="h-full">
+            <CardContent className="flex h-full flex-col p-activa-24 sm:p-activa-32">
+              <span className="flex size-12 items-center justify-center rounded-activa-md bg-action-primary/20 text-action-secondary">
+                <ActivaIcon name="participation" size={24} />
+              </span>
+
+              <h2 className="mt-activa-20 font-display text-2xl font-semibold text-text-primary">
+                Mis participaciones
+              </h2>
+              <p className="mt-activa-8 flex-1 text-sm leading-7 text-text-secondary">
+                Revisá las campañas en las que participaste, tus números y comprobantes.
               </p>
-              <Link href="/dashboard/participaciones" className="btn-primary inline-block">
-                Ver participaciones →
-              </Link>
-            </div>
 
-            <div className="card p-8">
-              <div className="text-4xl mb-5">🎯</div>
-              <h2 className="text-2xl font-black mb-3">Explorar sorteos</h2>
-              <p className="text-zinc-500 mb-8">
-                Buscá sorteos activos y reservá tus próximos números.
+              <Link
+                href="/dashboard/participaciones"
+                className="mt-activa-24 inline-flex h-11 w-fit items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
+                Ver participaciones
+                <ActivaIcon name="arrow-right" size={18} />
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="h-full">
+            <CardContent className="flex h-full flex-col p-activa-24 sm:p-activa-32">
+              <span className="flex size-12 items-center justify-center rounded-activa-md bg-activa-teal-soft text-action-secondary">
+                <ActivaIcon name="campaign" size={24} />
+              </span>
+
+              <h2 className="mt-activa-20 font-display text-2xl font-semibold text-text-primary">
+                Explorar campañas
+              </h2>
+              <p className="mt-activa-8 flex-1 text-sm leading-7 text-text-secondary">
+                Buscá campañas activas y reservá tus próximos números.
               </p>
-              <Link href="/dashboard/explorar" className="btn-ghost inline-block">
-                Ver sorteos
-              </Link>
-            </div>
 
-		              <div className="card p-8 md:col-span-2">
-                <div className="text-4xl mb-5">📱</div>
-                <h2 className="text-2xl font-black mb-3">Instalar Sortealo</h2>
-                <p className="text-zinc-500 mb-8">
-                  Agregá Sortealo a la pantalla principal de tu celular y usalo como una app.
-                </p>
-                <InstallAppButton compact className="btn-primary inline-block" />
+              <Link
+                href="/dashboard/explorar"
+                className="mt-activa-24 inline-flex h-11 w-fit items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
+                Ver campañas
+                <ActivaIcon name="arrow-right" size={18} />
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card variant="muted" className="md:col-span-2">
+            <CardContent className="flex flex-col gap-activa-20 p-activa-24 sm:flex-row sm:items-center sm:justify-between sm:p-activa-32">
+              <div className="flex min-w-0 items-start gap-activa-16">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-activa-md bg-action-primary/20 text-action-secondary">
+                  <ActivaIcon name="download" size={24} />
+                </span>
+
+                <div>
+                  <h2 className="font-display text-2xl font-semibold text-text-primary">
+                    Instalar ACTIVA
+                  </h2>
+                  <p className="mt-activa-8 max-w-2xl text-sm leading-7 text-text-secondary">
+                    Agregá ACTIVA a la pantalla principal de tu celular y usala como una app.
+                  </p>
+                </div>
               </div>
 
-
-          </div>
-        </section>
-      </main>
+              <InstallAppButton compact />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     );
   }
 
