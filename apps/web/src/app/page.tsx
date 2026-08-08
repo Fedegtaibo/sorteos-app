@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import HomeIntroModal from '@/components/HomeIntroModal';
 import InstallAppButton from '@/components/InstallAppButton';
 import { ActivaIcon } from '@/components/icons';
 import { PublicFooter, PublicHeader } from '@/components/layout';
@@ -35,6 +36,8 @@ export default function HomePage() {
           </Link>
         )}
       />
+
+      <HomeIntroModal />
 
       <section className="border-b border-border-strong bg-background-inverse text-text-inverse">
         <div className="mx-auto grid max-w-7xl gap-activa-40 px-activa-16 py-activa-48 sm:px-activa-24 md:py-activa-64 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-activa-40 lg:py-activa-80">
