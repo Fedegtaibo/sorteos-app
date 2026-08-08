@@ -6,6 +6,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { comercioApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader } from '@/components/layout';
+import { MediaImage } from '@/components/media';
+import { Alert, Badge, Button, Card, CardContent, Input, Skeleton } from '@/components/ui';
+
 function getPerfil(res: any) {
   if (!res) return null;
   if (res?.data?.data) return res.data.data;
@@ -67,227 +72,131 @@ export default function PerfilComercioPage() {
   });
 
   if (isLoading) {
-    return <div className="animate-pulse text-zinc-400">Cargando perfil...</div>;
+    return (
+      <div aria-label="Cargando perfil del comercio" className="space-y-activa-24">
+        <Card>
+          <CardContent className="space-y-activa-12 p-activa-20 sm:p-activa-24">
+            <Skeleton variant="text" className="h-8 max-w-sm" />
+            <Skeleton variant="text" className="max-w-2xl" />
+          </CardContent>
+        </Card>
+        <div className="grid grid-cols-1 gap-activa-16 sm:grid-cols-3">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+        </div>
+        <Skeleton className="h-80" />
+      </div>
+    );
   }
 
   if (!perfil) {
     return (
-      <section className="rounded-3xl border border-red-900 bg-red-950/30 p-8 text-red-200">
-        No se pudo cargar el perfil del comercio.
-      </section>
+      <Alert variant="error" title="No pudimos cargar tu perfil" icon={<ActivaIcon name="error" size={18} />}>
+        Intentá nuevamente en unos minutos. Si el problema continúa, contactá a soporte.
+      </Alert>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-8 shadow-2xl">
-        <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
-          Comercio
-        </p>
+    <main className="min-w-0 space-y-activa-24 text-text-primary sm:space-y-activa-32">
+      <Card>
+        <CardContent className="p-activa-20 sm:p-activa-24 lg:p-activa-32">
+          <PageHeader
+            eyebrow="Comercio impulsor"
+            title="Mi perfil"
+            description="Configurá los datos principales de tu comercio para gestionar campañas y organizar entregas de beneficios con información clara y actualizada."
+            actions={
+              perfil.id ? (
+                <Link
+                  href={`/comercios/${perfil.id}`}
+                  target="_blank"
+                  className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto"
+                >
+                  <ActivaIcon name="external-link" size={18} />
+                  Ver perfil público
+                </Link>
+              ) : null
+            }
+          />
+        </CardContent>
+      </Card>
 
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <h1 className="text-3xl font-black text-white">Mi perfil</h1>
+      <section aria-label="Resumen del comercio" className="grid min-w-0 grid-cols-1 gap-activa-16 sm:grid-cols-3">
+        <Card variant="muted" className="min-w-0">
+          <CardContent className="p-activa-20">
+            <span className="flex size-10 items-center justify-center rounded-activa-full bg-activa-teal-soft text-action-secondary"><ActivaIcon name="mail" size={20} /></span>
+            <p className="mt-activa-12 text-xs font-semibold uppercase tracking-wide text-text-secondary">Email de acceso</p>
+            <p className="mt-activa-4 max-w-full break-words text-base font-semibold text-text-primary [overflow-wrap:anywhere]">{perfil.email}</p>
+          </CardContent>
+        </Card>
 
-          {perfil.id && (
-            <Link
-              href={`/comercios/${perfil.id}`}
-              target="_blank"
-              className="inline-flex items-center justify-center rounded-2xl border border-amber-400/40 bg-amber-400/10 px-5 py-3 text-sm font-black text-amber-300 transition hover:border-amber-300 hover:bg-amber-400/20"
-            >
-              Ver mi perfil público →
-            </Link>
-          )}
-        </div>
+        <Card variant="muted" className="min-w-0">
+          <CardContent className="p-activa-20">
+            <span className="flex size-10 items-center justify-center rounded-activa-full bg-activa-teal-soft text-action-secondary"><ActivaIcon name="shield-check" size={20} /></span>
+            <p className="mt-activa-12 text-xs font-semibold uppercase tracking-wide text-text-secondary">Estado</p>
+            <Badge variant="active" className="mt-activa-8 max-w-full"><span className="break-words [overflow-wrap:anywhere]">{perfil.estado}</span></Badge>
+          </CardContent>
+        </Card>
 
-        <p className="mt-3 max-w-2xl text-sm text-zinc-400">
-          Configurá los datos principales del comercio. Estos datos se usarán para validar el comercio, gestionar sorteos y organizar entregas de premios.
-        </p>
+        <Card variant="highlight" className="min-w-0">
+          <CardContent className="p-activa-20">
+            <span className="flex size-10 items-center justify-center rounded-activa-full bg-action-primary text-action-primary-text"><ActivaIcon name="chart" size={20} /></span>
+            <p className="mt-activa-12 text-xs font-semibold uppercase tracking-wide text-text-secondary">Comisión</p>
+            <p className="mt-activa-4 break-words font-display text-2xl font-semibold text-text-primary">{Number(perfil.comision_pct || 0)}%</p>
+          </CardContent>
+        </Card>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-3">
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-            Email de acceso
-          </p>
-          <p className="mt-3 break-all text-lg font-black text-white">
-            {perfil.email}
-          </p>
-        </div>
+      <Card>
+        <CardContent className="p-activa-20 sm:p-activa-24 lg:p-activa-32">
+          <div className="flex items-start gap-activa-12">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-activa-md bg-activa-teal-soft text-action-secondary"><ActivaIcon name="store" size={20} /></span>
+            <div className="min-w-0">
+              <h2 className="font-display text-xl font-semibold text-text-primary sm:text-2xl">Datos fiscales y contacto</h2>
+              <p className="mt-activa-4 text-sm leading-6 text-text-secondary">Mantené actualizada la información que identifica a tu comercio y facilita el contacto.</p>
+            </div>
+          </div>
 
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-            Estado
-          </p>
-          <p className="mt-3 text-lg font-black text-emerald-300">
-            {perfil.estado}
-          </p>
-        </div>
+          <div className="mt-activa-24 grid min-w-0 grid-cols-1 gap-activa-20 sm:grid-cols-2">
+            <Input label="Razón social" value={razonSocial} onChange={(e) => setRazonSocial(e.target.value)} placeholder="Ej: Tech Store Córdoba SRL" />
+            <Input label="CUIT" value={cuit} onChange={(e) => setCuit(e.target.value)} placeholder="Ej: 30-12345678-9" />
+            <div className="sm:col-span-2"><Input label="Teléfono" value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="Ej: +54 9 351 1234567" /></div>
+            <Input label="WhatsApp" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="Ej: +54 9 351 1234567" />
+            <div className="sm:col-span-2"><Input label="Dirección" value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Ej: Rosario, Santa Fe" /></div>
+            <Input label="Instagram" value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="Ej: @mi_comercio" />
 
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-            Comisión
-          </p>
-          <p className="mt-3 text-lg font-black text-amber-300">
-            {Number(perfil.comision_pct || 0)}%
-          </p>
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
-        <h2 className="mb-6 text-2xl font-black text-white">
-          Datos fiscales y contacto
-        </h2>
-
-        <div className="grid gap-5 md:grid-cols-2">
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Razón social
-            </span>
-            <input
-              value={razonSocial}
-              onChange={(e) => setRazonSocial(e.target.value)}
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
-              placeholder="Ej: Tech Store Córdoba SRL"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              CUIT
-            </span>
-            <input
-              value={cuit}
-              onChange={(e) => setCuit(e.target.value)}
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
-              placeholder="Ej: 30-12345678-9"
-            />
-          </label>
-
-          <label className="block md:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Teléfono
-            </span>
-            <input
-              value={telefono}
-              onChange={(e) => setTelefono(e.target.value)}
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
-              placeholder="Ej: +54 9 351 1234567"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              WhatsApp
-            </span>
-            <input
-              value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
-              placeholder="Ej: +54 9 351 1234567"
-            />
-          </label>
-
-          <label className="block md:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Dirección
-            </span>
-            <input
-              value={direccion}
-              onChange={(e) => setDireccion(e.target.value)}
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
-              placeholder="Ej: Rosario, Santa Fe"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Instagram
-            </span>
-            <input
-              value={instagram}
-              onChange={(e) => setInstagram(e.target.value)}
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
-              placeholder="Ej: @mi_comercio"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Logo URL
-            </span>
-            <input
-              value={logoUrl}
-              onChange={(e) => setLogoUrl(e.target.value)}
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
-              placeholder="https://..."
-            />
-
-            {logoUrl.trim() && (
-              <div className="mt-4 flex items-center gap-4 rounded-2xl border border-zinc-800 bg-black p-4">
-                <img
-                  src={logoUrl}
-                  alt="Vista previa del logo"
-                  className="h-20 w-20 rounded-2xl object-cover"
-                />
-
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-                    Vista previa
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-zinc-300">
-                    Vista previa del logo del comercio.
-                  </p>
+            <div className="min-w-0">
+              <Input label="Logo URL" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://..." helperText="Usá una imagen clara y reconocible para identificar tu comercio." />
+              <div className="mt-activa-16 flex min-w-0 flex-col gap-activa-16 rounded-activa-md border border-border-default bg-background-surface-muted p-activa-16 sm:flex-row sm:items-center">
+                <div className="h-32 w-full shrink-0 rounded-activa-md border border-border-default bg-background-surface sm:w-40">
+                  <MediaImage src={logoUrl} alt="Vista previa del logo del comercio" placeholderVariant="logo" placeholderText="Logo del comercio no disponible" fit="contain" className="rounded-activa-md" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Vista previa</p>
+                  <p className="mt-activa-4 break-words text-sm text-text-secondary">Así se mostrará el logo del comercio.</p>
                 </div>
               </div>
-            )}
-          </label>
+            </div>
 
-          <label className="block md:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Portada URL
-            </span>
-            <input
-              value={portadaUrl}
-              onChange={(e) => setPortadaUrl(e.target.value)}
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-amber-400"
-              placeholder="https://..."
-            />
-
-            {portadaUrl.trim() && (
-              <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-800 bg-black">
-                <img
-                  src={portadaUrl}
-                  alt="Vista previa de la portada"
-                  className="h-44 w-full object-cover"
-                />
-
-                <div className="p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-                    Vista previa
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-zinc-300">
-                    Vista previa de la portada del comercio.
-                  </p>
+            <div className="min-w-0 sm:col-span-2">
+              <Input label="Portada URL" value={portadaUrl} onChange={(e) => setPortadaUrl(e.target.value)} placeholder="https://..." helperText="Elegí una imagen horizontal que represente la identidad del comercio." />
+              <div className="mt-activa-16 overflow-hidden rounded-activa-md border border-border-default bg-background-surface-muted">
+                <div className="h-44 w-full max-w-full"><MediaImage src={portadaUrl} alt="Vista previa de la portada del comercio" placeholderVariant="cover" placeholderText="Portada del comercio no disponible" /></div>
+                <div className="p-activa-16">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Vista previa</p>
+                  <p className="mt-activa-4 text-sm text-text-secondary">Así se mostrará la portada en el perfil público del comercio.</p>
                 </div>
               </div>
-            )}
-          </label>
-        </div>
+            </div>
+          </div>
 
-        <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm text-zinc-500">
-            Estos datos ayudan a validar el comercio y mejorar la confianza del perfil público.
-          </p>
-
-          <button
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
-            className="btn-primary"
-          >
-            {mutation.isPending ? 'Guardando...' : 'Guardar cambios'}
-          </button>
-        </div>
-      </section>
-    </div>
+          <div className="mt-activa-24 flex min-w-0 flex-col gap-activa-16 border-t border-border-default pt-activa-24 sm:flex-row sm:items-center sm:justify-between">
+            <p className="min-w-0 break-words text-sm leading-6 text-text-secondary">Estos datos ayudan a validar el comercio y fortalecen la confianza en su perfil público.</p>
+            <Button onClick={() => mutation.mutate()} disabled={mutation.isPending} isLoading={mutation.isPending} loadingText="Guardando..." leftIcon={<ActivaIcon name="check" size={18} />} className="w-full shrink-0 sm:w-auto">Guardar cambios</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </main>
   );
 }

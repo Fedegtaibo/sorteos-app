@@ -1,6 +1,8 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
+import { ActivaIcon } from '@/components/icons';
+import { Alert, Card, CardContent, Skeleton } from '@/components/ui';
 import PerfilComercio from './PerfilComercio';
 import PerfilParticipante from './PerfilParticipante';
 
@@ -10,8 +12,11 @@ export default function PerfilPage() {
 
   if (status === 'loading') {
     return (
-      <div className="animate-pulse text-zinc-400">
-        Cargando perfil...
+      <div aria-label="Cargando perfil" className="space-y-activa-24">
+        <Card>
+          <CardContent className="space-y-activa-12 p-activa-20 sm:p-activa-24"><Skeleton variant="text" className="h-8 max-w-sm" /><Skeleton variant="text" className="max-w-2xl" /></CardContent>
+        </Card>
+        <Skeleton className="h-72" />
       </div>
     );
   }
@@ -25,8 +30,8 @@ export default function PerfilPage() {
   }
 
   return (
-    <section className="rounded-3xl border border-red-900 bg-red-950/30 p-8 text-red-200">
+    <Alert variant="information" title="Perfil no disponible" icon={<ActivaIcon name="info" size={18} />}>
       Esta cuenta no tiene un perfil disponible en esta sección.
-    </section>
+    </Alert>
   );
 }

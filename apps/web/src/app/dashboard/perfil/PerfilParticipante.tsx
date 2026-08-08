@@ -5,6 +5,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader } from '@/components/layout';
+import { Alert, Badge, Button, Card, CardContent, Input, Skeleton } from '@/components/ui';
+
 function getPerfil(res: any) {
   if (!res) return null;
   if (res?.data?.data?.perfil) return res.data.data.perfil;
@@ -83,236 +87,89 @@ export default function PerfilParticipante() {
 
   if (isLoading) {
     return (
-      <div className="animate-pulse text-zinc-400">
-        Cargando perfil...
+      <div aria-label="Cargando perfil del participante" className="space-y-activa-24">
+        <Card>
+          <CardContent className="space-y-activa-12 p-activa-20 sm:p-activa-24"><Skeleton variant="text" className="h-8 max-w-sm" /><Skeleton variant="text" className="max-w-2xl" /></CardContent>
+        </Card>
+        <div className="grid grid-cols-1 gap-activa-16 sm:grid-cols-3"><Skeleton className="h-28" /><Skeleton className="h-28" /><Skeleton className="h-28" /></div>
+        <Skeleton className="h-72" />
       </div>
     );
   }
 
   if (isError || !perfil) {
     return (
-      <section className="rounded-3xl border border-red-900 bg-red-950/30 p-8 text-red-200">
-        No se pudo cargar el perfil del participante.
-      </section>
+      <Alert variant="error" title="No pudimos cargar tu perfil" icon={<ActivaIcon name="error" size={18} />}>
+        Intentá nuevamente en unos minutos. Si el problema continúa, contactá a soporte.
+      </Alert>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-8 shadow-2xl">
-        <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-sky-400">
-          Participante
-        </p>
+    <main className="min-w-0 space-y-activa-24 text-text-primary sm:space-y-activa-32">
+      <Card>
+        <CardContent className="p-activa-20 sm:p-activa-24 lg:p-activa-32">
+          <PageHeader eyebrow="Participante" title="Mi perfil" description="Revisá y mantené actualizados tus datos personales y de contacto. Esta información permite identificarte y organizar la entrega de beneficios." />
+        </CardContent>
+      </Card>
 
-        <h1 className="text-3xl font-black text-white">
-          Mi perfil
-        </h1>
-
-        <p className="mt-3 max-w-2xl text-sm text-zinc-400">
-          Revisá y mantené actualizados tus datos personales y de contacto.
-          Esta información se utilizará para identificarte y organizar la
-          entrega de premios.
-        </p>
+      <section aria-label="Resumen de la cuenta" className="grid min-w-0 grid-cols-1 gap-activa-16 sm:grid-cols-3">
+        <Card variant="muted" className="min-w-0">
+          <CardContent className="p-activa-20">
+            <span className="flex size-10 items-center justify-center rounded-activa-full bg-activa-teal-soft text-action-secondary"><ActivaIcon name="mail" size={20} /></span>
+            <p className="mt-activa-12 text-xs font-semibold uppercase tracking-wide text-text-secondary">Email de acceso</p>
+            <p className="mt-activa-4 max-w-full break-words text-base font-semibold text-text-primary [overflow-wrap:anywhere]">{perfil.email}</p>
+          </CardContent>
+        </Card>
+        <Card variant="muted" className="min-w-0">
+          <CardContent className="p-activa-20">
+            <span className="flex size-10 items-center justify-center rounded-activa-full bg-activa-teal-soft text-action-secondary"><ActivaIcon name={perfil.email_verified ? 'shield-check' : 'pending'} size={20} /></span>
+            <p className="mt-activa-12 text-xs font-semibold uppercase tracking-wide text-text-secondary">Estado del email</p>
+            <Badge variant={perfil.email_verified ? 'active' : 'warning'} className="mt-activa-8">{perfil.email_verified ? 'Verificado' : 'Pendiente'}</Badge>
+          </CardContent>
+        </Card>
+        <Card variant="muted" className="min-w-0">
+          <CardContent className="p-activa-20">
+            <span className="flex size-10 items-center justify-center rounded-activa-full bg-activa-teal-soft text-action-secondary"><ActivaIcon name="calendar" size={20} /></span>
+            <p className="mt-activa-12 text-xs font-semibold uppercase tracking-wide text-text-secondary">Fecha de nacimiento</p>
+            <p className="mt-activa-4 break-words text-base font-semibold text-text-primary">{formatearFecha(perfil.fecha_nacimiento)}</p>
+          </CardContent>
+        </Card>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-3">
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-            Email de acceso
-          </p>
+      <Card>
+        <CardContent className="p-activa-20 sm:p-activa-24 lg:p-activa-32">
+          <div className="flex items-start gap-activa-12">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-activa-md bg-activa-teal-soft text-action-secondary"><ActivaIcon name="id-card" size={20} /></span>
+            <div className="min-w-0"><h2 className="font-display text-xl font-semibold text-text-primary sm:text-2xl">Datos personales</h2><p className="mt-activa-4 text-sm leading-6 text-text-secondary">Estos datos nos ayudan a mantener tu cuenta correctamente identificada.</p></div>
+          </div>
+          <div className="mt-activa-24 grid min-w-0 grid-cols-1 gap-activa-20 sm:grid-cols-2">
+            <Input label="Nombre" value={nombre} onChange={(event) => setNombre(event.target.value)} required placeholder="Ej: Juan" />
+            <Input label="Apellido" value={apellido} onChange={(event) => setApellido(event.target.value)} required placeholder="Ej: Pérez" />
+            <Input label="DNI" value={perfil.dni || ''} readOnly helperText="El DNI no puede modificarse desde el perfil." />
+            <Input label="Nacionalidad" value={nacionalidad} onChange={(event) => setNacionalidad(event.target.value)} required placeholder="Ej: Argentina" />
+            <div className="sm:col-span-2"><Input label="Teléfono celular" value={telefono} onChange={(event) => setTelefono(event.target.value)} required placeholder="Ej: +54 9 343 1234567" /></div>
+          </div>
+        </CardContent>
+      </Card>
 
-          <p className="mt-3 break-all text-lg font-black text-white">
-            {perfil.email}
-          </p>
-        </div>
-
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-            Estado del email
-          </p>
-
-          <p
-            className={`mt-3 text-lg font-black ${
-              perfil.email_verified
-                ? 'text-emerald-300'
-                : 'text-amber-300'
-            }`}
-          >
-            {perfil.email_verified ? 'Verificado' : 'Pendiente'}
-          </p>
-        </div>
-
-        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-            Fecha de nacimiento
-          </p>
-
-          <p className="mt-3 text-lg font-black text-white">
-            {formatearFecha(perfil.fecha_nacimiento)}
-          </p>
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
-        <h2 className="mb-6 text-2xl font-black text-white">
-          Datos personales
-        </h2>
-
-        <div className="grid gap-5 md:grid-cols-2">
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Nombre
-            </span>
-
-            <input
-              value={nombre}
-              onChange={(event) => setNombre(event.target.value)}
-              required
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-sky-400"
-              placeholder="Ej: Juan"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Apellido
-            </span>
-
-            <input
-              value={apellido}
-              onChange={(event) => setApellido(event.target.value)}
-              required
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-sky-400"
-              placeholder="Ej: Pérez"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              DNI
-            </span>
-
-            <input
-              value={perfil.dni || ''}
-              readOnly
-              className="w-full cursor-not-allowed rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-500 outline-none"
-            />
-
-            <span className="mt-2 block text-xs text-zinc-600">
-              El DNI no puede modificarse desde el perfil.
-            </span>
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Nacionalidad
-            </span>
-
-            <input
-              value={nacionalidad}
-              onChange={(event) => setNacionalidad(event.target.value)}
-              required
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-sky-400"
-              placeholder="Ej: Argentina"
-            />
-          </label>
-
-          <label className="block md:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Teléfono celular
-            </span>
-
-            <input
-              value={telefono}
-              onChange={(event) => setTelefono(event.target.value)}
-              required
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-sky-400"
-              placeholder="Ej: +54 9 343 1234567"
-            />
-          </label>
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
-        <h2 className="mb-2 text-2xl font-black text-white">
-          Dirección y entrega
-        </h2>
-
-        <p className="mb-6 text-sm text-zinc-500">
-          Los cambios realizados se aplicarán a futuras entregas de premios.
-        </p>
-
-        <div className="grid gap-5 md:grid-cols-2">
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Provincia
-            </span>
-
-            <input
-              value={provincia}
-              onChange={(event) => setProvincia(event.target.value)}
-              required
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-sky-400"
-              placeholder="Ej: Entre Ríos"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Ciudad
-            </span>
-
-            <input
-              value={ciudad}
-              onChange={(event) => setCiudad(event.target.value)}
-              required
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-sky-400"
-              placeholder="Ej: Paraná"
-            />
-          </label>
-
-          <label className="block md:col-span-2">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Dirección
-            </span>
-
-            <input
-              value={direccion}
-              onChange={(event) => setDireccion(event.target.value)}
-              required
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-sky-400"
-              placeholder="Ej: Urquiza 1234, piso 2"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-2 block text-sm font-bold text-zinc-400">
-              Código postal
-            </span>
-
-            <input
-              value={codigoPostal}
-              onChange={(event) => setCodigoPostal(event.target.value)}
-              required
-              className="w-full rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-sky-400"
-              placeholder="Ej: 3100"
-            />
-          </label>
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <button
-            type="button"
-            onClick={() => mutation.mutate()}
-            disabled={mutation.isPending}
-            className="btn-primary disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {mutation.isPending
-              ? 'Guardando...'
-              : 'Guardar cambios'}
-          </button>
-        </div>
-      </section>
-    </div>
+      <Card>
+        <CardContent className="p-activa-20 sm:p-activa-24 lg:p-activa-32">
+          <div className="flex items-start gap-activa-12">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-activa-md bg-activa-teal-soft text-action-secondary"><ActivaIcon name="location" size={20} /></span>
+            <div className="min-w-0"><h2 className="font-display text-xl font-semibold text-text-primary sm:text-2xl">Dirección y entrega</h2><p className="mt-activa-4 text-sm leading-6 text-text-secondary">Los cambios realizados se aplicarán a futuras entregas de beneficios.</p></div>
+          </div>
+          <div className="mt-activa-24 grid min-w-0 grid-cols-1 gap-activa-20 sm:grid-cols-2">
+            <Input label="Provincia" value={provincia} onChange={(event) => setProvincia(event.target.value)} required placeholder="Ej: Entre Ríos" />
+            <Input label="Ciudad" value={ciudad} onChange={(event) => setCiudad(event.target.value)} required placeholder="Ej: Paraná" />
+            <div className="sm:col-span-2"><Input label="Dirección" value={direccion} onChange={(event) => setDireccion(event.target.value)} required placeholder="Ej: Urquiza 1234, piso 2" /></div>
+            <Input label="Código postal" value={codigoPostal} onChange={(event) => setCodigoPostal(event.target.value)} required placeholder="Ej: 3100" />
+          </div>
+          <div className="mt-activa-24 flex justify-stretch border-t border-border-default pt-activa-24 sm:justify-end">
+            <Button type="button" onClick={() => mutation.mutate()} disabled={mutation.isPending} isLoading={mutation.isPending} loadingText="Guardando..." leftIcon={<ActivaIcon name="check" size={18} />} className="w-full sm:w-auto">Guardar cambios</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </main>
   );
 }
