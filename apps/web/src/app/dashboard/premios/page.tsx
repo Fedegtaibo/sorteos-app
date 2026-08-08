@@ -1,25 +1,32 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+
+import ChatPremio from '@/components/ChatPremio';
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader } from '@/components/layout';
+import { Alert, Badge, Button, Card, CardContent, Skeleton } from '@/components/ui';
 import { pagosApi } from '@/lib/api';
 import { formatFecha } from '@/lib/utils';
-import toast from 'react-hot-toast';
-import ChatPremio from '@/components/ChatPremio';
 
-function Badge({ estado }: { estado: string }) {
-  const styles: Record<string, string> = {
-    pendiente: 'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-    preparando: 'bg-blue-500/15 text-blue-300 ring-blue-500/30',
-    enviado: 'bg-purple-500/15 text-purple-300 ring-purple-500/30',
-    entregado: 'bg-green-500/15 text-green-300 ring-green-500/30',
-    confirmado: 'bg-emerald-500/15 text-emerald-300 ring-emerald-500/30',
-    reclamado: 'bg-red-500/15 text-red-300 ring-red-500/30',
+function EstadoEntregaBadge({ estado }: { estado: string }) {
+  const variants: Record<
+    string,
+    'neutral' | 'information' | 'active' | 'success' | 'warning' | 'error'
+  > = {
+    pendiente: 'warning',
+    preparando: 'information',
+    enviado: 'active',
+    entregado: 'success',
+    confirmado: 'success',
+    reclamado: 'error',
   };
 
   return (
-    <span className={`rounded-full px-3 py-1 text-xs font-black uppercase ring-1 ${styles[estado] || styles.pendiente}`}>
+    <Badge variant={variants[estado] || variants.pendiente} size="sm">
       {estado}
-    </span>
+    </Badge>
   );
 }
 
@@ -27,9 +34,9 @@ export default function PremiosPage() {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
-  queryKey: ['mis-premios'],
-  queryFn: () => pagosApi.misPremios() as any,
-});
+    queryKey: ['mis-premios'],
+    queryFn: () => pagosApi.misPremios() as any,
+  });
 
   const confirmarMutation = useMutation({
     mutationFn: (id: string) => pagosApi.confirmarPremio(id),
@@ -63,135 +70,178 @@ export default function PremiosPage() {
         : [];
 
   const reclamar = (id: string) => {
-    const motivo = window.prompt('Contanos brevemente qué pasó con el premio');
+    const motivo = window.prompt('Contanos brevemente qué pasó con el beneficio');
     if (!motivo) return;
 
     reclamarMutation.mutate({ id, motivo });
   };
 
-if (error) {
-  return (
-    <div className="text-red-400">
-      Error: {(error as any).message}
-    </div>
-  );
-}
+  if (error) {
+    return (
+      <Alert variant="error" title="No pudimos cargar tus beneficios">
+        {(error as any).message}
+      </Alert>
+    );
+  }
 
   if (isLoading) {
-    return <div className="animate-pulse text-zinc-400">Cargando premios...</div>;
+    return (
+      <div aria-label="Cargando beneficios" className="space-y-activa-24">
+        <Card>
+          <CardContent className="space-y-activa-12 p-activa-20 sm:p-activa-24">
+            <Skeleton variant="text" className="h-8 max-w-sm" />
+            <Skeleton variant="text" className="max-w-2xl" />
+          </CardContent>
+        </Card>
+        <Skeleton className="h-72" />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-8 shadow-2xl">
-        <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
-          Ganador
-        </p>
-        <h1 className="text-3xl font-black text-white">Mis premios</h1>
-        <p className="mt-3 max-w-2xl text-sm text-zinc-400">
-          Acá podés seguir el estado de tus premios ganados, confirmar la recepción o iniciar un reclamo si hubo un problema.
-        </p>
+    <main className="min-w-0 space-y-activa-24 text-text-primary sm:space-y-activa-32">
+      <section className="rounded-activa-lg border border-border-default bg-background-surface p-activa-20 shadow-activa-sm sm:p-activa-24 lg:p-activa-32">
+        <PageHeader
+          eyebrow="Persona seleccionada"
+          title="Mis beneficios"
+          description="Seguí el estado de tus beneficios obtenidos, confirmá la recepción o iniciá un reclamo si hubo un problema."
+        />
       </section>
 
       {premios.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-zinc-700 bg-zinc-900 p-12 text-center">
-          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-zinc-800 text-4xl">
-            🏆
-          </div>
-          <h2 className="text-xl font-black text-white">Todavía no tenés premios ganados</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-zinc-400">
-            Cuando ganes un sorteo, el premio aparecerá acá con su estado de entrega.
-          </p>
-        </section>
+        <Card variant="muted" className="border-dashed">
+          <CardContent className="py-activa-40 text-center sm:py-activa-48">
+            <span className="mx-auto grid size-12 place-items-center rounded-activa-full bg-action-primary/15 text-action-primary-text">
+              <ActivaIcon name="benefit" size={24} />
+            </span>
+            <h2 className="mt-activa-16 font-display text-xl font-semibold text-text-primary">
+              Todavía no tenés beneficios registrados
+            </h2>
+            <p className="mx-auto mt-activa-8 max-w-md text-sm leading-6 text-text-secondary">
+              Cuando una de tus participaciones resulte seleccionada, el beneficio asociado
+              aparecerá acá con su estado de entrega.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
-        <section className="space-y-4">
+        <section aria-label="Beneficios obtenidos" className="space-y-activa-16">
           {premios.map((p) => (
-            <article
-              key={p.id}
-              className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl"
-            >
-              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h2 className="text-xl font-black text-white">{p.sorteo_nombre}</h2>
-                    <Badge estado={p.estado} />
+            <Card key={p.id} className="min-w-0">
+              <CardContent className="p-activa-16 sm:p-activa-20 lg:p-activa-24">
+                <div className="flex min-w-0 flex-col gap-activa-20 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 flex-wrap items-center gap-activa-8">
+                      <span className="flex size-11 shrink-0 items-center justify-center rounded-activa-md bg-action-primary/15 text-action-primary-text">
+                        <ActivaIcon name="benefit" size={22} />
+                      </span>
+                      <h2 className="min-w-0 max-w-full break-words font-display text-xl font-semibold text-text-primary">
+                        {p.sorteo_nombre}
+                      </h2>
+                      <EstadoEntregaBadge estado={p.estado} />
+                    </div>
+
+                    <div className="mt-activa-16 grid grid-cols-2 gap-activa-12 lg:grid-cols-4">
+                      <div className="min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12">
+                        <p className="text-xs text-text-secondary">Envío</p>
+                        <p className="mt-activa-4 break-words text-sm font-semibold text-text-primary">
+                          {p.empresa_envio || 'Sin empresa'}
+                        </p>
+                        <p className="mt-activa-4 break-all text-xs text-text-secondary">
+                          {p.codigo_seguimiento
+                            ? `Código: ${p.codigo_seguimiento}`
+                            : 'Sin seguimiento'}
+                        </p>
+                      </div>
+
+                      <div className="min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12">
+                        <p className="text-xs text-text-secondary">Opción seleccionada</p>
+                        <p className="mt-activa-4 break-words text-sm font-semibold text-text-primary">
+                          #{p.numero_visible}
+                        </p>
+                      </div>
+
+                      <div className="min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12">
+                        <p className="text-xs text-text-secondary">Registrado</p>
+                        <p className="mt-activa-4 break-words text-sm font-semibold text-text-primary">
+                          {formatFecha(p.created_at)}
+                        </p>
+                      </div>
+
+                      <div className="min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12">
+                        <p className="text-xs text-text-secondary">Comercio impulsor</p>
+                        <p className="mt-activa-4 break-words text-sm font-semibold text-text-primary">
+                          {p.comercio_nombre}
+                        </p>
+                      </div>
+                    </div>
+
+                    {p.estado === 'entregado' && (
+                      <Alert
+                        variant="success"
+                        title="Entrega informada"
+                        icon={<ActivaIcon name="delivery" size={16} />}
+                        className="mt-activa-16"
+                      >
+                        El comercio impulsor marcó este beneficio como entregado. Confirmá la
+                        recepción sólo si realmente lo recibiste.
+                      </Alert>
+                    )}
+
+                    {p.estado === 'confirmado' && (
+                      <Alert
+                        variant="success"
+                        title="Recepción confirmada"
+                        icon={<ActivaIcon name="check-circle" size={16} />}
+                        className="mt-activa-16"
+                      >
+                        La plataforma puede liberar los fondos al comercio impulsor.
+                      </Alert>
+                    )}
+
+                    {p.estado === 'reclamado' && (
+                      <Alert
+                        variant="error"
+                        title="Reclamo iniciado"
+                        icon={<ActivaIcon name="warning" size={16} />}
+                        className="mt-activa-16"
+                      >
+                        Un administrador revisará el caso antes de liberar fondos.
+                      </Alert>
+                    )}
+
+                    <ChatPremio entregaId={p.id} />
                   </div>
 
-                  <div className="mt-4 grid gap-3 text-sm text-zinc-400 md:grid-cols-4">
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Envío</p>
-                      <p className="mt-1 font-semibold text-zinc-300">
-                        {p.empresa_envio || 'Sin empresa'}
-                      </p>
-                      <p className="mt-1 text-xs text-zinc-500">
-                        {p.codigo_seguimiento
-                          ? `Código: ${p.codigo_seguimiento}`
-                          : 'Sin seguimiento'}
-                      </p>
-                    </div>
+                  <div className="flex min-w-0 shrink-0 flex-col gap-activa-8 sm:flex-row sm:flex-wrap lg:w-52 lg:flex-col">
+                    <Button
+                      disabled={p.estado !== 'entregado' || confirmarMutation.isPending}
+                      onClick={() => confirmarMutation.mutate(p.id)}
+                      leftIcon={<ActivaIcon name="check-circle" size={18} />}
+                      className="w-full sm:w-auto lg:w-full"
+                    >
+                      Confirmar recepción
+                    </Button>
 
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Número ganador</p>
-                      <p className="mt-1 font-semibold text-zinc-300">#{p.numero_visible}</p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Creado</p>
-                      <p className="mt-1 font-semibold text-zinc-300">{formatFecha(p.created_at)}</p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Comercio</p>
-                      <p className="mt-1 font-semibold text-zinc-300">{p.comercio_nombre}</p>
-                    </div>
+                    <Button
+                      variant="tertiary"
+                      disabled={
+                        p.estado === 'confirmado' ||
+                        p.estado === 'reclamado' ||
+                        reclamarMutation.isPending
+                      }
+                      onClick={() => reclamar(p.id)}
+                      leftIcon={<ActivaIcon name="warning" size={18} />}
+                      className="w-full sm:w-auto lg:w-full"
+                    >
+                      Abrir reclamo
+                    </Button>
                   </div>
-
-                  {p.estado === 'entregado' && (
-                    <p className="mt-4 rounded-2xl border border-green-500/20 bg-green-500/10 p-4 text-sm font-semibold text-green-300">
-                      El comercio marcó este premio como entregado. Confirmá la recepción sólo si realmente lo recibiste.
-                    </p>
-                  )}
-
-                  {p.estado === 'confirmado' && (
-                    <p className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-300">
-                      Recepción confirmada. La plataforma puede liberar los fondos al comercio.
-                    </p>
-                  )}
-
-                  {p.estado === 'reclamado' && (
-                    <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm font-semibold text-red-300">
-                      Reclamo iniciado. Un administrador revisará el caso antes de liberar fondos.
-                    </p>
-                  )}
-<ChatPremio entregaId={p.id} />
                 </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    className="btn-primary text-sm"
-                    disabled={p.estado !== 'entregado' || confirmarMutation.isPending}
-                    onClick={() => confirmarMutation.mutate(p.id)}
-                  >
-                    Confirmar recepción
-                  </button>
-
-                  <button
-                    className="btn-ghost text-sm"
-                    disabled={
-                      p.estado === 'confirmado' ||
-                      p.estado === 'reclamado' ||
-                      reclamarMutation.isPending
-                    }
-                    onClick={() => reclamar(p.id)}
-                  >
-                    Abrir reclamo
-                  </button>
-                </div>
-              </div>
-            </article>
+              </CardContent>
+            </Card>
           ))}
         </section>
       )}
-    </div>
+    </main>
   );
 }

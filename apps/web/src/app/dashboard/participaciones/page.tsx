@@ -1,55 +1,67 @@
 'use client';
 
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
+
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader } from '@/components/layout';
+import { Alert, Badge, Card, CardContent, Skeleton } from '@/components/ui';
 import { pagosApi } from '@/lib/api';
 import { formatMonto, formatFecha } from '@/lib/utils';
-import Link from 'next/link';
 
 function EstadoBadge({ estado, ganador }: { estado: string; ganador: boolean }) {
   if (ganador) {
     return (
-      <span className="rounded-full bg-amber-400 px-3 py-1 text-xs font-black text-black">
-        🏆 GANADOR
-      </span>
+      <Badge
+        variant="brand"
+        size="sm"
+        icon={<ActivaIcon name="selection" size={14} />}
+      >
+        Persona seleccionada
+      </Badge>
     );
   }
 
   if (estado === 'activo') {
     return (
-      <span className="rounded-full bg-blue-500/15 px-3 py-1 text-xs font-bold text-blue-300 ring-1 ring-blue-500/30">
+      <Badge variant="active" size="sm">
         Participando
-      </span>
+      </Badge>
     );
   }
 
   if (estado === 'finalizado') {
     return (
-      <span className="rounded-full bg-zinc-700 px-3 py-1 text-xs font-bold text-zinc-300">
-        Finalizado
-      </span>
+      <Badge variant="neutral" size="sm">
+        Finalizada
+      </Badge>
     );
   }
 
   return (
-    <span className="rounded-full bg-zinc-800 px-3 py-1 text-xs font-bold text-zinc-400">
+    <Badge variant="neutral" size="sm">
       {estado || 'Registrada'}
-    </span>
+    </Badge>
   );
 }
 
 function ComprobanteBadge({ codigo }: { codigo?: string | null }) {
   if (codigo) {
     return (
-      <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300 ring-1 ring-emerald-500/30">
+      <Badge
+        variant="success"
+        size="sm"
+        icon={<ActivaIcon name="receipt" size={14} />}
+      >
         Comprobante emitido
-      </span>
+      </Badge>
     );
   }
 
   return (
-    <span className="rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-300 ring-1 ring-amber-500/30">
+    <Badge variant="warning" size="sm" icon={<ActivaIcon name="pending" size={14} />}>
       Comprobante pendiente
-    </span>
+    </Badge>
   );
 }
 
@@ -76,249 +88,222 @@ export default function ParticipacionesPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="h-8 w-64 animate-pulse rounded-xl bg-zinc-800" />
-        <div className="h-32 animate-pulse rounded-3xl bg-zinc-900" />
-        <div className="h-32 animate-pulse rounded-3xl bg-zinc-900" />
+      <div aria-label="Cargando participaciones" className="space-y-activa-24">
+        <Card>
+          <CardContent className="space-y-activa-12 p-activa-20 sm:p-activa-24">
+            <Skeleton variant="text" className="h-8 max-w-sm" />
+            <Skeleton variant="text" className="max-w-2xl" />
+          </CardContent>
+        </Card>
+        <div className="grid gap-activa-16 md:grid-cols-2">
+          <Skeleton className="h-56" />
+          <Skeleton className="h-56" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <section className="overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-8 shadow-2xl">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
-              Participante
-            </p>
+    <main className="min-w-0 space-y-activa-24 text-text-primary sm:space-y-activa-32">
+      <section className="rounded-activa-lg border border-border-default bg-background-surface p-activa-20 shadow-activa-sm sm:p-activa-24 lg:p-activa-32">
+        <PageHeader
+          eyebrow="Participante"
+          title="Mis participaciones"
+          description="Consultá tus opciones registradas, la campaña asociada, el comercio impulsor, el monto abonado y el comprobante de cada participación."
+          actions={(
+            <Link
+              href="/dashboard/explorar"
+              className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto"
+            >
+              <ActivaIcon name="search" size={18} />
+              Explorar campañas
+            </Link>
+          )}
+        />
 
-            <h1 className="text-2xl font-black text-white md:text-3xl">
-              Mis participaciones
-            </h1>
+        <div className="mt-activa-24 grid grid-cols-2 gap-activa-12 lg:grid-cols-4">
+          {[
+            { label: 'Participaciones', value: participaciones.length, icon: 'participation' as const },
+            { label: 'Campañas activas', value: activas, icon: 'campaign' as const },
+            { label: 'Seleccionadas', value: ganadas, icon: 'selection' as const },
+          ].map((metric) => (
+            <Card key={metric.label} variant="muted" className="min-w-0">
+              <CardContent className="p-activa-16">
+                <span className="flex size-9 items-center justify-center rounded-activa-full bg-activa-teal-soft text-action-secondary">
+                  <ActivaIcon name={metric.icon} size={18} />
+                </span>
+                <p className="mt-activa-12 break-words font-display text-2xl font-semibold text-text-primary">
+                  {metric.value}
+                </p>
+                <p className="mt-activa-4 text-xs text-text-secondary">{metric.label}</p>
+              </CardContent>
+            </Card>
+          ))}
 
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-              Acá podés revisar tus números comprados, el sorteo asociado, el comercio organizador,
-              el monto pagado y el comprobante de cada participación registrada.
-            </p>
-          </div>
-
-          <Link
-            href="/dashboard/explorar"
-            className="btn-primary inline-flex justify-center"
-          >
-            Ver sorteos activos
-          </Link>
-        </div>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-4">
-          <div className="rounded-2xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-              Participaciones
-            </p>
-            <p className="mt-3 text-2xl font-black text-white">
-              {participaciones.length}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-              Sorteos activos
-            </p>
-            <p className="mt-3 text-2xl font-black text-blue-300">
-              {activas}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-              Ganadas
-            </p>
-            <p className="mt-3 text-2xl font-black text-amber-400">
-              {ganadas}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-              Total participado
-            </p>
-            <p className="mt-3 text-2xl font-black text-amber-400">
-              {formatMonto(totalInvertido)}
-            </p>
-          </div>
+          <Card variant="highlight" className="col-span-2 min-w-0 lg:col-span-1">
+            <CardContent className="p-activa-16">
+              <span className="flex size-9 items-center justify-center rounded-activa-full bg-action-primary text-action-primary-text">
+                <ActivaIcon name="card" size={18} />
+              </span>
+              <p className="mt-activa-12 break-words font-display text-2xl font-semibold text-text-primary">
+                {formatMonto(totalInvertido)}
+              </p>
+              <p className="mt-activa-4 text-xs text-text-secondary">Total participado</p>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
-      <section className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-5">
-        <p className="text-sm font-bold leading-7 text-amber-100">
-          Si acabás de pagar y todavía no ves tu participación, esperá unos segundos y actualizá la
-          página. Algunos pagos pueden demorar en impactar. No vuelvas a pagar el mismo sorteo sin
-          revisar primero esta sección.
-        </p>
-      </section>
+      <Alert
+        variant="information"
+        title="Actualización de pagos"
+        icon={<ActivaIcon name="info" size={16} />}
+      >
+        Si acabás de pagar y todavía no ves tu participación, esperá unos segundos y actualizá la
+        página. Algunos pagos pueden demorar en impactar. Antes de repetir una operación, revisá
+        esta sección.
+      </Alert>
 
       {participaciones.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-zinc-700 bg-zinc-900 p-12 text-center">
-          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-zinc-800 text-3xl">
-            🎟
-          </div>
-
-          <h2 className="text-xl font-black text-white">
-            Todavía no tenés participaciones registradas
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-zinc-400">
-            Cuando compres números en un sorteo y el pago sea confirmado, tus participaciones van a
-            aparecer en esta pantalla.
-          </p>
-
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/dashboard/explorar" className="btn-primary inline-flex justify-center">
-              Explorar sorteos
-            </Link>
-
-            <Link href="/contacto" className="btn-ghost inline-flex justify-center">
-              Contactar soporte
-            </Link>
-          </div>
-        </section>
+        <Card variant="muted" className="border-dashed">
+          <CardContent className="py-activa-40 text-center sm:py-activa-48">
+            <span className="mx-auto grid size-12 place-items-center rounded-activa-full bg-activa-teal-soft text-action-secondary">
+              <ActivaIcon name="participation" size={24} />
+            </span>
+            <h2 className="mt-activa-16 font-display text-xl font-semibold text-text-primary">
+              Todavía no tenés participaciones registradas
+            </h2>
+            <p className="mx-auto mt-activa-8 max-w-md text-sm leading-6 text-text-secondary">
+              Cuando elijas una opción en una campaña y el pago sea confirmado, tu participación
+              aparecerá en esta pantalla.
+            </p>
+            <div className="mt-activa-20 flex flex-col justify-center gap-activa-12 sm:flex-row">
+              <Link
+                href="/dashboard/explorar"
+                className="inline-flex h-11 items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
+                <ActivaIcon name="search" size={18} />
+                Explorar campañas
+              </Link>
+              <Link
+                href="/contacto"
+                className="inline-flex h-11 items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
+                <ActivaIcon name="headset" size={18} />
+                Contactar soporte
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       ) : (
-        <section className="space-y-4">
+        <section aria-label="Participaciones registradas" className="space-y-activa-16">
           {participaciones.map((p: any) => {
             const esGanador = p.ganador_participacion_id === p.id;
 
             return (
-              <article
-                key={p.id}
-                className={[
-                  'group overflow-hidden rounded-3xl border bg-zinc-900 p-5 shadow-xl transition-all hover:-translate-y-0.5 hover:shadow-2xl',
-                  esGanador
-                    ? 'border-amber-400/60 ring-1 ring-amber-400/30'
-                    : 'border-zinc-800 hover:border-zinc-700',
-                ].join(' ')}
-              >
-                <div className="flex flex-col gap-5 md:flex-row md:items-start">
-                  <div
-                    className={[
-                      'flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border text-2xl font-black',
-                      esGanador
-                        ? 'border-amber-400 bg-amber-400 text-black'
-                        : 'border-blue-500/30 bg-blue-500/10 text-blue-300',
-                    ].join(' ')}
-                  >
-                    #{p.numero_visible}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="truncate text-lg font-black text-white">
-                        {p.sorteo_nombre}
-                      </h2>
-
-                      <EstadoBadge estado={p.sorteo_estado} ganador={esGanador} />
-
-                      <ComprobanteBadge codigo={p.comprobante_codigo} />
-                    </div>
-
-                    <div className="mt-4 grid gap-3 text-sm text-zinc-400 md:grid-cols-5">
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Comercio
-                        </p>
-                        <p className="mt-1 font-semibold text-zinc-300">
-                          {p.comercio || 'No informado'}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Número comprado
-                        </p>
-                        <p className="mt-1 font-semibold text-zinc-300">
-                          #{p.numero_visible}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Monto pagado
-                        </p>
-                        <p className="mt-1 font-semibold text-zinc-300">
-                          {formatMonto(Number(p.monto_pagado || 0))}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Fecha
-                        </p>
-                        <p className="mt-1 font-semibold text-zinc-300">
-                          {formatFecha(p.created_at)}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Comprobante
-                        </p>
-
-                        <p className="mt-1 break-all font-semibold text-amber-300">
-                          {p.comprobante_codigo || 'Pendiente de emisión'}
-                        </p>
-
-                        {p.comprobante_emitido_at && (
-                          <p className="mt-1 text-xs text-zinc-500">
-                            Emitido: {formatFecha(p.comprobante_emitido_at)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-4 text-sm leading-7 text-zinc-400">
-                      Esta participación queda asociada a tu cuenta. Si el sorteo finaliza y este
-                      número resulta ganador, el estado se actualizará en esta misma pantalla.
-                    </div>
-                  </div>
-
-                  <div className="flex shrink-0 flex-col gap-2 md:w-44">
-                    {p.sorteo_id && (
-                      <Link
-                        href={`/sorteos/${p.sorteo_id}`}
-                        className="rounded-xl border border-zinc-700 px-4 py-2 text-center text-sm font-bold text-zinc-200 hover:bg-white/10"
-                      >
-                        Ver sorteo
-                      </Link>
-                    )}
-
-                    {p.comprobante_url ? (
-                      <a
-                        href={p.comprobante_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="rounded-xl bg-amber-300 px-4 py-2 text-center text-sm font-black text-black hover:bg-amber-200"
-                      >
-                        Ver comprobante
-                      </a>
-                    ) : (
-                      <span className="rounded-xl border border-zinc-800 px-4 py-2 text-center text-sm font-bold text-zinc-500">
-                        Sin PDF
-                      </span>
-                    )}
-
-                    <Link
-                      href="/contacto"
-                      className="rounded-xl border border-zinc-800 px-4 py-2 text-center text-sm font-bold text-zinc-400 hover:bg-white/10 hover:text-zinc-200"
+              <Card key={p.id} variant={esGanador ? 'highlight' : 'surface'} className="min-w-0">
+                <CardContent className="p-activa-16 sm:p-activa-20 lg:p-activa-24">
+                  <div className="flex min-w-0 flex-col gap-activa-20 lg:flex-row lg:items-start">
+                    <div
+                      className={`flex size-16 shrink-0 items-center justify-center rounded-activa-md font-display text-xl font-semibold ${
+                        esGanador
+                          ? 'bg-action-primary text-action-primary-text'
+                          : 'bg-activa-teal-soft text-action-secondary'
+                      }`}
                     >
-                      Ayuda
-                    </Link>
+                      #{p.numero_visible}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex min-w-0 flex-wrap items-center gap-activa-8">
+                        <h2 className="min-w-0 max-w-full break-words font-display text-lg font-semibold text-text-primary sm:text-xl">
+                          {p.sorteo_nombre}
+                        </h2>
+                        <EstadoBadge estado={p.sorteo_estado} ganador={esGanador} />
+                        <ComprobanteBadge codigo={p.comprobante_codigo} />
+                      </div>
+
+                      <div className="mt-activa-16 grid grid-cols-2 gap-activa-12 lg:grid-cols-5">
+                        {[
+                          { label: 'Comercio impulsor', value: p.comercio || 'No informado' },
+                          { label: 'Opción registrada', value: `#${p.numero_visible}` },
+                          { label: 'Monto abonado', value: formatMonto(Number(p.monto_pagado || 0)) },
+                          { label: 'Fecha', value: formatFecha(p.created_at) },
+                        ].map((detail) => (
+                          <div key={detail.label} className="min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12">
+                            <p className="text-xs text-text-secondary">{detail.label}</p>
+                            <p className="mt-activa-4 break-words text-sm font-semibold text-text-primary">
+                              {detail.value}
+                            </p>
+                          </div>
+                        ))}
+
+                        <div className="col-span-2 min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12 lg:col-span-1">
+                          <p className="text-xs text-text-secondary">Comprobante</p>
+                          <p className="mt-activa-4 break-all text-sm font-semibold text-text-primary">
+                            {p.comprobante_codigo || 'Pendiente de emisión'}
+                          </p>
+                          {p.comprobante_emitido_at && (
+                            <p className="mt-activa-4 text-xs text-text-secondary">
+                              Emitido: {formatFecha(p.comprobante_emitido_at)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <Alert
+                        variant={esGanador ? 'brand' : 'information'}
+                        icon={<ActivaIcon name={esGanador ? 'selection' : 'info'} size={16} />}
+                        className="mt-activa-16"
+                      >
+                        Esta participación queda asociada a tu cuenta. Cuando la campaña finalice,
+                        si esta opción resulta seleccionada, el estado se actualizará en esta misma
+                        pantalla.
+                      </Alert>
+                    </div>
+
+                    <div className="flex min-w-0 shrink-0 flex-col gap-activa-8 sm:flex-row sm:flex-wrap lg:w-44 lg:flex-col">
+                      {p.sorteo_id && (
+                        <Link
+                          href={`/sorteos/${p.sorteo_id}`}
+                          className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto lg:w-full"
+                        >
+                          <ActivaIcon name="eye" size={18} />
+                          Ver campaña
+                        </Link>
+                      )}
+
+                      {p.comprobante_url ? (
+                        <a
+                          href={p.comprobante_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto lg:w-full"
+                        >
+                          <ActivaIcon name="receipt" size={18} />
+                          Ver comprobante
+                        </a>
+                      ) : (
+                        <span className="inline-flex h-11 w-full items-center justify-center rounded-activa-sm border border-border-default bg-background-surface-muted px-activa-16 text-sm font-semibold text-text-disabled sm:w-auto lg:w-full">
+                          Sin PDF
+                        </span>
+                      )}
+
+                      <Link
+                        href="/contacto"
+                        className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm px-activa-16 text-sm font-semibold text-text-secondary transition-colors duration-fast ease-activa hover:bg-background-surface-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus sm:w-auto lg:w-full"
+                      >
+                        <ActivaIcon name="help" size={18} />
+                        Ayuda
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </article>
+                </CardContent>
+              </Card>
             );
           })}
         </section>
       )}
-    </div>
+    </main>
   );
 }
