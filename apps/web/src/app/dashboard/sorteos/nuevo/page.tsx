@@ -1,13 +1,25 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader } from '@/components/layout';
+import { MediaImage } from '@/components/media';
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  Input,
+  Select,
+  Textarea,
+} from '@/components/ui';
 import { useCrearSorteo } from '@/hooks/use-sorteo';
 import { uploadImageToCloudinary } from '@/lib/upload-image';
 import { formatMonto } from '@/lib/utils';
-import toast from 'react-hot-toast';
-import Link from 'next/link';
 
 export default function NuevoSorteoPage() {
   const router = useRouter();
@@ -96,143 +108,129 @@ export default function NuevoSorteoPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
-      <section className="overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-8 shadow-2xl">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
-              Comercio
-            </p>
-
-            <h1 className="text-2xl font-black text-white md:text-3xl">
-              Crear nuevo sorteo
-            </h1>
-
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-              Cargá el premio, la descripción, la fecha, el valor por número y la cantidad de
-              números disponibles. El sorteo se crea en borrador para que puedas revisarlo antes de
-              activarlo.
-            </p>
-          </div>
-
-          <Link href="/dashboard/sorteos" className="btn-ghost inline-flex justify-center">
-            Volver a mis sorteos
-          </Link>
-        </div>
+    <main className="mx-auto max-w-6xl space-y-activa-24 text-text-primary sm:space-y-activa-32">
+      <section className="rounded-activa-lg border border-border-default bg-background-surface p-activa-20 shadow-activa-sm sm:p-activa-24 lg:p-activa-32">
+        <PageHeader
+          eyebrow="Comercio"
+          title="Crear campaña"
+          description="Presentá el producto o experiencia, definí las condiciones y revisá la información antes de activar la campaña."
+          breadcrumbs={[
+            { label: 'Mis campañas', href: '/dashboard/sorteos' },
+            { label: 'Crear campaña' },
+          ]}
+          actions={(
+            <Link
+              href="/dashboard/sorteos"
+              className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto"
+            >
+              <ActivaIcon name="arrow-left" size={18} />
+              Volver a mis campañas
+            </Link>
+          )}
+        />
       </section>
 
-      <section className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-5">
-        <p className="text-sm font-bold leading-7 text-amber-100">
-          Antes de activar el sorteo, revisá que el premio, las condiciones, el valor del número y
-          la cantidad total estén correctos. Una vez activo, los participantes podrán empezar a
-          comprar números.
-        </p>
-      </section>
+      <Alert
+        variant="warning"
+        title="La campaña se guardará como borrador"
+        icon={<ActivaIcon name="info" size={16} />}
+      >
+        Revisá el producto o experiencia, las condiciones, el valor y la cantidad total. Una vez
+        activa, las personas podrán comenzar a participar.
+      </Alert>
 
-      <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="space-y-5 rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-          <div>
-            <label className="label">Nombre del premio *</label>
-            <input
-              className="input"
-              placeholder="Ej: iPhone 16 Pro Max 256GB"
-              required
-              value={form.nombre}
-              onChange={set('nombre')}
-            />
-            <p className="mt-2 text-xs leading-6 text-zinc-500">
-              Usá un nombre claro y concreto. Es lo primero que va a ver el participante.
-            </p>
-          </div>
-
-          <div>
-            <label className="label">Descripción y condiciones</label>
-            <textarea
-              className="input resize-none"
-              rows={5}
-              placeholder="Describí el premio, estado, características, cómo se entrega y cualquier condición importante..."
-              value={form.descripcion}
-              onChange={set('descripcion')}
-            />
-            <p className="mt-2 text-xs leading-6 text-zinc-500">
-              Mientras más clara sea la descripción, más confianza genera el sorteo.
-            </p>
-          </div>
-
-          <div>
-            <label className="label">Imagen principal</label>
-
-            <div className="space-y-3">
-              <input
-                type="file"
-                accept="image/*"
-                className="input"
-                onChange={seleccionarImagen}
-              />
-
-              {imagenPreview && (
-                <div className="overflow-hidden rounded-2xl border border-zinc-700 bg-black">
-                  <img
-                    src={imagenPreview}
-                    alt="Vista previa del premio"
-                    className="h-64 w-full object-cover"
-                  />
-                </div>
-              )}
-
+      <form onSubmit={handleSubmit} className="grid min-w-0 grid-cols-1 gap-activa-20 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)] lg:items-start">
+        <Card className="min-w-0">
+          <CardContent className="space-y-activa-24 p-activa-16 sm:p-activa-24">
+            <div className="flex items-start gap-activa-12">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-activa-full bg-activa-teal-soft text-action-secondary">
+                <ActivaIcon name="campaign" size={20} />
+              </span>
               <div>
-                <label className="label text-xs text-zinc-500">
-                  O pegá una URL de imagen
-                </label>
-                <input
-                  type="url"
-                  className="input"
-                  placeholder="https://ejemplo.com/imagen-del-premio.jpg"
-                  value={form.imagenPrincipalUrl}
-                  onChange={set('imagenPrincipalUrl')}
-                />
+                <h2 className="font-display text-xl font-semibold text-text-primary">
+                  Información de la campaña
+                </h2>
+                <p className="mt-activa-4 text-sm leading-6 text-text-secondary">
+                  Completá los datos que verán las personas antes de participar.
+                </p>
               </div>
             </div>
 
-            <p className="mt-2 text-xs leading-6 text-zinc-500">
-              Recomendado: JPG, PNG o WEBP. Tamaño máximo: 5MB.
-            </p>
-          </div>
+            <Input
+              label="Producto o experiencia *"
+              placeholder="Ej: Smartphone de última generación"
+              required
+              value={form.nombre}
+              onChange={set('nombre')}
+              helperText="Usá un nombre claro y concreto. Será la referencia principal de la campaña."
+            />
 
-          <div>
-            <label className="label">Fecha del sorteo *</label>
-            <input
+            <Textarea
+              label="Descripción y condiciones"
+              rows={5}
+              placeholder="Describí el producto o experiencia, sus características, cómo se entrega y cualquier condición importante..."
+              value={form.descripcion}
+              onChange={set('descripcion')}
+              helperText="Una descripción clara ayuda a que las personas comprendan la propuesta."
+            />
+
+            <div className="space-y-activa-16">
+              <div>
+                <h3 className="text-sm font-semibold text-text-primary">Imagen principal</h3>
+                <p className="mt-activa-4 text-sm text-text-secondary">
+                  Recomendado: JPG, PNG o WEBP. Tamaño máximo: 5MB.
+                </p>
+              </div>
+
+              <Input
+                label="Subir imagen"
+                type="file"
+                accept="image/*"
+                onChange={seleccionarImagen}
+              />
+
+              <div className="h-56 overflow-hidden rounded-activa-md border border-border-default bg-background-surface-muted sm:h-64">
+                <MediaImage
+                  src={imagenPreview || form.imagenPrincipalUrl}
+                  alt="Vista previa del producto o experiencia"
+                  placeholderVariant="image"
+                  placeholderText="Imagen de la campaña pendiente"
+                />
+              </div>
+
+              <Input
+                label="O pegá una URL de imagen"
+                type="url"
+                placeholder="https://ejemplo.com/imagen-de-la-campana.jpg"
+                value={form.imagenPrincipalUrl}
+                onChange={set('imagenPrincipalUrl')}
+              />
+            </div>
+
+            <Input
+              label="Fecha estimada de selección *"
               type="datetime-local"
-              className="input"
               required
               value={form.fechaSorteo}
               onChange={set('fechaSorteo')}
               min={fechaMinima}
+              helperText="Indicá una fecha estimada para comunicar cuándo se realizará la selección."
             />
-            <p className="mt-2 text-xs leading-6 text-zinc-500">
-              Indicá una fecha estimada. Podés usarla para comunicar cuándo se realizará el sorteo.
-            </p>
-          </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="label">Valor por número (ARS) *</label>
-              <input
+            <div className="grid gap-activa-16 sm:grid-cols-2">
+              <Input
+                label="Valor por opción (ARS) *"
                 type="number"
-                className="input"
                 placeholder="2500"
                 required
                 min="1"
                 value={form.valorNumero}
                 onChange={set('valorNumero')}
               />
-            </div>
 
-            <div>
-              <label className="label">Cantidad de números *</label>
-              <input
+              <Input
+                label="Cantidad de opciones *"
                 type="number"
-                className="input"
                 placeholder="50"
                 required
                 min="2"
@@ -241,123 +239,123 @@ export default function NuevoSorteoPage() {
                 onChange={set('cantNumeros')}
               />
             </div>
-          </div>
 
-          <div>
-            <label className="label">Chances por número</label>
-            <select
-              className="input"
+            <Select
+              label="Oportunidades por opción"
               value={form.chancesPorNumero}
               onChange={set('chancesPorNumero')}
+              helperText={`Cada opción tendrá ${form.chancesPorNumero} oportunidad${Number(form.chancesPorNumero) > 1 ? 'es' : ''} en el proceso de selección.`}
             >
               {[1, 2, 3, 5, 10].map((n) => (
                 <option key={n} value={n}>
-                  {n} chance{n > 1 ? 's' : ''} por número
+                  {n} oportunidad{n > 1 ? 'es' : ''} por opción
                 </option>
               ))}
-            </select>
+            </Select>
 
-            <p className="mt-2 text-xs leading-6 text-zinc-500">
-              Con {form.chancesPorNumero} chance
-              {Number(form.chancesPorNumero) > 1 ? 's' : ''}, cada número tiene{' '}
-              {form.chancesPorNumero} oportunidad
-              {Number(form.chancesPorNumero) > 1 ? 'es' : ''} de ganar.
-            </p>
-          </div>
+            <div className="flex flex-col-reverse gap-activa-12 border-t border-border-default pt-activa-20 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="tertiary"
+                onClick={() => router.back()}
+                className="w-full sm:w-auto"
+              >
+                Cancelar
+              </Button>
 
-          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="btn-ghost flex-1"
-            >
-              Cancelar
-            </button>
-
-            <button
-              type="submit"
-              disabled={crear.isPending || subiendoImagen}
-              className="btn-primary flex-1 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {subiendoImagen
-                ? 'Subiendo imagen...'
-                : crear.isPending
-                  ? 'Creando...'
-                  : 'Crear sorteo en borrador'}
-            </button>
-          </div>
-        </section>
-
-        <aside className="space-y-5">
-          <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-400">
-              Resumen
-            </p>
-
-            <h2 className="mt-3 text-xl font-black text-white">
-              Vista rápida del sorteo
-            </h2>
-
-            <div className="mt-5 space-y-3">
-              <div className="rounded-2xl border border-zinc-800 bg-black/40 p-4">
-                <p className="text-xs uppercase tracking-wide text-zinc-600">
-                  Premio
-                </p>
-                <p className="mt-1 font-bold text-zinc-200">
-                  {form.nombre || 'Sin nombre todavía'}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-zinc-800 bg-black/40 p-4">
-                  <p className="text-xs uppercase tracking-wide text-zinc-600">
-                    Números
-                  </p>
-                  <p className="mt-1 text-lg font-black text-white">
-                    {form.cantNumeros || '0'}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-zinc-800 bg-black/40 p-4">
-                  <p className="text-xs uppercase tracking-wide text-zinc-600">
-                    Valor c/u
-                  </p>
-                  <p className="mt-1 text-lg font-black text-amber-300">
-                    {valorNumero > 0 ? formatMonto(valorNumero) : '$0'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4">
-                <p className="text-xs font-black uppercase tracking-wide text-emerald-300">
-                  Recaudación máxima estimada
-                </p>
-                <p className="mt-1 text-2xl font-black text-emerald-300">
-                  {resumenActivo ? formatMonto(recaudacionMaxima) : '$0'}
-                </p>
-                <p className="mt-2 text-xs leading-6 text-zinc-400">
-                  Estimación bruta si se venden todos los números.
-                </p>
-              </div>
+              <Button
+                type="submit"
+                disabled={crear.isPending || subiendoImagen}
+                leftIcon={<ActivaIcon name="campaign" size={18} />}
+                className="w-full sm:w-auto"
+              >
+                {subiendoImagen
+                  ? 'Subiendo imagen...'
+                  : crear.isPending
+                    ? 'Creando...'
+                    : 'Crear campaña en borrador'}
+              </Button>
             </div>
-          </section>
+          </CardContent>
+        </Card>
 
-          <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
-            <h2 className="text-lg font-black text-white">
-              Checklist antes de activar
-            </h2>
+        <aside className="min-w-0 space-y-activa-16 lg:sticky lg:top-activa-24">
+          <Card>
+            <CardContent className="p-activa-16 sm:p-activa-20">
+              <p className="text-xs font-semibold uppercase tracking-widest text-text-link">Resumen</p>
+              <h2 className="mt-activa-8 font-display text-xl font-semibold text-text-primary">
+                Vista previa de la campaña
+              </h2>
 
-            <ul className="mt-4 space-y-3 text-sm leading-7 text-zinc-400">
-              <li>• El premio está bien explicado.</li>
-              <li>• La imagen representa claramente el premio.</li>
-              <li>• El valor del número es correcto.</li>
-              <li>• La cantidad de números es correcta.</li>
-              <li>• La fecha del sorteo está cargada.</li>
-              <li>• Las condiciones de entrega están aclaradas.</li>
-            </ul>
-          </section>
+              <div className="mt-activa-20 space-y-activa-12">
+                <div className="rounded-activa-md bg-background-surface-muted p-activa-16">
+                  <p className="text-xs text-text-secondary">Producto o experiencia</p>
+                  <p className="mt-activa-4 break-words font-semibold text-text-primary">
+                    {form.nombre || 'Sin nombre todavía'}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-activa-12">
+                  <div className="rounded-activa-md bg-background-surface-muted p-activa-16">
+                    <p className="text-xs text-text-secondary">Opciones</p>
+                    <p className="mt-activa-4 font-display text-xl font-semibold text-text-primary">
+                      {form.cantNumeros || '0'}
+                    </p>
+                  </div>
+
+                  <div className="rounded-activa-md bg-background-surface-muted p-activa-16">
+                    <p className="text-xs text-text-secondary">Valor por opción</p>
+                    <p className="mt-activa-4 font-display text-xl font-semibold text-text-primary">
+                      {valorNumero > 0 ? formatMonto(valorNumero) : '$0'}
+                    </p>
+                  </div>
+                </div>
+
+                <Card variant="highlight">
+                  <CardContent className="p-activa-16">
+                    <p className="text-xs font-semibold text-text-secondary">
+                      Recaudación máxima estimada
+                    </p>
+                    <p className="mt-activa-4 font-display text-2xl font-semibold text-text-primary">
+                      {resumenActivo ? formatMonto(recaudacionMaxima) : '$0'}
+                    </p>
+                    <p className="mt-activa-8 text-xs leading-5 text-text-secondary">
+                      Estimación bruta si se registran todas las opciones disponibles.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card variant="muted">
+            <CardContent className="p-activa-16 sm:p-activa-20">
+              <div className="flex items-center gap-activa-8">
+                <ActivaIcon name="check-circle" size={20} className="text-action-secondary" />
+                <h2 className="font-display text-lg font-semibold text-text-primary">
+                  Checklist antes de activar
+                </h2>
+              </div>
+
+              <ul className="mt-activa-16 space-y-activa-12">
+                {[
+                  'El producto o experiencia está bien explicado.',
+                  'La imagen representa claramente la propuesta.',
+                  'El valor por opción es correcto.',
+                  'La cantidad de opciones es correcta.',
+                  'La fecha estimada de selección está cargada.',
+                  'Las condiciones de entrega están aclaradas.',
+                ].map((item) => (
+                  <li key={item} className="flex gap-activa-8 text-sm leading-6 text-text-secondary">
+                    <ActivaIcon name="check" size={16} className="mt-1 shrink-0 text-action-secondary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         </aside>
       </form>
-    </div>
+    </main>
   );
 }

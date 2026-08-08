@@ -1,13 +1,23 @@
 'use client';
 
+import Link from 'next/link';
+
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader } from '@/components/layout';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  Skeleton,
+} from '@/components/ui';
 import {
   useMisSorteos,
   useActivarSorteo,
   useSortearSorteo,
 } from '@/hooks/use-sorteo';
-import { formatMonto, estadoColor } from '@/lib/utils';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { formatMonto } from '@/lib/utils';
 
 export default function MisSorteosPage() {
   const { data, isLoading } = useMisSorteos();
@@ -35,130 +45,120 @@ export default function MisSorteosPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="h-8 w-64 animate-pulse rounded-xl bg-zinc-800" />
-        <div className="h-32 animate-pulse rounded-3xl bg-zinc-900" />
-        <div className="h-32 animate-pulse rounded-3xl bg-zinc-900" />
+      <div aria-label="Cargando campañas" className="space-y-activa-24">
+        <Card>
+          <CardContent className="space-y-activa-12 p-activa-20 sm:p-activa-24">
+            <Skeleton variant="text" className="h-8 max-w-sm" />
+            <Skeleton variant="text" className="max-w-2xl" />
+          </CardContent>
+        </Card>
+        <div className="grid gap-activa-16 sm:grid-cols-2 xl:grid-cols-3">
+          <Skeleton className="h-56" />
+          <Skeleton className="h-56" />
+          <Skeleton className="h-56 sm:col-span-2 xl:col-span-1" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <section className="overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-8 shadow-2xl">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
-              Comercio
-            </p>
+    <main className="space-y-activa-24 text-text-primary sm:space-y-activa-32">
+      <section className="rounded-activa-lg border border-border-default bg-background-surface p-activa-20 shadow-activa-sm sm:p-activa-24 lg:p-activa-32">
+        <PageHeader
+          eyebrow="Comercio"
+          title="Mis campañas"
+          description="Administrá tus campañas, revisá las participaciones registradas, controlá la recaudación estimada y seguí cada publicación desde un solo lugar."
+          actions={(
+            <Link
+              href="/dashboard/sorteos/nuevo"
+              className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto"
+            >
+              <ActivaIcon name="plus" size={18} />
+              Crear campaña
+            </Link>
+          )}
+        />
 
-            <h1 className="text-2xl font-black text-white md:text-3xl">
-              Mis sorteos
-            </h1>
+        <div className="mt-activa-24 grid grid-cols-2 gap-activa-12 lg:grid-cols-5">
+          {[
+            { label: 'Campañas', value: totalSorteos, icon: 'campaign' as const },
+            { label: 'Activas', value: activos, icon: 'check-circle' as const },
+            { label: 'Borradores', value: borradores, icon: 'edit' as const },
+            { label: 'Finalizadas', value: finalizados, icon: 'result' as const },
+          ].map((metric) => (
+            <Card key={metric.label} variant="muted">
+              <CardContent className="p-activa-16">
+                <span className="flex size-9 items-center justify-center rounded-activa-full bg-activa-teal-soft text-action-secondary">
+                  <ActivaIcon name={metric.icon} size={18} />
+                </span>
+                <p className="mt-activa-12 font-display text-2xl font-semibold text-text-primary">
+                  {metric.value}
+                </p>
+                <p className="mt-activa-4 text-xs text-text-secondary">{metric.label}</p>
+              </CardContent>
+            </Card>
+          ))}
 
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-400">
-              Administrá tus sorteos, revisá números vendidos, controlá la recaudación estimada y
-              seguí el estado de cada publicación desde un solo lugar.
-            </p>
-          </div>
-
-          <Link
-            href="/dashboard/sorteos/nuevo"
-            className="btn-primary inline-flex justify-center"
-          >
-            + Nuevo sorteo
-          </Link>
+          <Card variant="highlight" className="col-span-2 lg:col-span-1">
+            <CardContent className="p-activa-16">
+              <span className="flex size-9 items-center justify-center rounded-activa-full bg-action-primary text-action-primary-text">
+                <ActivaIcon name="trend-up" size={18} />
+              </span>
+              <p className="mt-activa-12 break-words font-display text-2xl font-semibold text-text-primary">
+                {formatMonto(recaudacionTotal)}
+              </p>
+              <p className="mt-activa-4 text-xs text-text-secondary">Recaudación estimada</p>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-5">
-          <div className="rounded-2xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-              Sorteos
-            </p>
-            <p className="mt-3 text-2xl font-black text-white">
-              {totalSorteos}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-              Activos
-            </p>
-            <p className="mt-3 text-2xl font-black text-blue-300">
-              {activos}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-              Borradores
-            </p>
-            <p className="mt-3 text-2xl font-black text-zinc-300">
-              {borradores}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-              Finalizados
-            </p>
-            <p className="mt-3 text-2xl font-black text-amber-400">
-              {finalizados}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-800 bg-black/40 p-5">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-500">
-              Recaudado
-            </p>
-            <p className="mt-3 text-2xl font-black text-emerald-300">
-              {formatMonto(recaudacionTotal)}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-5">
-        <p className="text-sm font-bold leading-7 text-amber-100">
-          Antes de activar un sorteo, revisá bien el premio, el valor del número, la cantidad de
-          números y la información publicada. Una vez activo, los participantes pueden empezar a
-          comprar números.
+        <p className="mt-activa-12 text-xs text-text-secondary">
+          {numerosVendidos} participaciones registradas en total.
         </p>
       </section>
 
+      <Alert
+        variant="warning"
+        title="Revisá la información antes de activar"
+        icon={<ActivaIcon name="warning" size={16} />}
+      >
+        Antes de activar una campaña, verificá el beneficio, el valor y la cantidad de opciones
+        disponibles. Una vez activa, las personas podrán comenzar a participar.
+      </Alert>
+
       {sorteos.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-zinc-700 bg-zinc-900 p-12 text-center">
-          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-zinc-800 text-3xl">
-            🎯
-          </div>
-
-          <h2 className="text-xl font-black text-white">
-            Todavía no creaste sorteos
-          </h2>
-
-          <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-zinc-400">
-            Creá tu primer sorteo cargando el premio, descripción, cantidad de números, valor por
-            número y fecha estimada.
-          </p>
-
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link
-              href="/dashboard/sorteos/nuevo"
-              className="btn-primary inline-flex justify-center"
-            >
-              Crear primer sorteo
-            </Link>
-
-            <Link
-              href="/ayuda"
-              className="btn-ghost inline-flex justify-center"
-            >
-              Ver ayuda
-            </Link>
-          </div>
-        </section>
+        <Card variant="muted" className="border-dashed">
+          <CardContent className="py-activa-40 text-center sm:py-activa-48">
+            <span className="mx-auto grid size-12 place-items-center rounded-activa-full bg-action-primary/15 text-action-primary-text">
+              <ActivaIcon name="campaign" size={24} />
+            </span>
+            <h2 className="mt-activa-16 font-display text-xl font-semibold text-text-primary">
+              Todavía no creaste campañas
+            </h2>
+            <p className="mx-auto mt-activa-8 max-w-md text-sm leading-6 text-text-secondary">
+              Creá tu primera campaña presentando el producto o experiencia, las condiciones, las
+              opciones disponibles y la fecha estimada de selección.
+            </p>
+            <div className="mt-activa-20 flex flex-col justify-center gap-activa-12 sm:flex-row">
+              <Link
+                href="/dashboard/sorteos/nuevo"
+                className="inline-flex h-11 items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-16 text-sm font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
+                <ActivaIcon name="plus" size={18} />
+                Crear primera campaña
+              </Link>
+              <Link
+                href="/ayuda"
+                className="inline-flex h-11 items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
+              >
+                <ActivaIcon name="help" size={18} />
+                Ver ayuda
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       ) : (
-        <section className="space-y-4">
+        <section aria-label="Campañas" className="space-y-activa-16">
           {sorteos.map((s: any) => {
             const vendidos = Number(s.stats?.vendidos || 0);
             const totalNumeros = Number(s.cant_numeros || 0);
@@ -172,162 +172,130 @@ export default function MisSorteosPage() {
             const potencial = totalNumeros * valorNumero;
 
             return (
-              <article
-                key={s.id}
-                className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-5 shadow-xl transition-all hover:-translate-y-0.5 hover:border-zinc-700 hover:shadow-2xl"
-              >
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
-                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border border-amber-400/30 bg-amber-400/10 text-3xl">
-                    🎁
-                  </div>
+              <Card key={s.id}>
+                <CardContent className="p-activa-16 sm:p-activa-20 lg:p-activa-24">
+                  <div className="flex flex-col gap-activa-20 lg:flex-row lg:items-start">
+                    <span className="flex size-12 shrink-0 items-center justify-center rounded-activa-md bg-activa-teal-soft text-action-secondary">
+                      <ActivaIcon name="campaign" size={24} />
+                    </span>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="truncate text-lg font-black text-white">
-                        {s.nombre}
-                      </h2>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-activa-8">
+                        <h2 className="min-w-0 max-w-full break-words font-display text-lg font-semibold text-text-primary sm:text-xl">
+                          {s.nombre}
+                        </h2>
+                        <Badge
+                          variant={
+                            s.estado === 'activo'
+                              ? 'active'
+                              : s.estado === 'finalizado'
+                                ? 'success'
+                                : 'neutral'
+                          }
+                          size="sm"
+                        >
+                          {s.estado}
+                        </Badge>
+                      </div>
 
-                      <span
-                        className={cn(
-                          'shrink-0 rounded-full px-3 py-1 text-xs font-bold',
-                          estadoColor(s.estado),
-                        )}
-                      >
-                        {s.estado}
-                      </span>
+                      <div className="mt-activa-16 grid grid-cols-2 gap-activa-12 sm:grid-cols-3 xl:grid-cols-5">
+                        {[
+                          { label: 'Registradas', value: `${vendidos}/${totalNumeros}` },
+                          { label: 'Disponibles', value: disponibles },
+                          { label: 'Valor por opción', value: formatMonto(valorNumero) },
+                          { label: 'Recaudación', value: formatMonto(recaudacion) },
+                          { label: 'Potencial total', value: formatMonto(potencial) },
+                        ].map((detail) => (
+                          <div
+                            key={detail.label}
+                            className="rounded-activa-md bg-background-surface-muted p-activa-12"
+                          >
+                            <p className="text-xs text-text-secondary">{detail.label}</p>
+                            <p className="mt-activa-4 break-words text-sm font-semibold text-text-primary">
+                              {detail.value}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-activa-16 rounded-activa-md border border-border-default bg-background-surface p-activa-16">
+                        <div className="flex items-end justify-between gap-activa-12">
+                          <div>
+                            <p className="text-sm font-semibold text-text-primary">Avance de participación</p>
+                            <p className="mt-activa-4 text-xs text-text-secondary">
+                              {vendidos} de {totalNumeros} opciones registradas
+                            </p>
+                          </div>
+                          <p className="font-display text-2xl font-semibold text-action-secondary">{pct}%</p>
+                        </div>
+                        <div className="mt-activa-12 h-2 overflow-hidden rounded-activa-full bg-background-surface-muted">
+                          <div
+                            className="h-full rounded-activa-full bg-action-secondary"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <p className="mt-activa-12 text-xs leading-5 text-text-secondary">
+                        Estimación basada en las opciones registradas y el valor publicado. La
+                        información final puede depender del estado de pagos y comprobantes.
+                      </p>
                     </div>
 
-                    <div className="mt-4 grid gap-3 text-sm text-zinc-400 md:grid-cols-5">
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Vendidos
-                        </p>
-                        <p className="mt-1 font-semibold text-zinc-300">
-                          {vendidos}/{totalNumeros} números
-                        </p>
-                      </div>
+                    <div className="flex shrink-0 flex-col gap-activa-8 sm:flex-row sm:flex-wrap lg:w-48 lg:flex-col">
+                      {s.estado === 'borrador' && (
+                        <Button
+                          onClick={() => activar.mutate(s.id)}
+                          disabled={activar.isPending}
+                          leftIcon={<ActivaIcon name="check-circle" size={18} />}
+                          className="w-full sm:w-auto lg:w-full"
+                        >
+                          Activar campaña
+                        </Button>
+                      )}
 
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Disponibles
-                        </p>
-                        <p className="mt-1 font-semibold text-zinc-300">
-                          {disponibles}
-                        </p>
-                      </div>
+                      {(s.estado === 'activo' || s.estado === 'finalizado') && (
+                        <Link
+                          href={`/sorteos/${s.id}`}
+                          className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto lg:w-full"
+                        >
+                          <ActivaIcon name="eye" size={18} />
+                          Ver página pública
+                        </Link>
+                      )}
 
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Valor número
-                        </p>
-                        <p className="mt-1 font-semibold text-zinc-300">
-                          {formatMonto(valorNumero)}
-                        </p>
-                      </div>
+                      {s.estado === 'activo' && (
+                        <Button
+                          variant="secondary"
+                          disabled={sortear.isPending}
+                          onClick={() =>
+                            sortear.mutate({
+                              id: s.id,
+                              seedExterno: `${Date.now()}-${Math.random()}`,
+                            })
+                          }
+                          leftIcon={<ActivaIcon name="selection" size={18} />}
+                          className="w-full sm:w-auto lg:w-full"
+                        >
+                          Realizar selección
+                        </Button>
+                      )}
 
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-zinc-600">
-                          Recaudado
-                        </p>
-                        <p className="mt-1 font-semibold text-emerald-300">
-                          {formatMonto(recaudacion)}
-                        </p>
-                      </div>
-
-                      
-			<div className="rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3">
-  <p className="text-xs font-black uppercase tracking-wide text-amber-300">
-    Potencial total
-  </p>
-  <p className="mt-1 text-lg font-black text-amber-300">
-    {formatMonto(potencial)}
-  </p>
-</div>
-
-                    </div>
-
-                    
-			<div className="mt-5 rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4">
-  <div className="mb-3 flex items-center justify-between">
-    <div>
-      <p className="text-xs font-black uppercase tracking-wide text-blue-300">
-        Avance de venta
-      </p>
-      <p className="mt-1 text-sm text-zinc-400">
-        {vendidos} de {totalNumeros} números vendidos
-      </p>
-    </div>
-
-    <p className="text-2xl font-black text-blue-300">
-      {pct}%
-    </p>
-  </div>
-
-  <div className="h-3 overflow-hidden rounded-full bg-zinc-800">
-    <div
-      className="h-full rounded-full bg-blue-500"
-      style={{ width: `${pct}%` }}
-    />
-  </div>
-</div>
-
-
-
-                    <p className="mt-4 text-sm leading-7 text-zinc-500">
-                      Este panel muestra una estimación basada en los números vendidos y el valor
-                      publicado por número. La información final puede depender del estado de pagos y
-                      comprobantes.
-                    </p>
-                  </div>
-
-                  <div className="flex shrink-0 flex-col gap-2 lg:w-48">
-                    {s.estado === 'borrador' && (
-                      <button
-                        onClick={() => activar.mutate(s.id)}
-                        disabled={activar.isPending}
-                        className="rounded-xl bg-amber-300 px-4 py-2 text-center text-sm font-black text-black hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        Activar sorteo
-                      </button>
-                    )}
-
-                    {(s.estado === 'activo' || s.estado === 'finalizado') && (
                       <Link
-                        href={`/sorteos/${s.id}`}
-                        className="rounded-xl border border-zinc-700 px-4 py-2 text-center text-sm font-bold text-zinc-200 hover:bg-white/10"
+                        href="/contacto"
+                        className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm px-activa-16 text-sm font-semibold text-text-secondary transition-colors duration-fast ease-activa hover:bg-background-surface-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus sm:w-auto lg:w-full"
                       >
-                        Ver página pública
+                        <ActivaIcon name="help" size={18} />
+                        Ayuda
                       </Link>
-                    )}
-
-                    {s.estado === 'activo' && (
-                      <button
-                        className="rounded-xl bg-blue-500 px-4 py-2 text-center text-sm font-black text-white hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
-                        disabled={sortear.isPending}
-                        onClick={() =>
-                          sortear.mutate({
-                            id: s.id,
-                            seedExterno: `${Date.now()}-${Math.random()}`,
-                          })
-                        }
-                      >
-                        Realizar sorteo
-                      </button>
-                    )}
-
-                    <Link
-                      href="/contacto"
-                      className="rounded-xl border border-zinc-800 px-4 py-2 text-center text-sm font-bold text-zinc-400 hover:bg-white/10 hover:text-zinc-200"
-                    >
-                      Ayuda
-                    </Link>
+                    </div>
                   </div>
-                </div>
-              </article>
+                </CardContent>
+              </Card>
             );
           })}
         </section>
       )}
-    </div>
+    </main>
   );
 }
