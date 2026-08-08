@@ -1,25 +1,32 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+
+import ChatPremio from '@/components/ChatPremio';
+import { ActivaIcon } from '@/components/icons';
+import { PageHeader } from '@/components/layout';
+import { Badge, Button, Card, CardContent, Skeleton } from '@/components/ui';
 import { comercioApi } from '@/lib/api';
 import { formatFecha } from '@/lib/utils';
-import toast from 'react-hot-toast';
-import ChatPremio from '@/components/ChatPremio';
 
-function Badge({ estado }: { estado: string }) {
-  const styles: Record<string, string> = {
-    pendiente: 'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-    preparando: 'bg-blue-500/15 text-blue-300 ring-blue-500/30',
-    enviado: 'bg-purple-500/15 text-purple-300 ring-purple-500/30',
-    entregado: 'bg-green-500/15 text-green-300 ring-green-500/30',
-    confirmado: 'bg-emerald-500/15 text-emerald-300 ring-emerald-500/30',
-    reclamado: 'bg-red-500/15 text-red-300 ring-red-500/30',
+function EstadoEntregaBadge({ estado }: { estado: string }) {
+  const variants: Record<
+    string,
+    'neutral' | 'information' | 'active' | 'success' | 'warning' | 'error'
+  > = {
+    pendiente: 'warning',
+    preparando: 'information',
+    enviado: 'active',
+    entregado: 'success',
+    confirmado: 'success',
+    reclamado: 'error',
   };
 
   return (
-    <span className={`rounded-full px-3 py-1 text-xs font-black uppercase ring-1 ${styles[estado] || styles.pendiente}`}>
+    <Badge variant={variants[estado] || variants.pendiente} size="sm">
       {estado}
-    </span>
+    </Badge>
   );
 }
 
@@ -43,130 +50,167 @@ export default function EntregasPage() {
   });
 
   const entregas: any[] = Array.isArray(data)
-  ? data
-  : Array.isArray((data as any)?.data)
-    ? (data as any).data
-    : Array.isArray((data as any)?.data?.data)
-      ? (data as any).data.data
-      : [];
+    ? data
+    : Array.isArray((data as any)?.data)
+      ? (data as any).data
+      : Array.isArray((data as any)?.data?.data)
+        ? (data as any).data.data
+        : [];
 
   const actualizar = (id: string, estado: string) => {
-  const payload: any = { estado };
+    const payload: any = { estado };
 
-  if (estado === 'enviado') {
-    const empresaEnvio = window.prompt('Empresa de envío', '');
-    if (!empresaEnvio) return;
+    if (estado === 'enviado') {
+      const empresaEnvio = window.prompt('Empresa de envío', '');
+      if (!empresaEnvio) return;
 
-    const codigoSeguimiento = window.prompt('Código de seguimiento', '');
-    if (!codigoSeguimiento) return;
+      const codigoSeguimiento = window.prompt('Código de seguimiento', '');
+      if (!codigoSeguimiento) return;
 
-    payload.empresaEnvio = empresaEnvio;
-    payload.codigoSeguimiento = codigoSeguimiento;
-  }
-
-  if (estado === 'entregado') {
-    const notasComercio = window.prompt(
-      'Detalle o evidencia de entrega (opcional)',
-      ''
-    );
-
-    if (notasComercio) {
-      payload.notasComercio = notasComercio;
+      payload.empresaEnvio = empresaEnvio;
+      payload.codigoSeguimiento = codigoSeguimiento;
     }
-  }
 
-  mutation.mutate({ id, payload });
-};
+    if (estado === 'entregado') {
+      const notasComercio = window.prompt(
+        'Detalle o evidencia de entrega (opcional)',
+        '',
+      );
+
+      if (notasComercio) {
+        payload.notasComercio = notasComercio;
+      }
+    }
+
+    mutation.mutate({ id, payload });
+  };
 
   if (isLoading) {
-    return <div className="animate-pulse text-zinc-400">Cargando entregas...</div>;
+    return (
+      <div aria-label="Cargando entregas" className="space-y-activa-24">
+        <Card>
+          <CardContent className="space-y-activa-12 p-activa-20 sm:p-activa-24">
+            <Skeleton variant="text" className="h-8 max-w-sm" />
+            <Skeleton variant="text" className="max-w-2xl" />
+          </CardContent>
+        </Card>
+        <div className="grid gap-activa-16 md:grid-cols-2">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-zinc-900 to-black p-8 shadow-2xl">
-        <p className="mb-2 text-xs font-black uppercase tracking-[0.3em] text-amber-400">
-          Comercio
-        </p>
-        <h1 className="text-3xl font-black text-white">Entregas de premios</h1>
-        <p className="mt-3 max-w-2xl text-sm text-zinc-400">
-          Gestioná el estado de entrega de los premios ganados. Este flujo será la base para liberar fondos al comercio una vez confirmada la entrega.
-        </p>
+    <main className="min-w-0 space-y-activa-24 text-text-primary sm:space-y-activa-32">
+      <section className="rounded-activa-lg border border-border-default bg-background-surface p-activa-20 shadow-activa-sm sm:p-activa-24 lg:p-activa-32">
+        <PageHeader
+          eyebrow="Comercio impulsor"
+          title="Entregas de beneficios"
+          description="Gestioná cada entrega y mantené actualizada la información logística. Una vez confirmada la recepción, la plataforma podrá continuar con la liberación de fondos al comercio."
+        />
       </section>
 
       {entregas.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-zinc-700 bg-zinc-900 p-12 text-center">
-          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-zinc-800 text-4xl">
-            📦
-          </div>
-          <h2 className="text-xl font-black text-white">Todavía no hay entregas pendientes</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-zinc-400">
-            Cuando finalices un sorteo y haya un ganador, aparecerá acá la entrega del premio.
-          </p>
-        </section>
+        <Card variant="muted" className="border-dashed">
+          <CardContent className="py-activa-40 text-center sm:py-activa-48">
+            <span className="mx-auto grid size-12 place-items-center rounded-activa-full bg-activa-teal-soft text-action-secondary">
+              <ActivaIcon name="delivery" size={24} />
+            </span>
+            <h2 className="mt-activa-16 font-display text-xl font-semibold text-text-primary">
+              Todavía no hay entregas pendientes
+            </h2>
+            <p className="mx-auto mt-activa-8 max-w-md text-sm leading-6 text-text-secondary">
+              Cuando una campaña finalice y exista una persona seleccionada, la entrega del
+              beneficio aparecerá en esta sección.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
-        <section className="space-y-4">
+        <section aria-label="Entregas de beneficios" className="space-y-activa-16">
           {entregas.map((e) => (
-            <article
-              key={e.id}
-              className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl"
-            >
-              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <h2 className="text-xl font-black text-white">{e.sorteo_nombre}</h2>
-                    <Badge estado={e.estado} />
+            <Card key={e.id} className="min-w-0">
+              <CardContent className="p-activa-16 sm:p-activa-20 lg:p-activa-24">
+                <div className="flex min-w-0 flex-col gap-activa-20 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 flex-wrap items-center gap-activa-8">
+                      <span className="flex size-11 shrink-0 items-center justify-center rounded-activa-md bg-activa-teal-soft text-action-secondary">
+                        <ActivaIcon name="delivery" size={22} />
+                      </span>
+                      <h2 className="min-w-0 max-w-full break-words font-display text-xl font-semibold text-text-primary">
+                        {e.sorteo_nombre}
+                      </h2>
+                      <EstadoEntregaBadge estado={e.estado} />
+                    </div>
+
+                    <div className="mt-activa-16 grid grid-cols-2 gap-activa-12 lg:grid-cols-4">
+                      <div className="min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12">
+                        <p className="text-xs text-text-secondary">Persona seleccionada</p>
+                        <p className="mt-activa-4 break-words [overflow-wrap:anywhere] text-sm font-semibold text-text-primary">
+                          {e.ganador_email}
+                        </p>
+                      </div>
+
+                      <div className="min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12">
+                        <p className="text-xs text-text-secondary">Opción seleccionada</p>
+                        <p className="mt-activa-4 break-words text-sm font-semibold text-text-primary">
+                          #{e.numero_visible}
+                        </p>
+                      </div>
+
+                      <div className="min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12">
+                        <p className="text-xs text-text-secondary">Entrega registrada</p>
+                        <p className="mt-activa-4 break-words text-sm font-semibold text-text-primary">
+                          {formatFecha(e.created_at)}
+                        </p>
+                      </div>
+
+                      <div className="min-w-0 rounded-activa-md bg-background-surface-muted p-activa-12">
+                        <p className="text-xs text-text-secondary">Seguimiento</p>
+                        <p className="mt-activa-4 break-words [overflow-wrap:anywhere] text-sm font-semibold text-text-primary">
+                          {e.codigo_seguimiento || 'Sin cargar'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <ChatPremio entregaId={e.id} />
                   </div>
 
-                  <div className="mt-4 grid gap-3 text-sm text-zinc-400 md:grid-cols-4">
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Ganador</p>
-                      <p className="mt-1 font-semibold text-zinc-300">{e.ganador_email}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Número</p>
-                      <p className="mt-1 font-semibold text-zinc-300">#{e.numero_visible}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Creada</p>
-                      <p className="mt-1 font-semibold text-zinc-300">{formatFecha(e.created_at)}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-zinc-600">Seguimiento</p>
-                      <p className="mt-1 font-semibold text-zinc-300">{e.codigo_seguimiento || 'Sin cargar'}</p>
-                    </div>
+                  <div className="flex min-w-0 shrink-0 flex-col gap-activa-8 sm:flex-row sm:flex-wrap lg:w-52 lg:flex-col">
+                    <Button
+                      variant="tertiary"
+                      disabled={mutation.isPending}
+                      onClick={() => actualizar(e.id, 'preparando')}
+                      leftIcon={<ActivaIcon name="package" size={18} />}
+                      className="w-full sm:w-auto lg:w-full"
+                    >
+                      Preparar
+                    </Button>
+                    <Button
+                      variant="tertiary"
+                      disabled={mutation.isPending}
+                      onClick={() => actualizar(e.id, 'enviado')}
+                      leftIcon={<ActivaIcon name="delivery" size={18} />}
+                      className="w-full sm:w-auto lg:w-full"
+                    >
+                      Marcar enviado
+                    </Button>
+                    <Button
+                      disabled={mutation.isPending}
+                      onClick={() => actualizar(e.id, 'entregado')}
+                      leftIcon={<ActivaIcon name="check-circle" size={18} />}
+                      className="w-full sm:w-auto lg:w-full"
+                    >
+                      Marcar entregado
+                    </Button>
                   </div>
                 </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    className="btn-ghost text-sm"
-                    disabled={mutation.isPending}
-                    onClick={() => actualizar(e.id, 'preparando')}
-                  >
-                    Preparar
-                  </button>
-                  <button
-                    className="btn-ghost text-sm"
-                    disabled={mutation.isPending}
-                    onClick={() => actualizar(e.id, 'enviado')}
-                  >
-                    Marcar enviado
-                  </button>
-                  <button
-                    className="btn-primary text-sm"
-                    disabled={mutation.isPending}
-                    onClick={() => actualizar(e.id, 'entregado')}
-                  >
-                    Marcar entregado
-                  </button>
-                </div>
-              </div>
-		<ChatPremio entregaId={e.id} />
-            </article>
+              </CardContent>
+            </Card>
           ))}
         </section>
       )}
-    </div>
+    </main>
   );
 }
