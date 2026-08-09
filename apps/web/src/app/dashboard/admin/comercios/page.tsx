@@ -1,10 +1,34 @@
 'use client';
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { PageHeader } from '@/components/layout';
+import {
+  Alert,
+  Badge,
+  type BadgeVariant,
+  Button,
+  Card,
+  CardContent,
+  Skeleton,
+} from '@/components/ui';
 import { adminApi } from '@/lib/api';
-import { estadoColor } from '@/lib/utils';
-import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+
+const estadoBadge: Record<string, BadgeVariant> = {
+  pendiente: 'warning',
+  aprobado: 'success',
+  suspendido: 'error',
+  rechazado: 'error',
+};
+
+const filtros = [
+  { value: '', label: 'Todos' },
+  { value: 'pendiente', label: 'Pendientes' },
+  { value: 'aprobado', label: 'Aprobados' },
+  { value: 'suspendido', label: 'Suspendidos' },
+  { value: 'rechazado', label: 'Rechazados' },
+] as const;
 
 export default function AdminComerciosPage() {
   const qc = useQueryClient();
@@ -16,97 +40,140 @@ export default function AdminComerciosPage() {
 
   const aprobar = useMutation({
     mutationFn: (id: string) => adminApi.aprobarComercio(id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-comercios'] }); toast.success('Comercio aprobado'); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-comercios'] }); toast.success('Comercio impulsor aprobado'); },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const rechazar = useMutation({
     mutationFn: ({ id, motivo }: { id: string; motivo: string }) => adminApi.rechazarComercio(id, motivo),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-comercios'] }); toast.success('Comercio rechazado'); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-comercios'] }); toast.success('Comercio impulsor rechazado'); },
   });
 
   const suspender = useMutation({
     mutationFn: (id: string) => adminApi.suspenderComercio(id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-comercios'] }); toast.success('Comercio suspendido'); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-comercios'] }); toast.success('Comercio impulsor suspendido'); },
   });
 
   const comercios: any[] = (data as any)?.data?.data || [];
   const pendientes = comercios.filter(c => c.estado === 'pendiente').length;
 
+  if (isLoading) {
+    return (
+      <div aria-label="Cargando comercios impulsores" className="max-w-full space-y-activa-24">
+        <div className="space-y-activa-8">
+          <Skeleton variant="text" className="h-8 max-w-sm" />
+          <Skeleton variant="text" className="max-w-2xl" />
+        </div>
+        <Skeleton variant="rectangular" className="h-12 max-w-3xl" />
+        <Skeleton variant="rectangular" className="h-80" />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Comercios</h1>
-          {pendientes > 0 && (
-            <p className="text-sm text-yellow-600 font-medium mt-1">⚠ {pendientes} pendiente{pendientes > 1 ? 's' : ''} de aprobación</p>
-          )}
-        </div>
-      </div>
+    <div className="max-w-full space-y-activa-24 text-text-primary">
+      <PageHeader
+        eyebrow="Administración"
+        title="Comercios impulsores"
+        description="Revisá solicitudes, consultá estados y administrá los comercios que impulsan campañas en ACTIVA."
+      />
 
-      {/* Filtros */}
-      <div className="flex gap-2">
-        {['', 'pendiente', 'aprobado', 'suspendido', 'rechazado'].map(e => (
-          <button key={e || 'todos'} onClick={() => setFiltroEstado(e)}
-            className={cn('px-3 py-1.5 rounded-lg text-sm font-medium transition-colors',
-              filtroEstado === e ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50')}>
-            {e || 'Todos'}
-          </button>
-        ))}
-      </div>
-
-      {isLoading ? <div className="animate-pulse text-gray-400">Cargando...</div> : (
-        <div className="card overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                {['Comercio', 'CUIT', 'Estado', 'Sorteos', 'Comisión', 'Acciones'].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {comercios.map((c: any) => (
-                <tr key={c.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-4">
-                    <div className="font-semibold text-sm text-gray-900">{c.razon_social}</div>
-                    <div className="text-xs text-gray-400">{c.email}</div>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-500 font-mono">{c.cuit}</td>
-                  <td className="px-4 py-4">
-                    <span className={cn('text-xs px-2 py-1 rounded-full font-semibold', estadoColor(c.estado))}>{c.estado}</span>
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">—</td>
-                  <td className="px-4 py-4 text-sm text-gray-600">{c.comision_pct}%</td>
-                  <td className="px-4 py-4">
-                    <div className="flex gap-2">
-                      {c.estado === 'pendiente' && (
-                        <>
-                          <button onClick={() => aprobar.mutate(c.id)} disabled={aprobar.isPending}
-                            className="bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-lg text-xs font-semibold hover:bg-green-100">
-                            Aprobar
-                          </button>
-                          <button onClick={() => {
-                            const motivo = window.prompt('Motivo del rechazo:');
-                            if (motivo) rechazar.mutate({ id: c.id, motivo });
-                          }} className="btn-danger px-3 py-1 text-xs">Rechazar</button>
-                        </>
-                      )}
-                      {c.estado === 'aprobado' && (
-                        <button onClick={() => { if (window.confirm('¿Suspender este comercio? Se cancelarán sus sorteos activos.')) suspender.mutate(c.id); }}
-                          className="btn-danger px-3 py-1 text-xs">Suspender</button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {comercios.length === 0 && (
-            <div className="text-center py-12 text-gray-400">No hay comercios con este filtro</div>
-          )}
-        </div>
+      {pendientes > 0 && (
+        <Alert variant="warning" title="Solicitudes pendientes de aprobación">
+          Hay {pendientes} comercio{pendientes > 1 ? 's impulsores pendientes' : ' impulsor pendiente'} de aprobación.
+        </Alert>
       )}
+
+      <section aria-label="Filtrar comercios impulsores" className="flex max-w-full flex-wrap gap-activa-8">
+        {filtros.map((filtro) => (
+          <Button
+            key={filtro.value || 'todos'}
+            type="button"
+            size="sm"
+            variant={filtroEstado === filtro.value ? 'secondary' : 'tertiary'}
+            aria-pressed={filtroEstado === filtro.value}
+            onClick={() => setFiltroEstado(filtro.value)}
+          >
+            {filtro.label}
+          </Button>
+        ))}
+      </section>
+
+      <Card className="max-w-full overflow-hidden">
+        <CardContent className="p-0">
+          <div className="max-w-full overflow-x-auto">
+            <table className="w-full min-w-[58rem] text-left text-sm">
+              <thead className="border-b border-border-default bg-background-surface-muted text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                <tr>
+                  {['Comercio impulsor', 'CUIT', 'Estado', 'Campañas', 'Comisión', 'Acciones'].map(h => (
+                    <th key={h} scope="col" className="px-activa-16 py-activa-12">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {comercios.map((c: any) => (
+                  <tr key={c.id} className="border-b border-border-default text-text-secondary transition-colors duration-fast ease-activa last:border-b-0 hover:bg-background-surface-muted">
+                    <td className="max-w-72 px-activa-16 py-activa-12">
+                      <div className="break-words font-semibold text-text-primary [overflow-wrap:anywhere]">{c.razon_social}</div>
+                      <div className="mt-activa-4 break-words text-xs [overflow-wrap:anywhere]">{c.email}</div>
+                    </td>
+                    <td className="px-activa-16 py-activa-12 font-mono">{c.cuit}</td>
+                    <td className="px-activa-16 py-activa-12">
+                      <Badge variant={estadoBadge[c.estado] || 'neutral'} size="sm">{c.estado}</Badge>
+                    </td>
+                    <td className="px-activa-16 py-activa-12">—</td>
+                    <td className="px-activa-16 py-activa-12">{c.comision_pct}%</td>
+                    <td className="px-activa-16 py-activa-12">
+                      <div className="flex flex-wrap gap-activa-8">
+                        {c.estado === 'pendiente' && (
+                          <>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => aprobar.mutate(c.id)}
+                              disabled={aprobar.isPending}
+                            >
+                              Aprobar
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => {
+                                const motivo = window.prompt('Motivo del rechazo:');
+                                if (motivo) rechazar.mutate({ id: c.id, motivo });
+                              }}
+                            >
+                              Rechazar
+                            </Button>
+                          </>
+                        )}
+                        {c.estado === 'aprobado' && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => { if (window.confirm('¿Suspender este comercio impulsor? Se cancelarán sus campañas activas.')) suspender.mutate(c.id); }}
+                          >
+                            Suspender
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {comercios.length === 0 && (
+            <div className="border-t border-border-default p-activa-32 text-center text-sm text-text-secondary">
+              No hay comercios impulsores con este filtro.
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
