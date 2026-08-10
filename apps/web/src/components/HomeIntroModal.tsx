@@ -109,11 +109,11 @@ export default function HomeIntroModal() {
             </Button>
 
             <Link
-              href="#marketplace"
+              href="/login"
               onClick={cerrar}
               className="inline-flex h-[52px] w-full items-center justify-center gap-activa-8 rounded-activa-sm bg-action-primary px-activa-20 text-base font-semibold text-action-primary-text transition-colors duration-fast ease-activa hover:bg-action-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto"
             >
-              Explorar campañas
+              Ingresar a ACTIVA
               <ActivaIcon name="arrow-right" size={20} />
             </Link>
           </div>

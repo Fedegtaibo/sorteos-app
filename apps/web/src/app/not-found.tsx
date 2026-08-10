@@ -43,10 +43,10 @@ export default function NotFound() {
                 Volver al inicio
               </Link>
               <Link
-                href="/#marketplace"
+                href="/login"
                 className="inline-flex h-[52px] items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-20 text-base font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2"
               >
-                Explorar campañas
+                Ingresar a ACTIVA
                 <ActivaIcon name="arrow-right" size={20} />
               </Link>
             </div>
