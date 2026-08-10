@@ -78,7 +78,7 @@ function SorteoCard({ sorteo }: { sorteo: any }) {
                 {sorteo.nombre}
               </CardTitle>
               <CardDescription className="truncate">
-                {sorteo.comercio_nombre || 'Comercio'}
+                {sorteo.comercio_nombre || 'Comercio impulsor'}
               </CardDescription>
             </div>
 
@@ -340,7 +340,7 @@ export default function ExplorarSorteosPage() {
               label="Buscar"
               value={busqueda}
               onChange={(event) => setBusqueda(event.target.value)}
-              placeholder="Buscar por campaña, descripción o comercio"
+              placeholder="Buscar por campaña, descripción o comercio impulsor"
               leftIcon={<ActivaIcon name="search" size={18} />}
             />
 

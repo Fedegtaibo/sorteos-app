@@ -3,7 +3,7 @@ import { sorteosApi } from '@/lib/api';
 import toast from 'react-hot-toast';
 
 const mensajeEmailNoVerificadoComercio =
-  'Necesitás verificar tu email antes de crear o activar sorteos. Revisá tu casilla o usá el botón “Reenviar email” en el dashboard.';
+  'Necesitás verificar tu email antes de crear o activar campañas. Revisá tu casilla o usá el botón “Reenviar email” en el dashboard.';
 
 const esErrorEmailNoVerificado = (err: any) =>
   String(err?.message || '').toLowerCase().includes('verificar tu email');
@@ -45,7 +45,7 @@ export function useCrearSorteo() {
     mutationFn: sorteosApi.crear,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['mis-sorteos'] });
-      toast.success('Sorteo creado en borrador');
+      toast.success('Campaña creada en borrador');
     },
     onError: (err: Error) =>
       toast.error(
@@ -62,7 +62,7 @@ export function useActivarSorteo() {
     mutationFn: sorteosApi.activar,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['mis-sorteos'] });
-      toast.success('Sorteo activado correctamente');
+      toast.success('Campaña activada correctamente');
     },
     onError: (err: Error) =>
       toast.error(
@@ -81,7 +81,7 @@ export function useSortearSorteo() {
       sorteosApi.sortear(id, seedExterno),
     onSuccess: (data: any) => {
       qc.invalidateQueries({ queryKey: ['mis-sorteos'] });
-      toast.success(`Sorteo realizado. Número ganador: ${data?.numeroGanador}`);
+      toast.success(`Selección realizada. Número seleccionado: ${data?.numeroGanador}`);
     },
     onError: (err: Error) => toast.error(err.message),
   });
