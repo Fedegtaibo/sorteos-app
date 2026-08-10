@@ -52,7 +52,7 @@ export default function Page() {
           <PageHeader
             eyebrow="Información importante"
             title="Términos y condiciones"
-            description="Estos términos establecen las reglas básicas para usar ACTIVA como participante, comercio organizador o usuario de la plataforma."
+            description="Estos términos establecen las reglas básicas para usar ACTIVA como participante, comercio impulsor o usuario de la plataforma."
             breadcrumbs={[
               { label: 'Inicio', href: '/' },
               { label: 'Términos y condiciones' },
@@ -75,25 +75,25 @@ export default function Page() {
           <Section title="1. Qué es ACTIVA">
             <p>
               ACTIVA es una plataforma digital que permite a comercios, marcas y emprendimientos
-              crear sorteos online, publicar premios, vender números y registrar participaciones de
+              impulsar campañas, publicar beneficios, vender números y registrar participaciones de
               forma más ordenada, trazable y transparente.
             </p>
 
             <p>
-              ACTIVA no es el organizador directo de cada sorteo publicado por terceros. Cada
-              sorteo es organizado por el comercio, marca o emprendimiento que lo publica dentro de
+              ACTIVA no es la organizadora directa de cada campaña publicada por terceros. Cada
+              campaña es organizada por el comercio, marca o emprendimiento que la publica dentro de
               la plataforma.
             </p>
 
             <p>
               La función de ACTIVA es brindar la herramienta tecnológica para registrar usuarios,
-              números, pagos, participaciones, comprobantes, ganadores y estados del sorteo.
+              números, pagos, participaciones, comprobantes, personas seleccionadas y estados de la campaña.
             </p>
           </Section>
 
           <Section title="2. Aceptación de los términos">
             <p>
-              Al registrarte, crear un sorteo, comprar números, participar o utilizar cualquier
+              Al registrarte, crear una campaña, comprar números, participar o utilizar cualquier
               funcionalidad de ACTIVA, aceptás estos términos y condiciones.
             </p>
 
@@ -115,26 +115,26 @@ export default function Page() {
 
             <p>
               ACTIVA podrá solicitar verificación de email u otros controles básicos de seguridad
-              antes de permitir determinadas acciones, como comprar números, crear sorteos o cobrar
-              premios.
+              antes de permitir determinadas acciones, como comprar números, crear campañas o cobrar
+              o recibir beneficios, según corresponda.
             </p>
           </Section>
 
-          <Section title="4. Responsabilidad del comercio organizador">
+          <Section title="4. Responsabilidad del comercio impulsor">
             <p>
-              El comercio que publica un sorteo es responsable por la veracidad del premio, la
-              descripción publicada, las condiciones ofrecidas, la disponibilidad del premio y su
-              entrega al ganador.
+              El comercio impulsor que publica una campaña es responsable por la veracidad de la
+              información sobre el beneficio, la descripción publicada, las condiciones ofrecidas,
+              la disponibilidad del beneficio y su entrega a la persona seleccionada.
             </p>
 
             <p>
-              También es responsabilidad del comercio cumplir con las reglas del sorteo, responder
-              consultas, gestionar la entrega del premio y actuar de buena fe frente a participantes
-              y ganadores.
+              También es responsabilidad del comercio impulsor cumplir con las reglas de la campaña
+              y de su mecanismo de selección, responder consultas, gestionar la entrega del beneficio
+              y actuar de buena fe frente a participantes y personas seleccionadas.
             </p>
 
             <p>
-              ACTIVA podrá revisar, pausar, ocultar, suspender o cancelar sorteos cuando detecte
+              ACTIVA podrá revisar, pausar, ocultar, suspender o cancelar campañas cuando detecte
               información incompleta, actividad sospechosa, reclamos, incumplimientos o cualquier uso
               indebido de la plataforma.
             </p>
@@ -142,7 +142,7 @@ export default function Page() {
 
           <Section title="5. Participación de usuarios">
             <p>
-              Para participar en un sorteo, el usuario debe elegir uno o más números disponibles y
+              Para participar en una campaña, el usuario debe elegir uno o más números disponibles y
               completar el pago correspondiente mediante los medios habilitados.
             </p>
 
@@ -160,8 +160,8 @@ export default function Page() {
 
           <Section title="6. Pagos, comprobantes y estados">
             <p>
-              Los pagos realizados dentro de ACTIVA se vinculan con la cuenta del participante, el
-              sorteo elegido y los números seleccionados.
+              Los pagos realizados dentro de ACTIVA se vinculan con la cuenta del participante, la
+              campaña elegida y los números seleccionados.
             </p>
 
             <p>
@@ -176,19 +176,19 @@ export default function Page() {
             </p>
           </Section>
 
-          <Section title="7. Sorteo, ganador y entrega del premio">
+          <Section title="7. Mecanismo de selección, persona seleccionada y entrega del beneficio">
             <p>
-              Cada sorteo tendrá sus propias condiciones publicadas, incluyendo premio, valor del
-              número, cantidad de números, fecha estimada del sorteo y comercio organizador.
+              Cada campaña tendrá sus propias condiciones publicadas, incluyendo beneficio, valor del
+              número, cantidad de números, fecha estimada del mecanismo de selección y comercio impulsor.
             </p>
 
             <p>
-              El comercio organizador es responsable de entregar el premio al ganador según lo
+              El comercio impulsor es responsable de entregar el beneficio a la persona seleccionada según lo
               informado en la publicación y de actualizar el estado de entrega cuando corresponda.
             </p>
 
             <p>
-              ACTIVA podrá registrar el resultado del sorteo, el ganador, el estado de entrega y
+              ACTIVA podrá registrar el resultado del mecanismo de selección, la persona seleccionada, el estado de entrega y
               eventuales reclamos para mejorar la transparencia del proceso.
             </p>
           </Section>
@@ -196,14 +196,14 @@ export default function Page() {
           <Section title="8. Reclamos y soporte">
             <p>
               Los usuarios podrán reportar problemas relacionados con pagos, participaciones,
-              sorteos, comercios o entrega de premios mediante los canales de contacto habilitados
+              campañas, comercios impulsores o entrega de beneficios mediante los canales de contacto habilitados
               por ACTIVA.
             </p>
 
             <p>
               Ante un reclamo, ACTIVA podrá revisar la información disponible dentro de la
-              plataforma, solicitar datos adicionales al participante o al comercio, pausar acciones
-              vinculadas al sorteo y tomar medidas razonables según el caso.
+              plataforma, solicitar datos adicionales al participante o al comercio impulsor, pausar acciones
+              vinculadas a la campaña y tomar medidas razonables según el caso.
             </p>
 
             <p>
@@ -215,8 +215,8 @@ export default function Page() {
 
           <Section title="9. Uso indebido de la plataforma">
             <p>
-              No está permitido usar ACTIVA para publicar sorteos falsos, engañosos, ilegales,
-              ofensivos, fraudulentos o que puedan perjudicar a participantes, comercios, terceros o
+              No está permitido usar ACTIVA para publicar campañas falsas, engañosas, ilegales,
+              ofensivas, fraudulentas o que puedan perjudicar a participantes, comercios impulsores, terceros o
               a la propia plataforma.
             </p>
 
@@ -226,7 +226,7 @@ export default function Page() {
             </p>
 
             <p>
-              ACTIVA podrá suspender cuentas, pausar sorteos, limitar funciones, cancelar
+              ACTIVA podrá suspender cuentas, pausar campañas, limitar funciones, cancelar
               publicaciones o bloquear usuarios cuando detecte actividad sospechosa o incumplimiento
               de estos términos.
             </p>

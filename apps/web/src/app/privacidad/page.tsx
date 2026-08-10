@@ -74,15 +74,15 @@ export default function Page() {
           <Section title="1. Información que podemos solicitar">
             <p>
               ACTIVA puede solicitar o registrar datos como nombre, email, teléfono, contraseña
-              protegida, rol de usuario, información del comercio, datos de sorteos publicados,
+              protegida, rol de usuario, información del comercio impulsor, datos de campañas publicadas,
               números seleccionados, participaciones, pagos, comprobantes, reclamos y actividad
               básica dentro de la plataforma.
             </p>
 
             <p>
-              En el caso de comercios, también podemos solicitar información necesaria para
-              identificar el emprendimiento, validar su perfil, publicar sorteos y facilitar la
-              comunicación con participantes o ganadores.
+              En el caso de comercios impulsores, también podemos solicitar información necesaria para
+              identificar el emprendimiento, validar su perfil, publicar campañas y facilitar la
+              comunicación con participantes o personas seleccionadas.
             </p>
           </Section>
 
@@ -90,7 +90,7 @@ export default function Page() {
             <p>
               Usamos la información para crear y administrar cuentas, verificar usuarios, permitir
               la compra de números, registrar participaciones, mostrar comprobantes, gestionar
-              sorteos, identificar ganadores y mejorar el funcionamiento de ACTIVA.
+              campañas, identificar personas seleccionadas y mejorar el funcionamiento de ACTIVA.
             </p>
 
             <p>
@@ -108,7 +108,7 @@ export default function Page() {
 
             <p>
               ACTIVA puede registrar información necesaria para identificar el estado de una
-              operación, como pago pendiente, aprobado, rechazado o cancelado, junto con el sorteo,
+              operación, como pago pendiente, aprobado, rechazado o cancelado, junto con la campaña,
               usuario y números asociados.
             </p>
 
@@ -122,8 +122,8 @@ export default function Page() {
           <Section title="4. Información visible para otros usuarios">
             <p>
               Algunos datos pueden mostrarse dentro de la plataforma para permitir el funcionamiento
-              del sistema. Por ejemplo, información pública de un comercio, datos básicos de un
-              sorteo, números vendidos, estado del sorteo o resultado del ganador.
+              del sistema. Por ejemplo, información pública de un comercio impulsor, datos básicos de una
+              campaña, números vendidos, estado de la campaña o información sobre el resultado del mecanismo de selección.
             </p>
 
             <p>
@@ -161,8 +161,8 @@ export default function Page() {
 
           <Section title="7. Conservación de datos">
             <p>
-              Podemos conservar información de cuentas, sorteos, pagos, participaciones,
-              comprobantes, ganadores y reclamos durante el tiempo necesario para operar la
+              Podemos conservar información de cuentas, campañas, pagos, participaciones,
+              comprobantes, personas seleccionadas y reclamos durante el tiempo necesario para operar la
               plataforma, resolver consultas, prevenir fraudes, cumplir obligaciones aplicables y
               mantener registros de seguridad.
             </p>
@@ -182,7 +182,7 @@ export default function Page() {
 
             <p>
               En algunos casos, la eliminación total de datos puede no ser inmediata o completa si
-              existe información necesaria para conservar registros de operaciones, pagos, sorteos,
+              existe información necesaria para conservar registros de operaciones, pagos, campañas,
               reclamos, seguridad o cumplimiento de obligaciones.
             </p>
           </Section>
@@ -190,7 +190,7 @@ export default function Page() {
           <Section title="9. Comunicaciones">
             <p>
               ACTIVA puede enviar comunicaciones relacionadas con la cuenta, verificación de email,
-              pagos, participaciones, comprobantes, sorteos, soporte, seguridad, reclamos o cambios
+              pagos, participaciones, comprobantes, campañas, soporte, seguridad, reclamos o cambios
               importantes en la plataforma.
             </p>
 
@@ -203,8 +203,8 @@ export default function Page() {
           <Section title="10. Menores de edad">
             <p>
               ACTIVA no está pensado para ser utilizado por menores de edad sin autorización o
-              supervisión correspondiente. Los comercios organizadores deberán publicar sorteos que
-              respeten las condiciones aplicables al tipo de premio ofrecido.
+              supervisión correspondiente. Los comercios impulsores deberán publicar campañas que
+              respeten las condiciones aplicables al tipo de beneficio ofrecido.
             </p>
           </Section>
 
