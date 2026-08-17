@@ -243,13 +243,44 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
       { headers: { Authorization: `Bearer ${this.config.get('MP_ACCESS_TOKEN')}` } },
     );
 
+    if (!mpResponse.ok) {
+      this.logger.warn(
+        `No se pudo recuperar pago MP ${paymentId}: HTTP ${mpResponse.status}`,
+      );
+
+      if (mpResponse.status >= 400 && mpResponse.status < 500) {
+        return {
+          skipped: true,
+          reason: 'payment_not_retrievable',
+          statusCode: mpResponse.status,
+        };
+      }
+
+      throw new Error(
+        `Mercado Pago no disponible al consultar pago ${paymentId}: HTTP ${mpResponse.status}`,
+      );
+    }
+
     const payment = await mpResponse.json();
+    const preferenceId = payment.preference_id ?? null;
 
     if (payment.status !== 'approved') {
       this.logger.log(`Pago ${paymentId} no aprobado: ${payment.status}`);
 
+      if (!preferenceId) {
+        this.logger.warn(
+          `Pago MP ${paymentId} no aprobado sin preference_id. Se omite actualizacion.`,
+        );
+
+        return {
+          skipped: true,
+          reason: 'missing_preference_id',
+          status: payment.status,
+        };
+      }
+
       await this.db('pagos')
-        .where({ preference_id: payment.preference_id })
+        .where({ preference_id: preferenceId })
         .update({
           estado: payment.status === 'rejected' ? 'rechazado' : 'pendiente',
         });
@@ -257,7 +288,28 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
       return { status: payment.status };
     }
 
-    const externalReference = payment.external_reference as string;
+    if (
+      typeof payment.external_reference !== 'string' ||
+      payment.external_reference.length === 0
+    ) {
+      this.logger.warn(
+        `Pago MP aprobado ${paymentId} sin external_reference valido. Se omite procesamiento.`,
+      );
+
+      return { skipped: true, reason: 'invalid_external_reference' };
+    }
+
+    const transactionAmount = Number(payment.transaction_amount);
+
+    if (!Number.isFinite(transactionAmount) || transactionAmount <= 0) {
+      this.logger.warn(
+        `Pago MP aprobado ${paymentId} con transaction_amount invalido. Se omite procesamiento.`,
+      );
+
+      return { skipped: true, reason: 'invalid_transaction_amount' };
+    }
+
+    const externalReference = payment.external_reference;
 
     let numeroIds: string[] = [];
     let userId: string;
@@ -304,7 +356,7 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
           throw new NotFoundException('Sorteo no encontrado');
         }
 
-        const montoPorNumero = Number(payment.transaction_amount) / numeroIds.length;
+        const montoPorNumero = transactionAmount / numeroIds.length;
 
         for (const numero of numeros) {
           await trx('numeros').where({ id: numero.id }).update({
@@ -332,10 +384,10 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
 
           let updated = 0;
 
-          if (payment.preference_id) {
+          if (preferenceId) {
             updated = await trx('pagos')
               .where({
-                preference_id: payment.preference_id,
+                preference_id: preferenceId,
                 numero_id: numero.id,
                 usuario_id: userId,
               })
@@ -355,7 +407,7 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
               usuario_id: userId,
               numero_id: numero.id,
               proveedor: 'mercadopago',
-              preference_id: payment.preference_id,
+              preference_id: preferenceId,
               external_id: externalId,
               monto: montoPorNumero,
               estado: 'aprobado',
