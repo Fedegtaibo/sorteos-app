@@ -28,10 +28,29 @@ import { ChatModule } from './modules/chat/chat.module';
   	 ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     BullModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        redis: config.get('REDIS_URL'),
-        defaultJobOptions: { removeOnComplete: false, removeOnFail: false },
-      }),
+      useFactory: (config: ConfigService) => {
+        const redisUrl = new URL(
+          config.getOrThrow<string>('REDIS_URL'),
+        );
+
+        return {
+          redis: {
+            host: redisUrl.hostname,
+            port: Number(redisUrl.port || 6379),
+            username: redisUrl.username
+              ? decodeURIComponent(redisUrl.username)
+              : undefined,
+            password: redisUrl.password
+              ? decodeURIComponent(redisUrl.password)
+              : undefined,
+            tls:
+              redisUrl.protocol === 'rediss:'
+                ? { servername: redisUrl.hostname }
+                : undefined,
+          },
+          defaultJobOptions: { removeOnComplete: false, removeOnFail: false },
+        };
+      },
     }),
     NotificationsModule,
     ChatModule,
