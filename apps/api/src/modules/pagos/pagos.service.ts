@@ -216,7 +216,6 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
       'confirmar-pago-mp',
       { paymentId: body.data.id },
       {
-        jobId: 'mp-payment-' + body.data.id,
         attempts: 5,
         backoff: { type: 'exponential', delay: 2000 },
         removeOnComplete: false,
