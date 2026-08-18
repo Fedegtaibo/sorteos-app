@@ -7,6 +7,7 @@ import { Knex } from 'knex';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import Redis from 'ioredis';
+import { randomUUID } from 'crypto';
 import { AuditService } from '../audit/audit.service';
 
 @Injectable()
@@ -121,29 +122,72 @@ export class PagosService {
 
     const idsUnicos = Array.from(new Set(numeroIds));
 
-    await this.liberarReservasVencidas(sorteoId);
-
-    const numeros = await this.db('numeros')
-      .whereIn('id', idsUnicos)
-      .where({
-        sorteo_id: sorteoId,
-        reservado_por: userId,
-        estado: 'reservado',
-      })
-      .orderBy('numero_visible', 'asc');
-
-    if (numeros.length !== idsUnicos.length) {
-      throw new BadRequestException({
-        code: 'RESERVA_INVALIDA',
-        message: 'Alguno de los números no está reservado para vos o la reserva expiró',
-      });
-    }
-
-    const sorteo = await this.db('sorteos').where({ id: sorteoId }).first();
-    if (!sorteo) throw new NotFoundException('Sorteo no encontrado');
-
     const user = await this.db('users').where({ id: userId }).first('email');
     if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    await this.liberarReservasVencidas(sorteoId);
+
+    const checkoutId = randomUUID();
+    const checkout = await this.db.transaction(async (trx) => {
+      const sorteo = await trx('sorteos')
+        .where({ id: sorteoId })
+        .forUpdate()
+        .first();
+
+      if (!sorteo) throw new NotFoundException('Sorteo no encontrado');
+      if (sorteo.estado !== 'activo') {
+        throw new BadRequestException({
+          code: 'SORTEO_NO_ACTIVO',
+          message: 'El sorteo no está disponible',
+        });
+      }
+
+      const numeros = await trx('numeros')
+        .whereIn('id', idsUnicos)
+        .where({
+          sorteo_id: sorteoId,
+          reservado_por: userId,
+          estado: 'reservado',
+        })
+        .orderBy('id', 'asc')
+        .forUpdate();
+
+      if (numeros.length !== idsUnicos.length) {
+        throw new BadRequestException({
+          code: 'RESERVA_INVALIDA',
+          message: 'Alguno de los números no está reservado para vos o la reserva expiró',
+        });
+      }
+
+      const comercio = await trx('comercios')
+        .where({ id: sorteo.comercio_id })
+        .forUpdate()
+        .first();
+
+      if (!comercio || comercio.estado !== 'aprobado') {
+        throw new BadRequestException({
+          code: 'COMERCIO_NO_APROBADO',
+          message: 'El sorteo no está disponible',
+        });
+      }
+
+      await trx('pagos').insert(numeros.map((numero) => ({
+        checkout_id: checkoutId,
+        participacion_id: null,
+        usuario_id: userId,
+        sorteo_id: sorteoId,
+        numero_id: numero.id,
+        proveedor: 'mercadopago',
+        preference_id: null,
+        external_id: null,
+        monto: sorteo.valor_numero,
+        estado: 'pendiente',
+      })));
+
+      return { sorteo, numeros };
+    });
+
+    const { sorteo, numeros } = checkout;
 
     const mpAccessToken = this.config.get<string>('MP_ACCESS_TOKEN');
     const baseUrl = this.config.get<string>('BASE_URL');
@@ -161,10 +205,7 @@ export class PagosService {
       currency_id: 'ARS',
     }));
 
-    const externalReference =
-      idsUnicos.length === 1
-        ? `${idsUnicos[0]}:${userId}:${sorteoId}`
-        : `multi:${idsUnicos.join(',')}:${userId}:${sorteoId}`;
+    const externalReference = `checkout:${checkoutId}`;
 
     const preferenceBody: any = {
   items,
@@ -194,34 +235,50 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
       )
       .first();
 
-    if (!disponibilidad) throw new NotFoundException('Sorteo no encontrado');
-    if (disponibilidad.sorteo_estado !== 'activo') {
+    if (
+      !disponibilidad ||
+      disponibilidad.sorteo_estado !== 'activo' ||
+      disponibilidad.comercio_estado !== 'aprobado'
+    ) {
+      await this.db('pagos')
+        .where({ checkout_id: checkoutId })
+        .update({ estado: 'cancelado' });
       throw new BadRequestException({
-        code: 'SORTEO_NO_ACTIVO',
-        message: 'El sorteo no está disponible',
-      });
-    }
-    if (disponibilidad.comercio_estado !== 'aprobado') {
-      throw new BadRequestException({
-        code: 'COMERCIO_NO_APROBADO',
+        code: 'SORTEO_NO_DISPONIBLE',
         message: 'El sorteo no está disponible',
       });
     }
 
-    const mpResponse = await fetch(
-      'https://api.mercadopago.com/checkout/preferences',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${mpAccessToken}`,
-          'Content-Type': 'application/json',
+    let mpResponse: Response;
+    try {
+      mpResponse = await fetch(
+        'https://api.mercadopago.com/checkout/preferences',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${mpAccessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(preferenceBody),
         },
-        body: JSON.stringify(preferenceBody),
-      },
-    );
+      );
+    } catch (error: any) {
+      await this.db('pagos')
+        .where({ checkout_id: checkoutId })
+        .update({ estado: 'cancelado' });
+      this.logger.error(`Error creando preferencia MP: ${error?.message || 'error de red'}`);
+      throw new BadRequestException({
+        code: 'BAD_REQUEST',
+        message: 'No se pudo crear el pago. Intentá de nuevo.',
+      });
+    }
 
     if (!mpResponse.ok) {
       const error = await mpResponse.text();
+
+      await this.db('pagos')
+        .where({ checkout_id: checkoutId })
+        .update({ estado: 'cancelado' });
 
       this.logger.error(
         `Error creando preferencia MP: ${error}`,
@@ -233,7 +290,33 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
       });
     }
 
-    const preference: any = await mpResponse.json();
+    let preference: any;
+    try {
+      preference = await mpResponse.json();
+    } catch {
+      await this.db('pagos')
+        .where({ checkout_id: checkoutId })
+        .update({ estado: 'cancelado' });
+      throw new BadRequestException({
+        code: 'BAD_REQUEST',
+        message: 'No se pudo crear el pago. Intentá de nuevo.',
+      });
+    }
+
+    if (typeof preference.id !== 'string' || preference.id.length === 0) {
+      await this.db('pagos')
+        .where({ checkout_id: checkoutId })
+        .update({ estado: 'cancelado' });
+
+      throw new BadRequestException({
+        code: 'BAD_REQUEST',
+        message: 'No se pudo crear el pago. Intentá de nuevo.',
+      });
+    }
+
+    await this.db('pagos')
+      .where({ checkout_id: checkoutId })
+      .update({ preference_id: preference.id });
 
     return {
       checkoutUrl:
@@ -275,16 +358,6 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
   }
 
   async confirmarPagoMP(paymentId: string) {
-    const existente = await this.db('pagos')
-      .where('external_id', String(paymentId))
-      .orWhere('external_id', 'like', `${paymentId}:%`)
-      .first();
-
-    if (existente?.estado === 'aprobado') {
-      this.logger.log(`Pago ${paymentId} ya procesado. Ignorando.`);
-      return { skipped: true };
-    }
-
     const mpResponse = await fetch(
       `https://api.mercadopago.com/v1/payments/${paymentId}`,
       { headers: { Authorization: `Bearer ${this.config.get('MP_ACCESS_TOKEN')}` } },
@@ -309,206 +382,621 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
     }
 
     const payment = await mpResponse.json();
-    const preferenceId = payment.preference_id ?? null;
 
     if (payment.status !== 'approved') {
       this.logger.log(`Pago ${paymentId} no aprobado: ${payment.status}`);
+      return this.procesarPagoNoAprobado(payment);
+    }
 
-      if (!preferenceId) {
-        this.logger.warn(
-          `Pago MP ${paymentId} no aprobado sin preference_id. Se omite actualizacion.`,
-        );
+    return this.conciliarPagoAprobado(String(paymentId), payment);
+  }
 
-        return {
-          skipped: true,
-          reason: 'missing_preference_id',
-          status: payment.status,
-        };
+  private async procesarPagoNoAprobado(payment: any) {
+    const externalReference = typeof payment.external_reference === 'string'
+      ? payment.external_reference
+      : '';
+    const checkoutId = this.checkoutIdDesdeReferencia(externalReference);
+    const estado = payment.status === 'rejected' ? 'rechazado' : 'pendiente';
+
+    if (checkoutId) {
+      await this.db('pagos').where({ checkout_id: checkoutId }).update({ estado });
+    } else if (typeof payment.preference_id === 'string') {
+      // Compatibilidad con preferences históricas que no tienen checkout_id.
+      await this.db('pagos').where({ preference_id: payment.preference_id }).update({ estado });
+    }
+
+    return { status: payment.status };
+  }
+
+  private async conciliarPagoAprobado(paymentId: string, payment: any) {
+    const detalle = this.detalleFinancieroSeguro(payment);
+    const montoRecibido = this.montoDecimalSeguro(payment.transaction_amount);
+    const montoRecibidoCentavos = this.montoACentavos(payment.transaction_amount);
+    const externalReference = typeof payment.external_reference === 'string'
+      ? payment.external_reference
+      : '';
+
+    const pagoExistente = await this.db('pagos')
+      .where('external_id', paymentId)
+      .orWhere('external_id', 'like', `${paymentId}:%`)
+      .first();
+    const incidenciaExistente = await this.db('pagos_incidencias')
+      .where({ payment_external_id: paymentId })
+      .first();
+
+    if (pagoExistente?.estado === 'aprobado' || incidenciaExistente) {
+      return {
+        confirmed: Boolean(pagoExistente?.participacion_id),
+        incident: Boolean(incidenciaExistente),
+        paymentId,
+        idempotent: true,
+      };
+    }
+
+    if (!montoRecibido || montoRecibidoCentavos === null || montoRecibidoCentavos <= 0n) {
+      await this.registrarIncidencia({
+        paymentId,
+        codigo: 'monto_no_coincide',
+        montoRecibido: null,
+        detalle: { ...detalle, motivo_tecnico: 'transaction_amount_invalido' },
+      });
+      return { confirmed: false, incident: true, paymentId };
+    }
+
+    if (!externalReference) {
+      await this.registrarIncidencia({
+        paymentId,
+        codigo: 'referencia_invalida',
+        montoRecibido,
+        detalle: { ...detalle, motivo_tecnico: 'external_reference_ausente' },
+      });
+      return { confirmed: false, incident: true, paymentId };
+    }
+
+    if (externalReference.startsWith('checkout:')) {
+      const checkoutId = this.checkoutIdDesdeReferencia(externalReference);
+
+      if (!checkoutId) {
+        await this.registrarIncidencia({
+          paymentId,
+          codigo: 'referencia_invalida',
+          montoRecibido,
+          detalle: { ...detalle, motivo_tecnico: 'checkout_id_invalido' },
+        });
+        return { confirmed: false, incident: true, paymentId };
       }
 
-      await this.db('pagos')
-        .where({ preference_id: preferenceId })
-        .update({
-          estado: payment.status === 'rejected' ? 'rechazado' : 'pendiente',
-        });
-
-      return { status: payment.status };
-    }
-
-    if (
-      typeof payment.external_reference !== 'string' ||
-      payment.external_reference.length === 0
-    ) {
-      this.logger.warn(
-        `Pago MP aprobado ${paymentId} sin external_reference valido. Se omite procesamiento.`,
+      return this.conciliarCheckoutDurable(
+        paymentId,
+        checkoutId,
+        montoRecibido,
+        montoRecibidoCentavos,
+        detalle,
       );
-
-      return { skipped: true, reason: 'invalid_external_reference' };
     }
 
-    const transactionAmount = Number(payment.transaction_amount);
-
-    if (!Number.isFinite(transactionAmount) || transactionAmount <= 0) {
-      this.logger.warn(
-        `Pago MP aprobado ${paymentId} con transaction_amount invalido. Se omite procesamiento.`,
-      );
-
-      return { skipped: true, reason: 'invalid_transaction_amount' };
+    const referenciaLegacy = this.parsearReferenciaLegacy(externalReference);
+    if (!referenciaLegacy) {
+      await this.registrarIncidencia({
+        paymentId,
+        codigo: 'referencia_invalida',
+        montoRecibido,
+        detalle: { ...detalle, motivo_tecnico: 'formato_legacy_invalido' },
+      });
+      return { confirmed: false, incident: true, paymentId };
     }
 
-    const externalReference = payment.external_reference;
+    return this.conciliarPagoLegacy(
+      paymentId,
+      referenciaLegacy,
+      montoRecibido,
+      montoRecibidoCentavos,
+      detalle,
+    );
+  }
 
-    let numeroIds: string[] = [];
-    let userId: string;
-    let sorteoId: string;
-
-    if (externalReference.startsWith('multi:')) {
-      const [, numerosRaw, usuarioRaw, sorteoRaw] = externalReference.split(':');
-      numeroIds = numerosRaw.split(',').filter(Boolean);
-      userId = usuarioRaw;
-      sorteoId = sorteoRaw;
-    } else {
-      const [numeroId, usuarioRaw, sorteoRaw] = externalReference.split(':');
-      numeroIds = [numeroId];
-      userId = usuarioRaw;
-      sorteoId = sorteoRaw;
-    }
-
+  private async conciliarCheckoutDurable(
+    paymentId: string,
+    checkoutId: string,
+    montoRecibido: string,
+    montoRecibidoCentavos: bigint,
+    detalle: Record<string, unknown>,
+  ) {
     const auditLogs: any[] = [];
-    let compraConfirmada = false;
+    const redisIds: string[] = [];
 
     try {
-      await this.db.transaction(async (trx) => {
-        const numeros = await trx('numeros')
-          .whereIn('id', numeroIds)
-          .where({
-            estado: 'reservado',
-            reservado_por: userId,
-            sorteo_id: sorteoId,
-          })
+      const resultado = await this.db.transaction(async (trx) => {
+        const pagos = await trx('pagos')
+          .where({ checkout_id: checkoutId })
+          .orderBy('numero_id', 'asc')
           .forUpdate();
 
-        if (numeros.length !== numeroIds.length) {
-          this.logger.warn(
-            `Uno o mas numeros no disponibles para pago ${paymentId}. No se confirma la compra.`,
+        if (pagos.length === 0) {
+          await this.registrarIncidencia({
+            paymentId,
+            checkoutId,
+            codigo: 'checkout_no_encontrado',
+            montoRecibido,
+            detalle: { ...detalle, motivo_tecnico: 'checkout_sin_pagos' },
+          }, trx);
+          return { confirmed: false, incident: true, numeroIds: [] };
+        }
+
+        const externalIdsEsperados = pagos.map((p) =>
+          pagos.length === 1 ? paymentId : `${paymentId}:${p.numero_id}`,
+        );
+        const pagosTerminales = pagos.every((p) => p.estado === 'aprobado' && p.external_id);
+
+        if (pagosTerminales) {
+          const mismoPayment = pagos.every(
+            (p, index) => p.external_id === externalIdsEsperados[index],
           );
-          return;
+          if (mismoPayment) {
+            return {
+              confirmed: pagos.every((p) => Boolean(p.participacion_id)),
+              incident: pagos.some((p) => !p.participacion_id),
+              numeroIds: pagos.map((p) => p.numero_id),
+              idempotent: true,
+            };
+          }
+
+          await this.registrarIncidencia({
+            paymentId,
+            checkoutId,
+            codigo: 'checkout_inconsistente',
+            montoRecibido,
+            detalle: { ...detalle, motivo_tecnico: 'checkout_aprobado_por_otro_payment' },
+          }, trx);
+          return {
+            confirmed: false,
+            incident: true,
+            numeroIds: pagos.map((p) => p.numero_id),
+          };
         }
 
-        const sorteo = await trx('sorteos')
-          .where({ id: sorteoId })
-          .first();
+        const userIds = new Set(pagos.map((p) => p.usuario_id));
+        const sorteoIds = new Set(pagos.map((p) => p.sorteo_id));
+        const numeroIds = pagos.map((p) => p.numero_id);
+        const numeroIdsUnicos = new Set(numeroIds);
+        const preferenceIds = new Set(
+          pagos.map((p) => p.preference_id).filter((id) => Boolean(id)),
+        );
+        const tienePreferenceNula = pagos.some((p) => !p.preference_id);
+        const checkoutInconsistente =
+          userIds.size !== 1 ||
+          sorteoIds.size !== 1 ||
+          !pagos[0].sorteo_id ||
+          numeroIdsUnicos.size !== pagos.length ||
+          preferenceIds.size > 1 ||
+          (preferenceIds.size === 1 && tienePreferenceNula);
 
+        if (checkoutInconsistente) {
+          await this.marcarPagosAprobados(trx, pagos, paymentId, detalle);
+          await this.registrarIncidencia({
+            paymentId,
+            checkoutId,
+            preferenceId: preferenceIds.size === 1 ? String([...preferenceIds][0]) : null,
+            codigo: preferenceIds.size > 1 || (preferenceIds.size === 1 && tienePreferenceNula)
+              ? 'preference_no_coincide'
+              : 'checkout_inconsistente',
+            montoRecibido,
+            detalle: { ...detalle, motivo_tecnico: 'filas_checkout_inconsistentes' },
+          }, trx);
+          return { confirmed: false, incident: true, numeroIds };
+        }
+
+        if (detalle.currency_id !== 'ARS') {
+          await this.marcarPagosAprobados(trx, pagos, paymentId, detalle);
+          await this.registrarIncidencia({
+            paymentId,
+            checkoutId,
+            preferenceId: preferenceIds.size === 1 ? String([...preferenceIds][0]) : null,
+            codigo: 'monto_no_coincide',
+            montoRecibido,
+            detalle: { ...detalle, motivo_tecnico: 'currency_id_distinta' },
+          }, trx);
+          return { confirmed: false, incident: true, numeroIds };
+        }
+
+        const montoEsperadoCentavos = pagos.reduce<bigint | null>((total, pago) => {
+          const centavos = this.montoACentavos(pago.monto);
+          return total === null || centavos === null ? null : total + centavos;
+        }, 0n);
+
+        if (montoEsperadoCentavos === null || montoEsperadoCentavos !== montoRecibidoCentavos) {
+          await this.marcarPagosAprobados(trx, pagos, paymentId, detalle);
+          await this.registrarIncidencia({
+            paymentId,
+            checkoutId,
+            preferenceId: preferenceIds.size === 1 ? String([...preferenceIds][0]) : null,
+            codigo: 'monto_no_coincide',
+            montoRecibido,
+            detalle: { ...detalle, motivo_tecnico: 'total_checkout_distinto' },
+          }, trx);
+          return { confirmed: false, incident: true, numeroIds };
+        }
+
+        const numeros = await trx('numeros')
+          .whereIn('id', numeroIds)
+          .orderBy('id', 'asc')
+          .forUpdate();
+        const participaciones = await trx('participaciones')
+          .whereIn('numero_id', numeroIds)
+          .select('numero_id');
+        const conParticipacion = new Set(participaciones.map((p) => p.numero_id));
+        const numerosPorId = new Map(numeros.map((numero) => [numero.id, numero]));
+        const userId = String([...userIds][0]);
+        const sorteoId = String([...sorteoIds][0]);
+        const conflictivos = numeroIds.filter((numeroId) => {
+          const numero = numerosPorId.get(numeroId);
+          if (!numero || numero.sorteo_id !== sorteoId || conParticipacion.has(numeroId)) return true;
+          return numero.estado !== 'libre' && !(
+            numero.estado === 'reservado' && numero.reservado_por === userId
+          );
+        });
+
+        if (conflictivos.length > 0) {
+          await this.marcarPagosAprobados(trx, pagos, paymentId, detalle);
+          await this.registrarIncidencia({
+            paymentId,
+            checkoutId,
+            preferenceId: preferenceIds.size === 1 ? String([...preferenceIds][0]) : null,
+            codigo: 'numero_no_asignable',
+            montoRecibido,
+            detalle: {
+              ...detalle,
+              numeroIds_conflictivos: conflictivos,
+              motivo_tecnico: 'asignacion_atomica_imposible',
+            },
+          }, trx);
+          return { confirmed: false, incident: true, numeroIds };
+        }
+
+        const sorteo = await trx('sorteos').where({ id: sorteoId }).first();
         if (!sorteo) {
-          throw new NotFoundException('Sorteo no encontrado');
+          await this.marcarPagosAprobados(trx, pagos, paymentId, detalle);
+          await this.registrarIncidencia({
+            paymentId,
+            checkoutId,
+            codigo: 'checkout_inconsistente',
+            montoRecibido,
+            detalle: { ...detalle, motivo_tecnico: 'sorteo_inexistente' },
+          }, trx);
+          return { confirmed: false, incident: true, numeroIds };
         }
 
-        const montoPorNumero = transactionAmount / numeroIds.length;
-
-        for (const numero of numeros) {
+        for (const pago of pagos) {
+          const numero = numerosPorId.get(pago.numero_id)!;
           await trx('numeros').where({ id: numero.id }).update({
             estado: 'vendido',
             reservado_por: null,
             reservado_hasta: null,
           });
 
-          const comprobanteCodigo = `SOR-${new Date().getFullYear()}-${String(paymentId).slice(-10)}-${String(numero.id).slice(0, 6).toUpperCase()}`;
-          const comprobanteEmitidoAt = new Date();
+          const [participacion] = await trx('participaciones').insert({
+            usuario_id: userId,
+            numero_id: numero.id,
+            sorteo_id: sorteoId,
+            monto_pagado: pago.monto,
+            comprobante_codigo: this.codigoComprobante(paymentId, numero.id),
+            comprobante_emitido_at: new Date(),
+          }).returning('*');
+          const externalId = pagos.length === 1 ? paymentId : `${paymentId}:${numero.id}`;
 
+          await trx('pagos').where({ id: pago.id }).update({
+            participacion_id: participacion.id,
+            external_id: externalId,
+            estado: 'aprobado',
+            webhook_payload: detalle,
+            procesado_at: new Date(),
+          });
+
+          redisIds.push(numero.id);
+          auditLogs.push(this.auditPagoAprobado({
+            paymentId,
+            preferenceId: pago.preference_id,
+            externalId,
+            userId,
+            sorteo,
+            numero,
+            participacion,
+            monto: pago.monto,
+          }));
+        }
+
+        return { confirmed: true, incident: false, numeroIds };
+      });
+
+      for (const numeroId of redisIds) await this.redis.del(`reserva:${numeroId}`);
+      for (const log of auditLogs) await this.auditService.registrar(log);
+
+      return { ...resultado, paymentId };
+    } catch (error: any) {
+      return this.resolverErrorConciliacion(paymentId, montoRecibido, detalle, error, checkoutId);
+    }
+  }
+
+  private async conciliarPagoLegacy(
+    paymentId: string,
+    referencia: { numeroIds: string[]; userId: string; sorteoId: string },
+    montoRecibido: string,
+    montoRecibidoCentavos: bigint,
+    detalle: Record<string, unknown>,
+  ) {
+    const { numeroIds, userId, sorteoId } = referencia;
+    const auditLogs: any[] = [];
+    const redisIds: string[] = [];
+
+    if (montoRecibidoCentavos % BigInt(numeroIds.length) !== 0n) {
+      await this.registrarIncidencia({
+        paymentId,
+        codigo: 'monto_no_coincide',
+        montoRecibido,
+        detalle: { ...detalle, motivo_tecnico: 'monto_legacy_no_divisible' },
+      });
+      return { confirmed: false, incident: true, paymentId, numeroIds };
+    }
+
+    try {
+      const resultado = await this.db.transaction(async (trx) => {
+        const numeros = await trx('numeros')
+          .whereIn('id', numeroIds)
+          .orderBy('id', 'asc')
+          .forUpdate();
+        const participaciones = await trx('participaciones')
+          .whereIn('numero_id', numeroIds)
+          .select('numero_id');
+        const conParticipacion = new Set(participaciones.map((p) => p.numero_id));
+        const numerosPorId = new Map(numeros.map((numero) => [numero.id, numero]));
+        const conflictivos = numeroIds.filter((numeroId) => {
+          const numero = numerosPorId.get(numeroId);
+          if (!numero || numero.sorteo_id !== sorteoId || conParticipacion.has(numeroId)) return true;
+          return numero.estado !== 'libre' && !(
+            numero.estado === 'reservado' && numero.reservado_por === userId
+          );
+        });
+
+        if (conflictivos.length > 0) {
+          await this.registrarIncidencia({
+            paymentId,
+            codigo: 'numero_no_asignable',
+            montoRecibido,
+            detalle: {
+              ...detalle,
+              numeroIds_conflictivos: conflictivos,
+              motivo_tecnico: 'asignacion_legacy_imposible',
+            },
+          }, trx);
+          return { confirmed: false, incident: true };
+        }
+
+        const [sorteo, user] = await Promise.all([
+          trx('sorteos').where({ id: sorteoId }).first(),
+          trx('users').where({ id: userId }).first('id'),
+        ]);
+        if (!sorteo || !user) {
+          await this.registrarIncidencia({
+            paymentId,
+            codigo: 'checkout_inconsistente',
+            montoRecibido,
+            detalle: { ...detalle, motivo_tecnico: 'entidad_legacy_inexistente' },
+          }, trx);
+          return { confirmed: false, incident: true };
+        }
+
+        const montoPorNumero = this.centavosADecimal(
+          montoRecibidoCentavos / BigInt(numeroIds.length),
+        );
+
+        for (const numeroId of numeroIds) {
+          const numero = numerosPorId.get(numeroId)!;
+          await trx('numeros').where({ id: numero.id }).update({
+            estado: 'vendido',
+            reservado_por: null,
+            reservado_hasta: null,
+          });
           const [participacion] = await trx('participaciones').insert({
             usuario_id: userId,
             numero_id: numero.id,
             sorteo_id: sorteoId,
             monto_pagado: montoPorNumero,
-            comprobante_codigo: comprobanteCodigo,
-            comprobante_emitido_at: comprobanteEmitidoAt,
+            comprobante_codigo: this.codigoComprobante(paymentId, numero.id),
+            comprobante_emitido_at: new Date(),
           }).returning('*');
+          const externalId = numeroIds.length === 1 ? paymentId : `${paymentId}:${numero.id}`;
 
-          const externalId =
-            numeroIds.length === 1
-              ? String(paymentId)
-              : `${paymentId}:${numero.id}`;
-
-          let updated = 0;
-
-          if (preferenceId) {
-            updated = await trx('pagos')
-              .where({
-                preference_id: preferenceId,
-                numero_id: numero.id,
-                usuario_id: userId,
-              })
-              .update({
-              participacion_id: participacion.id,
-              external_id: externalId,
-              monto: montoPorNumero,
-              estado: 'aprobado',
-              webhook_payload: payment,
-              procesado_at: new Date(),
-              });
-          }
-
-          if (!updated) {
-            await trx('pagos').insert({
-              participacion_id: participacion.id,
-              usuario_id: userId,
-              numero_id: numero.id,
-              proveedor: 'mercadopago',
-              preference_id: preferenceId,
-              external_id: externalId,
-              monto: montoPorNumero,
-              estado: 'aprobado',
-              webhook_payload: payment,
-              procesado_at: new Date(),
-            });
-          }
-
-          await this.redis.del(`reserva:${numero.id}`);
-
-          auditLogs.push({
-            actorId: userId,
-            actorRole: 'participante',
-            accion: 'pago.mercadopago.aprobado',
-            entidadTipo: 'participacion',
-            entidadId: participacion.id,
-            comercioId: sorteo.comercio_id,
-            sorteoId,
-            metadata: {
-              paymentId: String(paymentId),
-              preferenceId: payment.preference_id,
-              externalId,
-              sorteoNombre: sorteo.nombre,
-              numeroId: numero.id,
-              numeroVisible: numero.numero_visible,
-              participacionId: participacion.id,
-              monto: montoPorNumero,
-              proveedor: 'mercadopago',
-              estado: 'aprobado',
-              paymentStatus: payment.status,
-              paymentMethodId: payment.payment_method_id || null,
-            },
+          await trx('pagos').insert({
+            participacion_id: participacion.id,
+            usuario_id: userId,
+            numero_id: numero.id,
+            sorteo_id: sorteoId,
+            proveedor: 'mercadopago',
+            preference_id: null,
+            external_id: externalId,
+            monto: montoPorNumero,
+            estado: 'aprobado',
+            webhook_payload: detalle,
+            procesado_at: new Date(),
           });
+
+          redisIds.push(numero.id);
+          auditLogs.push(this.auditPagoAprobado({
+            paymentId,
+            preferenceId: null,
+            externalId,
+            userId,
+            sorteo,
+            numero,
+            participacion,
+            monto: montoPorNumero,
+          }));
         }
 
-        compraConfirmada = true;
+        return { confirmed: true, incident: false };
       });
-    } catch (err: any) {
-      if (err.code === '23505') {
-        this.logger.warn(`Pago duplicado capturado por DB: ${paymentId}`);
-        return { skipped: true, reason: 'duplicate' };
-      }
 
-      throw err;
+      for (const numeroId of redisIds) await this.redis.del(`reserva:${numeroId}`);
+      for (const log of auditLogs) await this.auditService.registrar(log);
+
+      return { ...resultado, paymentId, numeroIds };
+    } catch (error: any) {
+      return this.resolverErrorConciliacion(paymentId, montoRecibido, detalle, error);
+    }
+  }
+
+  private async marcarPagosAprobados(
+    trx: Knex.Transaction,
+    pagos: any[],
+    paymentId: string,
+    detalle: Record<string, unknown>,
+  ) {
+    for (const pago of pagos) {
+      const externalId = pagos.length === 1 ? paymentId : `${paymentId}:${pago.numero_id}`;
+      await trx('pagos').where({ id: pago.id }).update({
+        external_id: externalId,
+        estado: 'aprobado',
+        webhook_payload: detalle,
+        procesado_at: new Date(),
+      });
+    }
+  }
+
+  private async registrarIncidencia(
+    input: {
+      paymentId: string;
+      codigo: string;
+      montoRecibido: string | null;
+      detalle: Record<string, unknown>;
+      checkoutId?: string | null;
+      preferenceId?: string | null;
+    },
+    db: Knex | Knex.Transaction = this.db,
+  ) {
+    await db('pagos_incidencias')
+      .insert({
+        payment_external_id: input.paymentId,
+        preference_id: input.preferenceId ?? null,
+        checkout_id: input.checkoutId ?? null,
+        codigo: input.codigo,
+        estado: 'abierta',
+        monto_recibido: input.montoRecibido,
+        detalle: input.detalle,
+      })
+      .onConflict('payment_external_id')
+      .ignore();
+  }
+
+  private async resolverErrorConciliacion(
+    paymentId: string,
+    montoRecibido: string,
+    detalle: Record<string, unknown>,
+    error: any,
+    checkoutId?: string,
+  ) {
+    const pagoExistente = await this.db('pagos')
+      .where('external_id', paymentId)
+      .orWhere('external_id', 'like', `${paymentId}:%`)
+      .first();
+    const incidenciaExistente = await this.db('pagos_incidencias')
+      .where({ payment_external_id: paymentId })
+      .first();
+
+    if (pagoExistente?.estado === 'aprobado' || incidenciaExistente) {
+      return {
+        confirmed: Boolean(pagoExistente?.participacion_id),
+        incident: Boolean(incidenciaExistente),
+        paymentId,
+        idempotent: true,
+      };
     }
 
-    for (const log of auditLogs) {
-      await this.auditService.registrar(log);
-    }
-
-    return {
-      confirmed: compraConfirmada,
+    this.logger.error(
+      `Error conciliando pago MP ${paymentId}: ${error?.message || 'error desconocido'}`,
+    );
+    await this.registrarIncidencia({
       paymentId,
-      numeroIds,
+      checkoutId: checkoutId ?? null,
+      codigo: 'checkout_inconsistente',
+      montoRecibido,
+      detalle: { ...detalle, motivo_tecnico: 'error_transaccional_conciliacion' },
+    });
+    return { confirmed: false, incident: true, paymentId };
+  }
+
+  private checkoutIdDesdeReferencia(externalReference: string) {
+    const match = /^checkout:([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i
+      .exec(externalReference);
+    return match?.[1] ?? null;
+  }
+
+  private parsearReferenciaLegacy(externalReference: string) {
+    if (externalReference.startsWith('multi:')) {
+      const parts = externalReference.split(':');
+      if (parts.length !== 4) return null;
+      const numeroIds = parts[1].split(',').filter(Boolean);
+      if (numeroIds.length === 0 || new Set(numeroIds).size !== numeroIds.length) return null;
+      return { numeroIds, userId: parts[2], sorteoId: parts[3] };
+    }
+
+    const parts = externalReference.split(':');
+    if (parts.length !== 3 || parts.some((part) => !part)) return null;
+    return { numeroIds: [parts[0]], userId: parts[1], sorteoId: parts[2] };
+  }
+
+  private montoACentavos(value: unknown): bigint | null {
+    const raw = String(value ?? '').trim();
+    const match = /^(\d+)(?:\.(\d{1,2}))?$/.exec(raw);
+    if (!match) return null;
+    return BigInt(match[1]) * 100n + BigInt((match[2] ?? '').padEnd(2, '0'));
+  }
+
+  private montoDecimalSeguro(value: unknown): string | null {
+    const centavos = this.montoACentavos(value);
+    return centavos === null ? null : this.centavosADecimal(centavos);
+  }
+
+  private centavosADecimal(centavos: bigint) {
+    return `${centavos / 100n}.${String(centavos % 100n).padStart(2, '0')}`;
+  }
+
+  private detalleFinancieroSeguro(payment: any): Record<string, unknown> {
+    return {
+      status: typeof payment.status === 'string' ? payment.status : null,
+      status_detail: typeof payment.status_detail === 'string' ? payment.status_detail : null,
+      external_reference: typeof payment.external_reference === 'string'
+        ? payment.external_reference
+        : null,
+      transaction_amount: this.montoDecimalSeguro(payment.transaction_amount),
+      currency_id: typeof payment.currency_id === 'string' ? payment.currency_id : null,
+    };
+  }
+
+  private codigoComprobante(paymentId: string, numeroId: string) {
+    return `SOR-${new Date().getFullYear()}-${paymentId.slice(-10)}-${numeroId.slice(0, 6).toUpperCase()}`;
+  }
+
+  private auditPagoAprobado(input: any) {
+    return {
+      actorId: input.userId,
+      actorRole: 'participante',
+      accion: 'pago.mercadopago.aprobado',
+      entidadTipo: 'participacion',
+      entidadId: input.participacion.id,
+      comercioId: input.sorteo.comercio_id,
+      sorteoId: input.sorteo.id,
+      metadata: {
+        paymentId: input.paymentId,
+        preferenceId: input.preferenceId,
+        externalId: input.externalId,
+        sorteoNombre: input.sorteo.nombre,
+        numeroId: input.numero.id,
+        numeroVisible: input.numero.numero_visible,
+        participacionId: input.participacion.id,
+        monto: input.monto,
+        proveedor: 'mercadopago',
+        estado: 'aprobado',
+      },
     };
   }
 
