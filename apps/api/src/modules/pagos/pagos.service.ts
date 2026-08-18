@@ -27,6 +27,19 @@ export class PagosService {
     await this.liberarReservasVencidas(sorteoId);
 
     return this.db.transaction(async (trx) => {
+      const sorteo = await trx('sorteos')
+        .where({ id: sorteoId })
+        .forUpdate()
+        .first();
+
+      if (!sorteo) throw new NotFoundException('Sorteo no encontrado');
+      if (sorteo.estado !== 'activo') {
+        throw new BadRequestException({
+          code: 'SORTEO_NO_ACTIVO',
+          message: 'El sorteo no está disponible',
+        });
+      }
+
       const numero = await trx('numeros')
         .where({ id: numeroId, sorteo_id: sorteoId, estado: 'libre' })
         .forUpdate()
@@ -37,6 +50,18 @@ export class PagosService {
           code: 'NUMERO_NO_DISPONIBLE',
           message: 'Este numero ya fue tomado. Elegí otro.',
           numeroId,
+        });
+      }
+
+      const comercio = await trx('comercios')
+        .where({ id: sorteo.comercio_id })
+        .forUpdate()
+        .first();
+
+      if (!comercio || comercio.estado !== 'aprobado') {
+        throw new BadRequestException({
+          code: 'COMERCIO_NO_APROBADO',
+          message: 'El sorteo no está disponible',
         });
       }
 
@@ -160,7 +185,30 @@ if (frontendUrl && !frontendUrl.includes('localhost')) {
   preferenceBody.auto_return = 'approved';
 }
 
-        const mpResponse = await fetch(
+    const disponibilidad = await this.db('sorteos')
+      .leftJoin('comercios', 'sorteos.comercio_id', 'comercios.id')
+      .where('sorteos.id', sorteoId)
+      .select(
+        'sorteos.estado as sorteo_estado',
+        'comercios.estado as comercio_estado',
+      )
+      .first();
+
+    if (!disponibilidad) throw new NotFoundException('Sorteo no encontrado');
+    if (disponibilidad.sorteo_estado !== 'activo') {
+      throw new BadRequestException({
+        code: 'SORTEO_NO_ACTIVO',
+        message: 'El sorteo no está disponible',
+      });
+    }
+    if (disponibilidad.comercio_estado !== 'aprobado') {
+      throw new BadRequestException({
+        code: 'COMERCIO_NO_APROBADO',
+        message: 'El sorteo no está disponible',
+      });
+    }
+
+    const mpResponse = await fetch(
       'https://api.mercadopago.com/checkout/preferences',
       {
         method: 'POST',
