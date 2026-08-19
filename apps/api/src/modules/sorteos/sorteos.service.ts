@@ -213,9 +213,11 @@ return sorteo;
     if (sorteo.estado !== 'activo') {
       throw new BadRequestException('Solo se pueden realizar sorteos activos');
     }
-   // if (new Date(sorteo.fecha_sorteo) > new Date()) {
-//   throw new BadRequestException('Todavia no llego la fecha del sorteo');
-// }
+    if (Date.now() < new Date(sorteo.fecha_sorteo).getTime()) {
+      throw new BadRequestException(
+        'La campaña todavía no alcanzó la fecha prevista para su selección.',
+      );
+    }
 
     // Solo chances de numeros VENDIDOS participan
     const chancesSoldas = await this.db('chances_internas')
