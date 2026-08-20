@@ -254,7 +254,7 @@ export default function MisSorteosPage() {
                         </Button>
                       )}
 
-                      {(s.estado === 'activo' || s.estado === 'finalizado') && (
+                      {s.estado === 'activo' && (
                         <Link
                           href={`/sorteos/${s.id}`}
                           className="inline-flex h-11 w-full items-center justify-center gap-activa-8 rounded-activa-sm border border-action-secondary bg-background-surface px-activa-16 text-sm font-semibold text-action-secondary transition-colors duration-fast ease-activa hover:bg-activa-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus focus-visible:ring-offset-2 sm:w-auto lg:w-full"
