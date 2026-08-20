@@ -32,6 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
   const [reenviandoEmail, setReenviandoEmail] = useState(false);
   const refreshSignOutStarted = useRef(false);
+  const logoutStarted = useRef(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login');
@@ -78,6 +79,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       toast.error(err.message || 'No se pudo reenviar el email de verificación.');
     } finally {
       setReenviandoEmail(false);
+    }
+  };
+
+  const cerrarSesion = async () => {
+    if (logoutStarted.current) return;
+
+    logoutStarted.current = true;
+
+    try {
+      await authApi.logout();
+    } catch {
+      // La sesión local debe cerrarse incluso si el backend no responde.
+    } finally {
+      await signOut({ callbackUrl: '/' });
     }
   };
 
@@ -168,7 +183,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           variant="ghost"
           className="w-full justify-start"
           leftIcon={<ActivaIcon name="logout" size={18} />}
-          onClick={() => signOut({ callbackUrl: '/' })}
+          onClick={() => void cerrarSesion()}
         >
           Cerrar sesión
         </Button>
