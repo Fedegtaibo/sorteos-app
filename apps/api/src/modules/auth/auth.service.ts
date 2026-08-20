@@ -6,12 +6,24 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Knex } from 'knex';
 import * as bcrypt from 'bcrypt';
-import { randomBytes } from 'crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+} from 'crypto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthDto } from './dto/google-auth.dto';
 import { UpdatePerfilParticipanteDto } from './dto/update-perfil-participante.dto';
 import { EmailService } from '../email/email.service';
+
+const REFRESH_ROTATION_GRACE_MS = 10_000;
+
+type TokenPair = {
+  accessToken: string;
+  refreshToken: string;
+};
 
 @Injectable()
 export class AuthService {
@@ -246,7 +258,13 @@ export class AuthService {
     const tokens = await this.generateTokens(user);
 
     const refreshHash = await bcrypt.hash(tokens.refreshToken, 10);
-    await this.db('users').where({ id: user.id }).update({ refresh_token_hash: refreshHash });
+    await this.db('users').where({ id: user.id }).update({
+      refresh_token_hash: refreshHash,
+      previous_refresh_token_hash: null,
+      previous_refresh_valid_until: null,
+      refresh_rotation_result_encrypted: null,
+      refresh_rotation_result_valid_until: null,
+    });
 
     return {
       user: {
@@ -388,7 +406,13 @@ export class AuthService {
 
     // Guardar hash del refresh token para invalidacion
     const refreshHash = await bcrypt.hash(tokens.refreshToken, 10);
-    await this.db('users').where({ id: user.id }).update({ refresh_token_hash: refreshHash });
+    await this.db('users').where({ id: user.id }).update({
+      refresh_token_hash: refreshHash,
+      previous_refresh_token_hash: null,
+      previous_refresh_valid_until: null,
+      refresh_rotation_result_encrypted: null,
+      refresh_rotation_result_valid_until: null,
+    });
 
     return {
       user: { id: user.id, email: user.email, role: user.role, email_verified: user.email_verified },
@@ -397,29 +421,85 @@ export class AuthService {
   }
 
   async refresh(userId: string, refreshToken: string) {
-    const user = await this.db('users')
-      .where({ id: userId })
-      .first(['id', 'email', 'role', 'is_blocked', 'refresh_token_hash']);
+    return this.db.transaction(async (trx) => {
+      const user = await trx('users')
+        .where({ id: userId })
+        .forUpdate()
+        .first([
+          'id',
+          'email',
+          'role',
+          'is_blocked',
+          'refresh_token_hash',
+          'previous_refresh_token_hash',
+          'previous_refresh_valid_until',
+          'refresh_rotation_result_encrypted',
+          'refresh_rotation_result_valid_until',
+        ]);
 
-    if (!user || user.is_blocked || !user.refresh_token_hash) {
-      throw new UnauthorizedException();
-    }
+      if (!user || user.is_blocked || !user.refresh_token_hash) {
+        throw new UnauthorizedException();
+      }
 
-    const tokenOk = await bcrypt.compare(refreshToken, user.refresh_token_hash);
-    if (!tokenOk) throw new UnauthorizedException('Refresh token invalido');
+      const matchesCurrent = await bcrypt.compare(
+        refreshToken,
+        user.refresh_token_hash,
+      );
 
-    const tokens = await this.generateTokens(user);
+      if (matchesCurrent) {
+        const tokens = await this.generateTokens(user);
+        const newHash = await bcrypt.hash(tokens.refreshToken, 10);
+        const encryptedResult = this.encryptTokenPair(tokens);
+        const validUntil = new Date(Date.now() + REFRESH_ROTATION_GRACE_MS);
 
-    // Rotar el refresh token (cada uso genera uno nuevo)
-    const newHash = await bcrypt.hash(tokens.refreshToken, 10);
-    await this.db('users').where({ id: user.id }).update({ refresh_token_hash: newHash });
+        await trx('users').where({ id: user.id }).update({
+          previous_refresh_token_hash: user.refresh_token_hash,
+          previous_refresh_valid_until: validUntil,
+          refresh_token_hash: newHash,
+          refresh_rotation_result_encrypted: encryptedResult,
+          refresh_rotation_result_valid_until: validUntil,
+        });
 
-    return tokens;
+        return tokens;
+      }
+
+      const now = Date.now();
+      const previousIsUsable =
+        Boolean(user.previous_refresh_token_hash) &&
+        Boolean(user.refresh_rotation_result_encrypted) &&
+        new Date(user.previous_refresh_valid_until).getTime() > now &&
+        new Date(user.refresh_rotation_result_valid_until).getTime() > now;
+
+      if (!previousIsUsable) {
+        throw new UnauthorizedException('Refresh token invalido');
+      }
+
+      const matchesPrevious = await bcrypt.compare(
+        refreshToken,
+        user.previous_refresh_token_hash,
+      );
+
+      if (!matchesPrevious) {
+        throw new UnauthorizedException('Refresh token invalido');
+      }
+
+      try {
+        return this.decryptTokenPair(user.refresh_rotation_result_encrypted);
+      } catch {
+        throw new UnauthorizedException('Refresh token invalido');
+      }
+    });
   }
 
   async logout(userId: string) {
     // Invalidar el refresh token borrando el hash
-    await this.db('users').where({ id: userId }).update({ refresh_token_hash: null });
+    await this.db('users').where({ id: userId }).update({
+      refresh_token_hash: null,
+      previous_refresh_token_hash: null,
+      previous_refresh_valid_until: null,
+      refresh_rotation_result_encrypted: null,
+      refresh_rotation_result_valid_until: null,
+    });
     return { mensaje: 'Sesion cerrada correctamente' };
   }
 
@@ -537,5 +617,71 @@ export class AuthService {
     ]);
 
     return { accessToken, refreshToken };
+  }
+
+  private encryptionKey() {
+    return createHash('sha256')
+      .update(this.config.getOrThrow<string>('ENCRYPTION_KEY'))
+      .digest();
+  }
+
+  private encryptTokenPair(tokens: TokenPair) {
+    const iv = randomBytes(12);
+    const cipher = createCipheriv('aes-256-gcm', this.encryptionKey(), iv);
+    const ciphertext = Buffer.concat([
+      cipher.update(JSON.stringify(tokens), 'utf8'),
+      cipher.final(),
+    ]);
+    const authenticationTag = cipher.getAuthTag();
+
+    return [
+      'v1',
+      iv.toString('base64url'),
+      authenticationTag.toString('base64url'),
+      ciphertext.toString('base64url'),
+    ].join(':');
+  }
+
+  private decryptTokenPair(encrypted: string): TokenPair {
+    const [version, ivRaw, authenticationTagRaw, ciphertextRaw, extra] =
+      encrypted.split(':');
+
+    if (
+      version !== 'v1' ||
+      !ivRaw ||
+      !authenticationTagRaw ||
+      !ciphertextRaw ||
+      extra !== undefined
+    ) {
+      throw new Error('Invalid encrypted token result');
+    }
+
+    const iv = Buffer.from(ivRaw, 'base64url');
+    const authenticationTag = Buffer.from(authenticationTagRaw, 'base64url');
+    const ciphertext = Buffer.from(ciphertextRaw, 'base64url');
+
+    if (iv.length !== 12 || authenticationTag.length !== 16) {
+      throw new Error('Invalid encrypted token result');
+    }
+
+    const decipher = createDecipheriv('aes-256-gcm', this.encryptionKey(), iv);
+    decipher.setAuthTag(authenticationTag);
+    const plaintext = Buffer.concat([
+      decipher.update(ciphertext),
+      decipher.final(),
+    ]).toString('utf8');
+    const parsed = JSON.parse(plaintext) as Partial<TokenPair>;
+
+    if (
+      typeof parsed.accessToken !== 'string' ||
+      typeof parsed.refreshToken !== 'string'
+    ) {
+      throw new Error('Invalid encrypted token result');
+    }
+
+    return {
+      accessToken: parsed.accessToken,
+      refreshToken: parsed.refreshToken,
+    };
   }
 }
