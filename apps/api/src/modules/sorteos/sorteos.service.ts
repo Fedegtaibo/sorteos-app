@@ -23,8 +23,10 @@ export class SorteosService {
     const limit = Math.min(filtros.limit || 20, 100);
     const offset = (page - 1) * limit;
 
-    let query = this.db('sorteos')
+    const query = this.db('sorteos')
       .join('comercios', 'sorteos.comercio_id', 'comercios.id')
+      .where('sorteos.estado', 'activo')
+      .where('comercios.estado', 'aprobado')
       .select(
   'sorteos.id',
   'sorteos.nombre',
@@ -37,12 +39,12 @@ export class SorteosService {
   'comercios.id as comercio_id',
   'comercios.razon_social as comercio_nombre',
 );
-    if (filtros.estado) query = query.where('sorteos.estado', filtros.estado);
-    else query = query.whereIn('sorteos.estado', ['activo']);
 
     const [{ count }] = await this.db('sorteos')
+      .join('comercios', 'sorteos.comercio_id', 'comercios.id')
       .count('* as count')
-      .whereIn('estado', filtros.estado ? [filtros.estado] : ['activo']);
+      .where('sorteos.estado', 'activo')
+      .where('comercios.estado', 'aprobado');
 
     const sorteos = await query.orderBy('sorteos.fecha_sorteo', 'asc').limit(limit).offset(offset);
 
@@ -64,15 +66,17 @@ export class SorteosService {
   }
 
   async obtener(id: string) {
-    await this.liberarReservasVencidas(id);
-
     const sorteo = await this.db('sorteos')
       .join('comercios', 'sorteos.comercio_id', 'comercios.id')
       .where('sorteos.id', id)
+      .where('sorteos.estado', 'activo')
+      .where('comercios.estado', 'aprobado')
       .select('sorteos.*', 'comercios.razon_social as comercio_nombre')
       .first();
 
     if (!sorteo) throw new NotFoundException({ code: 'SORTEO_NO_ENCONTRADO', message: 'Sorteo no encontrado' });
+
+    await this.liberarReservasVencidas(id);
 
     const stats = await this.db('numeros')
       .where({ sorteo_id: id })
@@ -93,10 +97,15 @@ export class SorteosService {
   }
 
   async obtenerNumeros(sorteoId: string) {
-    await this.liberarReservasVencidas(sorteoId);
-
-    const sorteo = await this.db('sorteos').where({ id: sorteoId }).first('id', 'estado');
+    const sorteo = await this.db('sorteos')
+      .join('comercios', 'sorteos.comercio_id', 'comercios.id')
+      .where('sorteos.id', sorteoId)
+      .where('sorteos.estado', 'activo')
+      .where('comercios.estado', 'aprobado')
+      .first('sorteos.id');
     if (!sorteo) throw new NotFoundException('Sorteo no encontrado');
+
+    await this.liberarReservasVencidas(sorteoId);
 
     return this.db('numeros')
       .where({ sorteo_id: sorteoId })
