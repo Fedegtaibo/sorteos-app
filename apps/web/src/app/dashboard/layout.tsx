@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import NotificationBell from '@/components/NotificationBell';
 import { ActivaIcon, type ActivaIconName } from '@/components/icons';
@@ -31,10 +31,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
   const [reenviandoEmail, setReenviandoEmail] = useState(false);
+  const refreshSignOutStarted = useRef(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/login');
   }, [status, router]);
+
+  useEffect(() => {
+    if (
+      session?.error === 'RefreshAccessTokenError' &&
+      !refreshSignOutStarted.current
+    ) {
+      refreshSignOutStarted.current = true;
+      void signOut({ callbackUrl: '/login' });
+    }
+  }, [session?.error]);
 
   useEffect(() => {
     setMobileMenuOpen(false);
