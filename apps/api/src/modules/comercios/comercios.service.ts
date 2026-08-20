@@ -7,6 +7,30 @@ import {
 } from '@nestjs/common';
 import { Knex } from 'knex';
 
+const COMERCIO_RESPONSE_COLUMNS = [
+  'id',
+  'user_id',
+  'razon_social',
+  'cuit',
+  'telefono',
+  'whatsapp',
+  'logo_url',
+  'portada_url',
+  'direccion',
+  'instagram',
+  'estado',
+  'comision_pct',
+  'aprobado_por',
+  'aprobado_at',
+  'motivo_rechazo',
+  'created_at',
+  'updated_at',
+];
+
+const COMERCIO_QUALIFIED_RESPONSE_COLUMNS = COMERCIO_RESPONSE_COLUMNS.map(
+  (column) => `comercios.${column}`,
+);
+
 @Injectable()
 export class ComerciosService {
   constructor(@Inject('KNEX') private readonly db: Knex) {}
@@ -188,7 +212,7 @@ sorteos: sorteos.map((s) => ({
     const comercio = await this.db('comercios')
       .join('users', 'comercios.user_id', 'users.id')
       .where('comercios.user_id', userId)
-      .select('comercios.*', 'users.email')
+      .select(...COMERCIO_QUALIFIED_RESPONSE_COLUMNS, 'users.email')
       .first();
 
     if (!comercio) {
@@ -248,7 +272,7 @@ sorteos: sorteos.map((s) => ({
           instagram: dto.instagram || null,
           estado: 'pendiente',
         })
-        .returning('*');
+        .returning(COMERCIO_RESPONSE_COLUMNS);
 
       return created;
     }
@@ -279,7 +303,7 @@ sorteos: sorteos.map((s) => ({
         direccion: dto.direccion || comercio.direccion,
         instagram: dto.instagram || comercio.instagram,
       })
-      .returning('*');
+      .returning(COMERCIO_RESPONSE_COLUMNS);
 
     return updated;
   }
@@ -466,7 +490,7 @@ sorteos: sorteos.map((s) => ({
 
     let query = this.db('comercios')
       .join('users', 'comercios.user_id', 'users.id')
-      .select('comercios.*', 'users.email');
+      .select(...COMERCIO_QUALIFIED_RESPONSE_COLUMNS, 'users.email');
 
     if (filtros.estado) {
       query = query.where('comercios.estado', filtros.estado);
@@ -508,7 +532,7 @@ sorteos: sorteos.map((s) => ({
         aprobado_por: adminId,
         aprobado_at: new Date(),
       })
-      .returning('*');
+      .returning(COMERCIO_RESPONSE_COLUMNS);
 
     return {
       comercio: updated,
@@ -523,7 +547,7 @@ sorteos: sorteos.map((s) => ({
         estado: 'rechazado',
         motivo_rechazo: motivo,
       })
-      .returning('*');
+      .returning(COMERCIO_RESPONSE_COLUMNS);
 
     return {
       comercio: updated,
@@ -577,20 +601,6 @@ sorteos: sorteos.map((s) => ({
 
     return {
       mensaje: `Comisión actualizada a ${comisionPct}%`,
-    };
-  }
-
-  async actualizarMercadoPagoToken(comercioId: string, accessToken: string) {
-    if (!accessToken || !accessToken.startsWith('APP_USR-')) {
-      throw new BadRequestException('Access Token de Mercado Pago inválido');
-    }
-
-    await this.db('comercios')
-      .where({ id: comercioId })
-      .update({ mp_access_token_enc: accessToken });
-
-    return {
-      mensaje: 'Token de Mercado Pago actualizado',
     };
   }
 

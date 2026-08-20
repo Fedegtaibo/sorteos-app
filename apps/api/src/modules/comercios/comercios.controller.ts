@@ -103,14 +103,4 @@ perfilPublico(@Param('id') id: string) {
   actualizarComision(@Param('id') id: string, @Body('comisionPct') pct: number) {
     return this.comerciosService.actualizarComision(id, pct);
   }
-  @Patch('admin/comercios/:id/mercadopago-token')
-  @UseGuards(RolesGuard)
-  @Roles('admin')
-  @ApiOperation({ summary: '[Admin] Actualizar token Mercado Pago del comercio' })
-  actualizarMercadoPagoToken(
-    @Param('id') id: string,
-    @Body('accessToken') accessToken: string,
-  ) {
-    return this.comerciosService.actualizarMercadoPagoToken(id, accessToken);
-  }
 }
