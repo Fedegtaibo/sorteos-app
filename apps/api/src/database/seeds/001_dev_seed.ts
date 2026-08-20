@@ -2,6 +2,39 @@ import type { Knex } from 'knex';
 import * as bcrypt from 'bcrypt';
 
 export async function seed(knex: Knex): Promise<void> {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('El seed de desarrollo está bloqueado en producción');
+  }
+
+  const connection = knex.client.config.connection;
+  const connectionString =
+    typeof connection === 'string'
+      ? connection
+      : connection && typeof connection === 'object'
+        ? connection.connectionString
+        : undefined;
+
+  if (typeof connectionString !== 'string') {
+    throw new Error('No se pudo validar la base de datos del seed de desarrollo');
+  }
+
+  let databaseUrl: URL;
+  try {
+    databaseUrl = new URL(connectionString);
+  } catch {
+    throw new Error('No se pudo validar la base de datos del seed de desarrollo');
+  }
+
+  const hostname = databaseUrl.hostname.replace(/^\[|\]$/g, '');
+  const databaseName = decodeURIComponent(databaseUrl.pathname.replace(/^\/+/, ''));
+  const localHosts = new Set(['localhost', '127.0.0.1', '::1']);
+
+  if (!localHosts.has(hostname) || databaseName !== 'sorteos_dev') {
+    throw new Error(
+      'El seed de desarrollo solo puede ejecutarse contra la base local sorteos_dev',
+    );
+  }
+
   // Limpiar en orden correcto (foreign keys)
   await knex('pagos').del();
   await knex('participaciones').del();
