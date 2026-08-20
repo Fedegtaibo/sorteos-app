@@ -80,7 +80,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cerrar sesion' })
-  async logout(@CurrentUser('sub') userId: string) {
+  async logout(@CurrentUser('id') userId: string) {
     return this.authService.logout(userId);
   }
 
