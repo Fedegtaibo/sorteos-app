@@ -13,6 +13,7 @@ export type PublicHeaderItem = Omit<NavigationItemProps, 'collapsed' | 'classNam
 export interface PublicHeaderProps {
   navigation: readonly PublicHeaderItem[];
   variant?: PublicHeaderVariant;
+  menuOnly?: boolean;
   logoVariant?: BrandLogoProps['variant'];
   logoHref?: BrandLogoProps['href'];
   actions?: ReactNode;
@@ -23,6 +24,7 @@ export interface PublicHeaderProps {
 export function PublicHeader({
   navigation,
   variant = 'light',
+  menuOnly = false,
   logoVariant = 'color',
   logoHref,
   actions,
@@ -45,13 +47,18 @@ export function PublicHeader({
       <div className="mx-auto flex min-h-16 w-full max-w-7xl items-center justify-between gap-activa-16 px-activa-16 sm:px-activa-24 lg:px-activa-40">
         <BrandLogo variant={logoVariant} size="md" href={logoHref} priority />
 
-        <nav aria-label="Navegación principal" className="hidden items-center gap-activa-4 md:flex">
+        <nav
+          aria-label="Navegación principal"
+          className={cn('hidden items-center gap-activa-4', !menuOnly && 'md:flex')}
+        >
           {navigation.map((item) => (
             <NavigationItem key={`${String(item.href)}-${item.label}`} {...item} className="w-auto" />
           ))}
         </nav>
 
-        <div className="hidden shrink-0 items-center gap-activa-8 md:flex">{actionSlot}</div>
+        <div className={cn('hidden shrink-0 items-center gap-activa-8', !menuOnly && 'md:flex')}>
+          {actionSlot}
+        </div>
 
         <button
           type="button"
@@ -59,7 +66,10 @@ export function PublicHeader({
           aria-expanded={menuOpen}
           aria-controls={menuId}
           onClick={() => setMenuOpen((open) => !open)}
-          className="relative flex size-11 items-center justify-center rounded-activa-sm border border-border-default bg-background-surface text-text-primary transition-colors duration-fast ease-activa hover:bg-background-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus md:hidden"
+          className={cn(
+            'relative flex size-11 items-center justify-center rounded-activa-sm border border-border-default bg-background-surface text-text-primary transition-colors duration-fast ease-activa hover:bg-background-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus',
+            !menuOnly && 'md:hidden',
+          )}
         >
           <span aria-hidden="true" className={cn('absolute h-0.5 w-5 bg-current transition-transform duration-fast ease-activa', menuOpen ? 'rotate-45' : '-translate-y-1.5')} />
           <span aria-hidden="true" className={cn('absolute h-0.5 w-5 bg-current transition-opacity duration-fast ease-activa', menuOpen && 'opacity-0')} />
@@ -70,9 +80,12 @@ export function PublicHeader({
       <div
         id={menuId}
         hidden={!menuOpen}
-        className="absolute inset-x-0 top-full border-b border-border-default bg-background-surface p-activa-16 shadow-activa-md md:hidden"
+        className={cn(
+          'absolute inset-x-0 top-full border-b border-border-default bg-background-surface p-activa-16 shadow-activa-md',
+          !menuOnly && 'md:hidden',
+        )}
       >
-        <nav aria-label="Navegación móvil" className="space-y-activa-4">
+        <nav aria-label={menuOnly ? 'Menú de navegación' : 'Navegación móvil'} className="space-y-activa-4">
           {navigation.map((item) => (
             <NavigationItem
               key={`${String(item.href)}-${item.label}`}

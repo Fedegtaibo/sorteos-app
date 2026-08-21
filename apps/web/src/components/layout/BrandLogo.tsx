@@ -4,7 +4,7 @@ import Link, { type LinkProps } from 'next/link';
 import { cn } from '@/lib/utils';
 
 export type BrandLogoVariant = 'color' | 'white' | 'symbol';
-export type BrandLogoSize = 'sm' | 'md' | 'lg';
+export type BrandLogoSize = 'sm' | 'md' | 'lg' | 'hero';
 
 export interface BrandLogoProps {
   variant?: BrandLogoVariant;
@@ -37,12 +37,14 @@ const horizontalSizeClasses: Record<BrandLogoSize, string> = {
   sm: 'w-28',
   md: 'w-36',
   lg: 'w-48',
+  hero: 'w-[min(78vw,28rem)]',
 };
 
 const symbolSizeClasses: Record<BrandLogoSize, string> = {
   sm: 'size-8',
   md: 'size-10',
   lg: 'size-12',
+  hero: 'size-24',
 };
 
 export function BrandLogo({
